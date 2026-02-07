@@ -85,7 +85,7 @@ class TypeCommand(Command):
                 
                 path_dirs = os.environ.get("PATH").split(":")
         
-                found = File.find_exec(path_dirs)
+                found = File.find_exec(path_dirs, arg)
                 
                 if found != None:
                     output = arg + " is " + found.full_path()
