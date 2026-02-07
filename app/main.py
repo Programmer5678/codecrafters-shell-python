@@ -50,9 +50,12 @@ class File:
         
         for dir_path in File._all_dirs(dir_paths):
             for file_name in os.listdir(dir_path):
-                result.append(
-                    File( dir_path, file_name)
-                )
+                
+                if os.path.isfile( os.path.join(dir_path, file_name) ):
+                        
+                    result.append(
+                        File( dir_path, file_name)
+                    )
              
         
 class TypeCommand(Command):
@@ -74,7 +77,7 @@ class TypeCommand(Command):
                         
                     f2 = os.path.join(file.dir_path(), file.file())
                         
-                    if file.file() == arg and os.path.isfile( f2 ) and os.access(f2, os.X_OK) : 
+                    if file.file() == arg and os.access(f2, os.X_OK) : 
                         output = arg + " is " + f2
                         
                 
