@@ -22,17 +22,39 @@ class ExitCommand(Command):
 class EchoCommand(Command):
     def run( self ):
         print( " ".join( self.args() ) )
+     
+
+
+
+
+class File:
+    
+    def __init__ (self, dir, file):
+        self._dir = dir
+        self._file = file
+        
+    def file(self):
+        return self._file
+    
+    def dir(self):
+        return self._dir
+    # def full_path():
+    #     return os.p
+             
         
 class TypeCommand(Command):
     
     def run(self):
         for arg in self.args():
+            
             if arg in commands.keys():
                 print(arg + " is a shell builtin")
                 
             else: 
                 
                 output = arg + ": not found"
+                
+                
                 
                 path = os.environ.get("PATH")
                 
@@ -42,7 +64,9 @@ class TypeCommand(Command):
                         
                         for f in os.listdir(p):
                             
-                            f2 = os.path.join(p, f)
+                            file = File(p, f)
+                            
+                            f2 = os.path.join(file.dir(), file.file())
                             
                             if f == arg and os.path.isfile( f2 ) and os.access(f2, os.X_OK) : 
                                 output = arg + " is " + f2
