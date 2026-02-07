@@ -17,13 +17,52 @@ class Command(ABC):
     
 class ExitCommand(Command):
     def run( self ):
-        exit(0)
+        raise SystemExit(0)
     
 class EchoCommand(Command):
     def run( self ):
         print( " ".join( self.args() ) )
-     
+             
+class TypeCommand(Command):
 
+    def run(self):
+        
+        for arg in self.args():
+            if self._shell_builtin(arg):
+                self._print_shell_builtin(arg)
+            else:
+                executable = self._search_in_path(arg)
+                if executable:
+                    self._print_exec(arg, executable)
+                else:
+                    self._print_not_found(arg)
+
+    # ---- helpers ----
+
+    def _get_path_dirs(self):
+        return os.environ.get("PATH").split(":")
+
+    def _search_in_path(self, arg):
+        return File.find_exec(self._get_path_dirs(), arg)
+
+    def _shell_builtin(self, arg):
+        return arg in commands
+
+    def _print_shell_builtin(self, arg):
+        print(arg + " is a shell builtin")
+
+    def _print_exec(self, arg, executable):
+        print(arg + " is " + executable.full_path())
+
+    def _print_not_found(self, arg):
+        print(arg + ": not found")
+             
+                
+commands = {
+    "exit" : ExitCommand,
+    "echo" : EchoCommand,
+    "type" : TypeCommand
+}
 
 
 
@@ -70,61 +109,46 @@ class File:
                 return file
                 
         return None
-        
-             
-        
-class TypeCommand(Command):
     
     
-    def run(self):
-        
-        def _get_path_dirs():
-            return os.environ.get("PATH").split(":")
-        
-        def _search_in_path(arg):
-            path_dirs = _get_path_dirs()
-            return File.find_exec(path_dirs, arg)
-        
-        #loop through args of type
-        for arg in self.args():
-            
-            # if arg is command - print it
-            if arg in commands.keys():
-                print(arg + " is a shell builtin")
-                
-            else:                 
-                
-                executable = _search_in_path(arg)
-                
-                if executable != None:
-                    print( arg + " is " + executable.full_path() )
-                
-                else:
-                    print( arg + ": not found" )
-                                    
-                
-                
-commands = {
-    "exit" : ExitCommand,
-    "echo" : EchoCommand,
-    "type" : TypeCommand
-}
+    
+    
+    
+    
+    
+    
+
     
 def main():
     
-    while True:
+    def print_not_found(command):
+        print(f"{command}: command not found")    
+        
+    def input_next_line():
         print("$ ", end="", flush=True)
         line = sys.stdin.readline()
-        command = line.split()[0]
-        args = line.split()[1:]
-                
-        if command in commands.keys():
-            commands[command](args).run()           
-  
-        else:
-            print(f"{command}: command not found")
+        
+        def command(line):
+            return line.split()[0]
+        
+        def args(line):
+            return line.split()[1:]
+        
+        return { "command" : command(line), "args": args(line)}
+        
     
-
+    while True:
+        
+        next_line = input_next_line()
+        next_command = next_line["command"]
+                
+        if next_command not in commands.keys(): 
+            print_not_found( next_command )
+            
+        else:
+            commands[next_command](next_line["args"]).run()           
+  
+            
 
 if __name__ == "__main__":
     main()
