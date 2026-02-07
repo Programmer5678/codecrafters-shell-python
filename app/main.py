@@ -105,6 +105,7 @@ class File:
     
     @classmethod
     def find_exec(cls, dir_paths, looking_for):
+                
         for file in File._all_files(dir_paths):
             if looking_for == file.file() and os.access( file.full_path(), os.X_OK):
                 return file
@@ -141,23 +142,27 @@ def main():
     def _get_path_dirs():
         return os.environ.get("PATH").split(":")
 
-    def _search_in_path( arg):
+    def _search_in_path( arg ):
         return File.find_exec( _get_path_dirs() , arg)
     
     while True:
-        
+                
         next_line = input_next_line()
         next_command = next_line["command"]
                 
-        if next_command not in commands.keys(): 
-            print_not_found( next_command )
+        if next_command in commands.keys(): 
+            commands[next_command](next_line["args"]).run() 
             
         elif (exec := _search_in_path(next_command)):
-            
-            subprocess.run(exec.full_path(), next_line["command"] + next_line["args"] )
+            subprocess.run(
+                [exec.full_path(), *next_line["args"]]
+            )         
+               
+            print(f"Program was passed { len(next_line["args"]) + 1 } args (including program name).")
             
         else:
-            commands[next_command](next_line["args"]).run()           
+            print_not_found( next_command )
+                  
   
             
 
