@@ -73,20 +73,18 @@ class CdCommand(Command):
             
         arg = self.args()[0]
         
-        
-        
         newcwd = self.cwd()
             
-        if ( arg == '~' ):
-            newcwd = os.path.expanduser("~") 
+        # if ( arg == '~' ):
+        #     newcwd = os.path.expanduser("~") 
             
-        elif ( arg == '.' ):
-            pass
+        # elif ( arg == '.' ):
+        #     pass
         
-        elif( arg == '..' ):
-            newcwd = os.path.dirname(self.cwd()) 
+        # elif( arg == '..' ):
+        #     newcwd = os.path.dirname(self.cwd()) 
             
-        elif arg[0] == '/':
+        if arg[0] == '/':
             newcwd = os.path.abspath(arg) 
             
         else:
