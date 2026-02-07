@@ -1,18 +1,29 @@
 import sys
 import os 
 
+from abc import ABC, abstractmethod
 
+class Command(ABC):
+    
+    @abstractmethod
+    def run( self, args ):
+        pass
+    
+class ExitCommand(Command):
+    def run( self, args ):
+        exit(0)
+    
+    
 def main():
     
     while True:
-        print("$ ", end="")
-        
+        print("$ ", end="", flush=True)
         line = sys.stdin.readline()
         command = line.split()[0]
         args = line.split()[1:]
                 
         if command == "exit":
-            exit(0)
+            ExitCommand().run(args)
             
         elif command == "echo":
             print( " ".join(args) )
