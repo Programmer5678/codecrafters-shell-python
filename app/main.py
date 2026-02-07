@@ -5,9 +5,9 @@ import os
 def main():
     
     while True:
-        print("$ ", end = "" )
-        line = sys.stdin.readline()
+        print("$ ", end="")
         
+        line = sys.stdin.readline()
         command = line.split()[0]
         args = line.split()[1:]
                 
@@ -15,10 +15,7 @@ def main():
             exit(0)
             
         elif command == "echo":
-            for arg in args:
-                print( arg, end = " " )
-                
-            print("\n")
+            print( " ".join(args) )
             
         elif command == "type":
             for arg in args:
