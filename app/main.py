@@ -5,20 +5,21 @@ import os
 def main():
     
     while True:
-        sys.stdout.write("$ ")
-        sys.stdout.flush()
+        print("$ ")
         line = sys.stdin.readline()
+        
         command = line.split()[0]
-        words = line.split()[1:]
+        args = line.split()[1:]
                 
         if command == "exit":
             exit(0)
             
         elif command == "echo":
-            print( " ".join(words) )
+            for arg in args:
+                print( arg, sep = " " )
             
         elif command == "type":
-            for arg in words:
+            for arg in args:
                 if arg in ["exit", "echo", "type"]:
                     print(arg + " is a shell builtin")
                     
