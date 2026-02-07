@@ -75,7 +75,7 @@ class CdCommand(Command):
         if( len(self.args()) > 1 ):
             print("cd: too many arguments")
             
-        target_path=self.args[0]
+        target_path=self.args()[0]
         target_full_path = absolute(target_path) 
             
         if os.path.isdir(target_full_path):
