@@ -5,7 +5,7 @@ import os
 def main():
     
     while True:
-        print("$ ")
+        print("$ ", sep =None )
         line = sys.stdin.readline()
         
         command = line.split()[0]
