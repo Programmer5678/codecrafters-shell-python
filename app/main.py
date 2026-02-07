@@ -63,10 +63,13 @@ class File:
                     
         return result
     
-    # @classmethod
-    # def find_exec(cls, dir_paths, file):
-    #     for file in File._all_files:
-    #         if os.access(f2, os.X_OK)
+    @classmethod
+    def find_exec(cls, dir_paths, looking_for):
+        for file in File._all_files:
+            if looking_for == os.access( file.full_path(), os.X_OK):
+                return file
+            
+        return None
         
              
         
@@ -80,17 +83,24 @@ class TypeCommand(Command):
                 
             else: 
                 
-                output = arg + ": not found"
+                
                 
                 path = os.environ.get("PATH")
             
+            
+                found = None
                         
                 for file in File._all_files( path.split(":") ):
                         
                     if file.file() == arg and os.access(file.full_path(), os.X_OK): 
-                        output = arg + " is " + file.full_path()
-                        
+                        found = file
                 
+                if found != None:
+                    output = arg + " is " + file.full_path()
+                
+                else:
+                    output = arg + ": not found"
+                    
                 print(output)
                 
 commands = {
