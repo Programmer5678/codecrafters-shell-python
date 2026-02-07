@@ -155,7 +155,7 @@ def main():
             
         elif (exec := _search_in_path(next_command)):
             subprocess.run(
-                [exec.full_path(), *next_line["args"]]
+                [next_command, *next_line["args"]]
             )         
                
             print(f"Program was passed { len(next_line["args"]) + 1 } args (including program name).")
