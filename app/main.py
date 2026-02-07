@@ -94,7 +94,7 @@ class TypeCommand(Command):
                 executable = File.find_exec(path_dirs, arg)
                 
                 if executable != None:
-                    print( executable + " is " + executable.full_path() )
+                    print( arg + " is " + executable.full_path() )
                 
                 else:
                     print( arg + ": not found" )
