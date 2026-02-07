@@ -6,6 +6,13 @@ from abc import ABC, abstractmethod
 class Command(ABC):
     
     @abstractmethod
+    def __init__(self, args):
+        self.args = args
+        
+    def args(self):
+        return self.args
+    
+    @abstractmethod
     def run( self, args ):
         pass
     
@@ -19,9 +26,11 @@ class EchoCommand(Command):
         
 class TypeCommand(Command):
     
+    
+    
     def run(self, args):
         for arg in args:
-            if arg in ["exit", "echo", "type"]:
+            if arg in commands.keys():
                 print(arg + " is a shell builtin")
                 
             else: 
@@ -58,7 +67,7 @@ def main():
         args = line.split()[1:]
                 
         if command in commands.keys():
-            commands[command]().run(args)           
+            commands[command](args).run(args)           
   
         else:
             print(f"{command}: command not found")
