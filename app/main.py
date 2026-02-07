@@ -24,39 +24,34 @@ class EchoCommand(Command):
     def run( self ):
         print( " ".join( self.args() ) )
              
+
 class TypeCommand(Command):
 
     def run(self):
-        
+
+        def _shell_builtin(arg):
+            return arg in commands
+
+        def _print_shell_builtin(arg):
+            print(arg + " is a shell builtin")
+
+        def _print_exec(arg, executable):
+            print(arg + " is " + executable.full_path())
+
+        def _print_not_found(arg):
+            print(arg + ": not found")
+
+        # ---- main loop ----
         for arg in self.args():
-            if self._shell_builtin(arg):
-                self._print_shell_builtin(arg)
+            if _shell_builtin(arg):
+                _print_shell_builtin(arg)
             else:
-                executable = self._search_in_path(arg)
+                executable = File.find_in_path(arg)
                 if executable:
-                    self._print_exec(arg, executable)
+                    _print_exec(arg, executable)
                 else:
-                    self._print_not_found(arg)
+                    _print_not_found(arg)
 
-    # ---- helpers ----
-
-    def _get_path_dirs(self):
-        return os.environ.get("PATH").split(":")
-
-    def _search_in_path(self, arg):
-        return File.find_exec(self._get_path_dirs(), arg)
-
-    def _shell_builtin(self, arg):
-        return arg in commands
-
-    def _print_shell_builtin(self, arg):
-        print(arg + " is a shell builtin")
-
-    def _print_exec(self, arg, executable):
-        print(arg + " is " + executable.full_path())
-
-    def _print_not_found(self, arg):
-        print(arg + ": not found")
              
                 
 commands = {
@@ -111,6 +106,15 @@ class File:
                 return file
                 
         return None
+        
+
+    @classmethod
+    def find_in_path(cls, arg):
+        
+        def path_dirs():
+            return os.environ.get("PATH").split(":")
+        
+        return File.find_exec(path_dirs(), arg)
     
     
     
@@ -139,11 +143,6 @@ def main():
         return { "command" : command(line), "args": args(line)}
         
         
-    def _get_path_dirs():
-        return os.environ.get("PATH").split(":")
-
-    def _search_in_path( arg ):
-        return File.find_exec( _get_path_dirs() , arg)
     
     while True:
                 
@@ -153,13 +152,11 @@ def main():
         if next_command in commands.keys(): 
             commands[next_command](next_line["args"]).run() 
             
-        elif (exec := _search_in_path(next_command)):
+        elif ( exec := File.find_in_path(next_command) ):
             subprocess.run(
                 [next_command, *next_line["args"]]
             )         
-               
-            # print(f"Program was passed { len(next_line["args"]) + 1 } args (including program name).")
-            
+                           
         else:
             print_not_found( next_command )
                   
