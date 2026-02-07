@@ -5,7 +5,6 @@ from abc import ABC, abstractmethod
 
 class Command(ABC):
     
-    @abstractmethod
     def __init__(self, args):
         self.args = args
         
