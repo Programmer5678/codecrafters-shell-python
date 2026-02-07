@@ -56,6 +56,8 @@ class File:
                     result.append(
                         File( dir_path, file_name)
                     )
+                    
+        return result
              
         
 class TypeCommand(Command):
