@@ -29,17 +29,19 @@ class EchoCommand(Command):
 
 class File:
     
-    def __init__ (self, dir, file):
-        self._dir = dir
+    def __init__ (self, dir_path, file):
+        self._dir_path = dir_path
         self._file = file
         
     def file(self):
         return self._file
     
-    def dir(self):
-        return self._dir
-    # def full_path():
-    #     return os.p
+    def dir_path(self):
+        return self._dir_path
+    
+    @classmethod
+    def _all_dirs(cls, dir_paths ):
+        return [   dir_path for dir_path in dir_paths if os.path.isdir( dir_path )   ]
              
         
 class TypeCommand(Command):
@@ -57,19 +59,18 @@ class TypeCommand(Command):
                 
                 
                 path = os.environ.get("PATH")
-                
-                for p in path.split(":"):
-                    
-                    if os.path.isdir(p):
+            
                         
-                        for f in os.listdir(p):
-                            
-                            file = File(p, f)
-                            
-                            f2 = os.path.join(file.dir(), file.file())
-                            
-                            if f == arg and os.path.isfile( f2 ) and os.access(f2, os.X_OK) : 
-                                output = arg + " is " + f2
+                for p in File._all_dirs( path.split(":") ):
+                        
+                    for f in os.listdir(p):
+                        
+                        file = File(p, f)
+                        
+                        f2 = os.path.join(file.dir_path(), file.file())
+                        
+                        if f == arg and os.path.isfile( f2 ) and os.access(f2, os.X_OK) : 
+                            output = arg + " is " + f2
                 
                 print(output)
                 
