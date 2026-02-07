@@ -12,20 +12,20 @@ class Command(ABC):
         return self.args
     
     @abstractmethod
-    def run( self, args ):
+    def run( self ):
         pass
     
 class ExitCommand(Command):
-    def run( self, args ):
+    def run( self ):
         exit(0)
     
 class EchoCommand(Command):
-    def run( self, args ):
+    def run( self ):
         print( " ".join( self.args() ) )
         
 class TypeCommand(Command):
     
-    def run(self, args):
+    def run(self):
         for arg in self.args():
             if arg in commands.keys():
                 print(arg + " is a shell builtin")
@@ -64,7 +64,7 @@ def main():
         args = line.split()[1:]
                 
         if command in commands.keys():
-            commands[command](args).run(args)           
+            commands[command](args).run()           
   
         else:
             print(f"{command}: command not found")
