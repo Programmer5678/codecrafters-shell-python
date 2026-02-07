@@ -42,6 +42,17 @@ class File:
     @classmethod
     def _all_dirs(cls, dir_paths ):
         return [   dir_path for dir_path in dir_paths if os.path.isdir( dir_path )   ]
+    
+    @classmethod
+    def _all_files(cls, dir_paths):
+        
+        result = []
+        
+        for dir_path in File._all_dirs(dir_paths):
+            for file_name in os.listdir(dir_path):
+                result.append(
+                    File( dir_path, file_name)
+                )
              
         
 class TypeCommand(Command):
@@ -56,21 +67,16 @@ class TypeCommand(Command):
                 
                 output = arg + ": not found"
                 
-                
-                
                 path = os.environ.get("PATH")
             
                         
-                for p in File._all_dirs( path.split(":") ):
+                for file in File._all_files( path.split(":") ):
                         
-                    for f in os.listdir(p):
+                    f2 = os.path.join(file.dir_path(), file.file())
                         
-                        file = File(p, f)
+                    if file.file() == arg and os.path.isfile( f2 ) and os.access(f2, os.X_OK) : 
+                        output = arg + " is " + f2
                         
-                        f2 = os.path.join(file.dir_path(), file.file())
-                        
-                        if f == arg and os.path.isfile( f2 ) and os.access(f2, os.X_OK) : 
-                            output = arg + " is " + f2
                 
                 print(output)
                 
