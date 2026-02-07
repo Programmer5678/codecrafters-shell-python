@@ -1,6 +1,7 @@
 import sys
 import os 
 
+
 def main():
     
     while True:
@@ -14,21 +15,16 @@ def main():
             exit(0)
             
         elif command == "echo":
-            sys.stdout.write(" ".join(words) + "\n")
-            sys.stdout.flush()
+            print( " ".join(words) )
             
         elif command == "type":
             for arg in words:
                 if arg in ["exit", "echo", "type"]:
-                    sys.stdout.write(arg + " is a shell builtin\n")
-                    sys.stdout.flush()
+                    print(arg + " is a shell builtin")
                     
                 else: 
                     
-                    
-                    output = arg + ": not found\n"
-                    
-                    
+                    output = arg + ": not found"
                     
                     path = os.environ.get("PATH")
                     
@@ -41,14 +37,12 @@ def main():
                                 f2 = os.path.join(p, f)
                                 
                                 if f == arg and os.path.isfile( f2 ) and os.access(f2, os.X_OK) : 
-                                    output = arg + " is " + f2 + "\n"
+                                    output = arg + " is " + f2
                     
-                    sys.stdout.write(output)
-                    sys.stdout.flush()
-            
+                    print(output)
+  
         else:
-            sys.stdout.write(f"{command}: command not found\n")
-            sys.stdout.flush()
+            print(f"{command}: command not found")
     
 
 
