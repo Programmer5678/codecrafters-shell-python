@@ -13,7 +13,8 @@ def main():
             exit(0)
             
         if command == "echo":
-            sys.stdout.write(" ".join(words))
+            sys.stdout.write(" ".join(words) + "\n")
+            sys.stdout.flush()
             
         else:
             sys.stdout.write(f"{command}: command not found\n")
