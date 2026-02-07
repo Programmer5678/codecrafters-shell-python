@@ -58,7 +58,7 @@ def main():
         args = line.split()[1:]
                 
         if command in commands.keys():
-            commands[command].run(args)           
+            commands[command]().run(args)           
   
         else:
             print(f"{command}: command not found")
