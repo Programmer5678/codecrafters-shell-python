@@ -63,10 +63,10 @@ class File:
                     
         return result
     
-    @classmethod
-    def find_exec(cls, dir_paths, file):
-        for file in File._all_files:
-            if os.access(f2, os.X_OK)
+    # @classmethod
+    # def find_exec(cls, dir_paths, file):
+    #     for file in File._all_files:
+    #         if os.access(f2, os.X_OK)
         
              
         
@@ -87,7 +87,7 @@ class TypeCommand(Command):
                         
                 for file in File._all_files( path.split(":") ):
                         
-                    if file.file() == arg and os.access(file.full_path(), os.X_OK) : 
+                    if file.file() == arg and os.access(file.full_path(), os.X_OK): 
                         output = arg + " is " + file.full_path()
                         
                 
