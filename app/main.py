@@ -68,36 +68,27 @@ class PwdCommand(Command):
 class CdCommand(Command):
     
     def run(self):
+        
+        def absolute(target_path):
+            return os.path.abspath(target_path) if target_path[0] == '/' else os.path.abspath(os.path.join(self.cwd(), target_path))
+        
         if( len(self.args()) > 1 ):
             print("cd: too many arguments")
             
-        arg = self.args()[0]
-        
-        newcwd = self.cwd()
+        target_path=self.args[0]
+        target_full_path = absolute(target_path) 
             
-        # if ( arg == '~' ):
-        #     newcwd = os.path.expanduser("~") 
-            
-        # elif ( arg == '.' ):
-        #     pass
-        
-        # elif( arg == '..' ):
-        #     newcwd = os.path.dirname(self.cwd()) 
-            
-        if arg[0] == '/':
-            newcwd = os.path.abspath(arg) 
-            
-        else:
-            newcwd = os.path.abspath(os.path.join(self.cwd(), arg))
-            
-        if os.path.isdir(newcwd):
-            self.setcwd(newcwd)
+        if os.path.isdir(target_full_path):
+            self.setcwd(target_full_path)
         else: 
-            print(f"cd: {arg}: No such file or directory")    
+            print(f"cd: {target_path}: No such file or directory")    
             
             
-            
-             
+        
+        
+        
+        
+        
                 
 commands = {
     "exit" : ExitCommand,
