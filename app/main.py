@@ -12,6 +12,9 @@ def main():
         firstWord = line.split()[0]
         if invalid(firstWord):
             sys.stdout.write(f"{firstWord}: command not found\n")
+            
+        if firstWord == "exit":
+            exit(-1)
     
 
 
