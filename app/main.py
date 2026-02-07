@@ -75,25 +75,31 @@ class File:
         
 class TypeCommand(Command):
     
+    
     def run(self):
+        
+        def _get_path_dirs():
+            return os.environ.get("PATH").split(":")
+        
+        #loop through args of type
         for arg in self.args():
             
+            # if arg is command - print it
             if arg in commands.keys():
                 print(arg + " is a shell builtin")
                 
             else:                 
                 
-                path_dirs = os.environ.get("PATH").split(":")
-        
-                found = File.find_exec(path_dirs, arg)
+                path_dirs = _get_path_dirs()
+                executable = File.find_exec(path_dirs, arg)
                 
-                if found != None:
-                    output = arg + " is " + found.full_path()
+                if executable != None:
+                    print( executable + " is " + executable.full_path() )
                 
                 else:
-                    output = arg + ": not found"
-                    
-                print(output)
+                    print( arg + ": not found" )
+                                    
+                
                 
 commands = {
     "exit" : ExitCommand,
