@@ -81,6 +81,10 @@ class TypeCommand(Command):
         def _get_path_dirs():
             return os.environ.get("PATH").split(":")
         
+        def _search_in_path(arg):
+            path_dirs = _get_path_dirs()
+            return File.find_exec(path_dirs, arg)
+        
         #loop through args of type
         for arg in self.args():
             
@@ -90,8 +94,7 @@ class TypeCommand(Command):
                 
             else:                 
                 
-                path_dirs = _get_path_dirs()
-                executable = File.find_exec(path_dirs, arg)
+                executable = _search_in_path(arg)
                 
                 if executable != None:
                     print( arg + " is " + executable.full_path() )
