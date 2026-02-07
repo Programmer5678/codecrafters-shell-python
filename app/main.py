@@ -153,7 +153,8 @@ def main():
             print_not_found( next_command )
             
         elif (exec := _search_in_path(next_command)):
-            subprocess.run(exec, next_line["command"] + next_line["args"] )
+            
+            subprocess.run(exec.full_path(), next_line["command"] + next_line["args"] )
             
         else:
             commands[next_command](next_line["args"]).run()           
