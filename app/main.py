@@ -52,12 +52,18 @@ class TypeCommand(Command):
                 else:
                     _print_not_found(arg)
 
+      
+class PwdCommand(Command):
+
+    def run(self):
+        print( os.cwd() )      
              
                 
 commands = {
     "exit" : ExitCommand,
     "echo" : EchoCommand,
-    "type" : TypeCommand
+    "type" : TypeCommand,
+    "pwd" : PwdCommand
 }
 
 
@@ -152,7 +158,7 @@ def main():
         if next_command in commands.keys(): 
             commands[next_command](next_line["args"]).run() 
             
-        elif ( exec := File.find_in_path(next_command) ):
+        elif File.find_in_path(next_command) :
             subprocess.run(
                 [next_command, *next_line["args"]]
             )         
