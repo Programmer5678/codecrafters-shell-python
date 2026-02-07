@@ -63,8 +63,10 @@ class File:
                     
         return result
     
-    @classmethod
-    def all_execs(cls, dir_paths):
+    # @classmethod
+    # def find_exec(cls, dir_paths, file):
+    #     for file in File._all_files:
+    #         if os.access(f2, os.X_OK)
         
              
         
