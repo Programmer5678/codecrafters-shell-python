@@ -70,7 +70,23 @@ class CdCommand(Command):
     def run(self):
         
         def absolute(target_path):
-            return os.path.abspath(target_path) if target_path[0] == '/' else os.path.abspath(os.path.join(self.cwd(), target_path))
+            
+            def is_absolute(path):
+                return path[0] == '/'
+            
+            def is_home_dir(path):
+                return path == "~"
+            
+            if is_absolute(target_path):
+                return os.path.abspath(target_path)
+            
+            elif is_home_dir(target_path):
+                return os.cwd()
+                
+            else:
+                return os.path.abspath(os.path.join(self.cwd(), target_path))
+            
+            
         
         if( len(self.args()) > 1 ):
             print("cd: too many arguments")
@@ -81,8 +97,7 @@ class CdCommand(Command):
         if os.path.isdir(target_full_path):
             self.setcwd(target_full_path)
         else: 
-            pass
-            # print(f"cd: {target_path}: No such file or directory")    
+            print(f"cd: {target_path}: No such file or directory")    
             
             
         
