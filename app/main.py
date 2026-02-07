@@ -158,7 +158,7 @@ def main():
                 [next_command, *next_line["args"]]
             )         
                
-            print(f"Program was passed { len(next_line["args"]) + 1 } args (including program name).")
+            # print(f"Program was passed { len(next_line["args"]) + 1 } args (including program name).")
             
         else:
             print_not_found( next_command )
