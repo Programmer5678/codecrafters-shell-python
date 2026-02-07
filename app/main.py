@@ -21,11 +21,9 @@ class ExitCommand(Command):
     
 class EchoCommand(Command):
     def run( self, args ):
-        print( " ".join(args) )
+        print( " ".join( args() ) )
         
 class TypeCommand(Command):
-    
-    
     
     def run(self, args):
         for arg in args:
