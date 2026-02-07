@@ -77,11 +77,14 @@ class CdCommand(Command):
             def is_home_dir(path):
                 return path == "~"
             
+            def home_dir():
+                return os.path.expanduser("~")
+            
             if is_absolute(target_path):
                 return os.path.abspath(target_path)
             
             elif is_home_dir(target_path):
-                return os.cwd()
+                return home_dir()
                 
             else:
                 return os.path.abspath(os.path.join(self.cwd(), target_path))
