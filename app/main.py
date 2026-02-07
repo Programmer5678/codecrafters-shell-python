@@ -6,10 +6,10 @@ from abc import ABC, abstractmethod
 class Command(ABC):
     
     def __init__(self, args):
-        self.args = args
+        self._args = args
         
     def args(self):
-        return self.args
+        return self._args
     
     @abstractmethod
     def run( self ):
