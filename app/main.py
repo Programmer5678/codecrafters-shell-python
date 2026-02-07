@@ -16,6 +16,16 @@ def main():
             sys.stdout.write(" ".join(words) + "\n")
             sys.stdout.flush()
             
+        if command == "type":
+            for arg in words:
+                if arg in ["exit", "echo", "type"]:
+                    sys.stdout.write(arg + " is a shell builtin\n")
+                    sys.stdout.flush()
+                    
+                else:
+                    sys.stdout.write(arg + ": not found\n")
+                    sys.stdout.flush()
+            
         else:
             sys.stdout.write(f"{command}: command not found\n")
             sys.stdout.flush()
