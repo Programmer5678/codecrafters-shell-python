@@ -39,10 +39,14 @@ class File:
     def dir_path(self):
         return self._dir_path
     
+    def full_path(self):
+        return os.path.join(self.dir_path(), self.file())
+    
+
     @classmethod
     def _all_dirs(cls, dir_paths ):
         return [   dir_path for dir_path in dir_paths if os.path.isdir( dir_path )   ]
-    
+        
     @classmethod
     def _all_files(cls, dir_paths):
         
@@ -51,13 +55,17 @@ class File:
         for dir_path in File._all_dirs(dir_paths):
             for file_name in os.listdir(dir_path):
                 
-                if os.path.isfile( os.path.join(dir_path, file_name) ):
+                file = File( dir_path, file_name)
+                
+                if os.path.isfile( file.full_path() ):
                         
-                    result.append(
-                        File( dir_path, file_name)
-                    )
+                    result.append(file)
                     
         return result
+    
+    @classmethod
+    def all_execs(cls, dir_paths):
+        
              
         
 class TypeCommand(Command):
