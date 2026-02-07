@@ -29,12 +29,19 @@ def main():
                     output = arg + ": not found\n"
                     
                     
+                    
                     path = os.environ.get("PATH")
+                    
                     for p in path.split(":"):
+                        
                         if os.path.isdir(p):
+                            
                             for f in os.listdir(p):
-                                if f == arg and os.path.isfile( os.path.join(p, f) ) and os.access(f, os.X_OK) : 
-                                    output = arg + " is " + os.path.join(p, f) + "\n"
+                                
+                                f2 = os.path.join(p, f)
+                                
+                                if f == arg and os.path.isfile( f2 ) and os.access(f2, os.X_OK) : 
+                                    output = arg + " is " + f2 + "\n"
                     
                     sys.stdout.write(output)
                     sys.stdout.flush()
