@@ -13,6 +13,11 @@ class ExitCommand(Command):
     def run( self, args ):
         exit(0)
     
+class EchoCommand(Command):
+    def run( self, args ):
+        print( " ".join(args) )
+        
+           
     
 def main():
     
@@ -26,7 +31,7 @@ def main():
             ExitCommand().run(args)
             
         elif command == "echo":
-            print( " ".join(args) )
+            EchoCommand().run(args)
             
         elif command == "type":
             for arg in args:
