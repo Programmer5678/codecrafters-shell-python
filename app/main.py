@@ -6,11 +6,18 @@ import subprocess
 
 class Command(ABC):
     
-    def __init__(self, args):
+    def __init__(self, args, cwd):
+        self._cwd = cwd
         self._args = args
         
     def args(self):
         return self._args
+    
+    def cwd(self):
+        return self._cwd
+    
+    def set_cwd(self, cwd):
+        self._cwd = cwd
     
     @abstractmethod
     def run( self ):
@@ -56,14 +63,25 @@ class TypeCommand(Command):
 class PwdCommand(Command):
 
     def run(self):
-        print( os.getcwd() )      
+        print( self.cwd() )  
+            
+class CdCommand(Command):
+    
+    def run(self):
+        if( len(self.args()) > 1 ):
+            print("cd: too many arguments")
+            
+        if ( self.args()[0] == '~' ):
+            self.set_cwd( os.path.expanduser("~") )
+            
              
                 
 commands = {
     "exit" : ExitCommand,
     "echo" : EchoCommand,
     "type" : TypeCommand,
-    "pwd" : PwdCommand
+    "pwd" : PwdCommand,
+    "cd" : CdCommand
 }
 
 
@@ -149,6 +167,7 @@ def main():
         return { "command" : command(line), "args": args(line)}
         
         
+    cwd = os.getcwd()
     
     while True:
                 
@@ -156,11 +175,14 @@ def main():
         next_command = next_line["command"]
                 
         if next_command in commands.keys(): 
-            commands[next_command](next_line["args"]).run() 
+            com = commands[next_command]( next_line["args"], cwd )
+            com.run()
+            cwd = com.cwd()
             
         elif File.find_in_path(next_command) :
             subprocess.run(
-                [next_command, *next_line["args"]]
+                [next_command, *next_line["args"]],
+                cwd=cwd
             )         
                            
         else:
