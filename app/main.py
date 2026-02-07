@@ -24,13 +24,15 @@ def main():
                     sys.stdout.flush()
                     
                 else: 
-                    path = os.environ.get("PATH")
+                    
                     
                     output = arg + ": not found\n"
                     
-                    for f in os.listdir(path):
-                        if f == arg and os.path.isfile( os.path.join(path, f) ) and os.access(f, os.X_OK) : 
-                            output = arg + " is " + os.path.join(path, f) + "\n"
+                    path = os.environ.get("PATH")
+                    for p in path.split(":"):
+                        for f in os.listdir(p):
+                            if f == arg and os.path.isfile( os.path.join(p, f) ) and os.access(f, os.X_OK) : 
+                                output = arg + " is " + os.path.join(p, f) + "\n"
                     
                     sys.stdout.write(output)
                     sys.stdout.flush()
