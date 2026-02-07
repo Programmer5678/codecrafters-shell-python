@@ -1,4 +1,5 @@
 import sys
+import os 
 
 def main():
     
@@ -8,9 +9,7 @@ def main():
         line = sys.stdin.readline()
         command = line.split()[0]
         words = line.split()[1:]
-        
-        # sys.stdout.write("COMMAND: " + command + ", WORDS: " + ", ".join(words) + "\n")
-        
+                
         if command == "exit":
             exit(0)
             
@@ -24,8 +23,16 @@ def main():
                     sys.stdout.write(arg + " is a shell builtin\n")
                     sys.stdout.flush()
                     
-                else:
-                    sys.stdout.write(arg + ": not found\n")
+                else: 
+                    path = os.environ.get("PATH")
+                    
+                    output = arg + ": not found\n"
+                    
+                    for f in os.listdir(path):
+                        if f == arg and os.path.isfile( os.path.join(path, f) ) and os.access(f, os.X_OK) : 
+                            output = arg + " is " + os.path.join(path, f) + "\n"
+                    
+                    sys.stdout.write(output)
                     sys.stdout.flush()
             
         else:
