@@ -94,6 +94,7 @@ class TypeCommand(Command):
                         
                     if file.file() == arg and os.access(file.full_path(), os.X_OK): 
                         found = file
+                        break
                 
                 if found != None:
                     output = arg + " is " + file.full_path()
