@@ -65,7 +65,7 @@ class File:
     
     @classmethod
     def find_exec(cls, dir_paths, looking_for):
-        for file in File._all_files:
+        for file in File._all_files(dir_paths):
             if looking_for == os.access( file.full_path(), os.X_OK):
                 return file
             
@@ -81,23 +81,14 @@ class TypeCommand(Command):
             if arg in commands.keys():
                 print(arg + " is a shell builtin")
                 
-            else: 
+            else:                 
                 
-                
-                
-                path = os.environ.get("PATH")
-            
-            
-                found = None
-                        
-                for file in File._all_files( path.split(":") ):
-                        
-                    if file.file() == arg and os.access(file.full_path(), os.X_OK): 
-                        found = file
-                        break
+                path_dirs = os.environ.get("PATH").split(":")
+        
+                found = File.find_exec(path_dirs)
                 
                 if found != None:
-                    output = arg + " is " + file.full_path()
+                    output = arg + " is " + found.full_path()
                 
                 else:
                     output = arg + ": not found"
