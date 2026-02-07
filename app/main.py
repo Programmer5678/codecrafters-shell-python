@@ -81,7 +81,8 @@ class CdCommand(Command):
         if os.path.isdir(target_full_path):
             self.setcwd(target_full_path)
         else: 
-            print(f"cd: {target_path}: No such file or directory")    
+            pass
+            # print(f"cd: {target_path}: No such file or directory")    
             
             
         
