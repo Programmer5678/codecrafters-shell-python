@@ -17,6 +17,8 @@ def main():
         elif command == "echo":
             for arg in args:
                 print( arg, end = " " )
+                
+            print("\n")
             
         elif command == "type":
             for arg in args:
