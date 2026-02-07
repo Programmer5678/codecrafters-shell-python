@@ -56,7 +56,7 @@ class TypeCommand(Command):
 class PwdCommand(Command):
 
     def run(self):
-        print( os.cwd() )      
+        print( os.getcwd() )      
              
                 
 commands = {
