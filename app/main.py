@@ -2,6 +2,7 @@ import sys
 import os 
 
 from abc import ABC, abstractmethod
+import subprocess
 
 class Command(ABC):
     
@@ -136,6 +137,12 @@ def main():
         
         return { "command" : command(line), "args": args(line)}
         
+        
+    def _get_path_dirs():
+        return os.environ.get("PATH").split(":")
+
+    def _search_in_path( arg):
+        return File.find_exec( _get_path_dirs() , arg)
     
     while True:
         
@@ -144,6 +151,9 @@ def main():
                 
         if next_command not in commands.keys(): 
             print_not_found( next_command )
+            
+        elif (exec := _search_in_path(next_command)):
+            subprocess.run(exec, next_line["args"])
             
         else:
             commands[next_command](next_line["args"]).run()           
