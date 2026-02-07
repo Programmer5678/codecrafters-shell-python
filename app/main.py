@@ -1,21 +1,23 @@
 import sys
 
-def invalid(word):
-    return True
-
 def main():
     
     while True:
         sys.stdout.write("$ ")
         sys.stdout.flush()
         line = sys.stdin.readline()
-        firstWord = line.split()[0]
+        command = line.split()[0]
+        words = line.split()[1:]
         
-        if firstWord == "exit":
+        if command == "exit":
             exit(0)
             
-        if invalid(firstWord):
-            sys.stdout.write(f"{firstWord}: command not found\n")
+        if command == "echo":
+            sys.stdout.write("\s".join(words))
+            
+        else:
+            sys.stdout.write(f"{command}: command not found\n")
+            sys.stdout.flush()
     
 
 
