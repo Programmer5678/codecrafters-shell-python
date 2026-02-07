@@ -21,12 +21,12 @@ class ExitCommand(Command):
     
 class EchoCommand(Command):
     def run( self, args ):
-        print( " ".join( args() ) )
+        print( " ".join( self.args() ) )
         
 class TypeCommand(Command):
     
     def run(self, args):
-        for arg in args:
+        for arg in self.args():
             if arg in commands.keys():
                 print(arg + " is a shell builtin")
                 
