@@ -9,14 +9,16 @@ def main():
         command = line.split()[0]
         words = line.split()[1:]
         
+        # sys.stdout.write("COMMAND: " + command + ", WORDS: " + ", ".join(words) + "\n")
+        
         if command == "exit":
             exit(0)
             
-        if command == "echo":
+        elif command == "echo":
             sys.stdout.write(" ".join(words) + "\n")
             sys.stdout.flush()
             
-        if command == "type":
+        elif command == "type":
             for arg in words:
                 if arg in ["exit", "echo", "type"]:
                     sys.stdout.write(arg + " is a shell builtin\n")
