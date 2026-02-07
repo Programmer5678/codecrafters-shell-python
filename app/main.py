@@ -42,6 +42,12 @@ class TypeCommand(Command):
                                 output = arg + " is " + f2
                 
                 print(output)
+                
+commands = {
+    "exit" : ExitCommand,
+    "echo" : EchoCommand,
+    "type" : TypeCommand
+}
     
 def main():
     
@@ -51,14 +57,8 @@ def main():
         command = line.split()[0]
         args = line.split()[1:]
                 
-        if command == "exit":
-            ExitCommand().run(args)
-            
-        elif command == "echo":
-            EchoCommand().run(args)
-            
-        elif command == "type":
-            TypeCommand().run(args)            
+        if command in commands.keys():
+            commands[command].run(args)           
   
         else:
             print(f"{command}: command not found")
