@@ -16,7 +16,7 @@ class Command(ABC):
     def cwd(self):
         return self._cwd
     
-    def set_cwd(self, cwd):
+    def setcwd(self, cwd):
         self._cwd = cwd
     
     @abstractmethod
@@ -71,8 +71,33 @@ class CdCommand(Command):
         if( len(self.args()) > 1 ):
             print("cd: too many arguments")
             
-        if ( self.args()[0] == '~' ):
-            self.set_cwd( os.path.expanduser("~") )
+        arg = self.args()[0]
+        
+        
+        
+        newcwd = self.cwd()
+            
+        if ( arg == '~' ):
+            newcwd = os.path.expanduser("~") 
+            
+        elif ( arg == '.' ):
+            pass
+        
+        elif( arg == '..' ):
+            newcwd = os.path.dirname(self.cwd()) 
+            
+        elif arg[0] == '/':
+            newcwd = os.path.abspath(arg) 
+            
+        else:
+            newcwd = os.path.abspath(os.path.join(self.cwd(), arg))
+            
+        if os.path.isdir(newcwd):
+            self.setcwd(newcwd)
+        else: 
+            print(f"cd: {arg}: No such file or directory")    
+            
+            
             
              
                 
