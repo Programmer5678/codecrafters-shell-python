@@ -66,9 +66,9 @@ class File:
     @classmethod
     def find_exec(cls, dir_paths, looking_for):
         for file in File._all_files(dir_paths):
-            if looking_for == os.access( file.full_path(), os.X_OK):
+            if looking_for == file.file() and os.access( file.full_path(), os.X_OK):
                 return file
-            
+                
         return None
         
              
