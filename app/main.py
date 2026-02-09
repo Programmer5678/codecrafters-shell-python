@@ -1,8 +1,8 @@
-import sys
 import os 
 
 from abc import ABC, abstractmethod
 import subprocess
+
 
 class Command(ABC):
     
@@ -105,8 +105,9 @@ class CdCommand(Command):
             
         
         
-        
-        
+class HistoryCommand(Command):
+    def run(self):
+        pass
         
                 
 commands = {
@@ -114,7 +115,8 @@ commands = {
     "echo" : EchoCommand,
     "type" : TypeCommand,
     "pwd" : PwdCommand,
-    "cd" : CdCommand
+    "cd" : CdCommand,
+    "history"  : HistoryCommand
 }
 
 
@@ -183,13 +185,13 @@ class File:
 
     
 def main():
-    
-    def print_not_found(command):
-        print(f"{command}: command not found")    
+
+        
         
     def input_next_line():
-        print("$ ", end="", flush=True)
-        line = sys.stdin.readline()
+        
+        def empty_line(line):
+            return line == None or len(line.split()) == 0
         
         def command(line):
             return line.split()[0]
@@ -197,8 +199,20 @@ def main():
         def args(line):
             return line.split()[1:]
         
+        line = None
+        while empty_line(line):
+            print("$ ", end="", flush=True)
+            line = input()
+            
         return { "command" : command(line), "args": args(line)}
+            
+    
+    
         
+    def print_not_found(command):
+        print(f"{command}: command not found")   
+        
+
         
     cwd = os.getcwd()
     
@@ -221,8 +235,7 @@ def main():
         else:
             print_not_found( next_command )
                   
-  
-            
+
 
 if __name__ == "__main__":
     main()
