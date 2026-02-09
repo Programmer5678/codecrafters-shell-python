@@ -13,15 +13,6 @@ class Command(ABC):
     def args(self):
         return self._args
     
-    # def cwd(self):
-    #     return self._cwd
-    
-    # def history(self):
-    #     return self._history
-    
-    # def setcwd(self, cwd):
-    #     self._cwd = cwd
-    
     @abstractmethod
     def run( self ):
         pass
@@ -66,7 +57,7 @@ class TypeCommand(Command):
 class PwdCommand(Command):
 
     def run(self):
-        print( self.shell_context.cwd )  
+        print( self.shell_context.cwd() )  
             
 class CdCommand(Command):
     
@@ -90,7 +81,7 @@ class CdCommand(Command):
                 return home_dir()
                 
             else:
-                return os.path.abspath(os.path.join(self.shell_context.cwd , target_path))
+                return os.path.abspath(os.path.join(self.shell_context.cwd() , target_path))
             
             
         
@@ -101,7 +92,7 @@ class CdCommand(Command):
         target_full_path = absolute(target_path) 
             
         if os.path.isdir(target_full_path):
-            self.shell_context.cwd = target_full_path
+            self.shell_context.setcwd(target_full_path)
             
             
         else: 
@@ -113,7 +104,7 @@ class CdCommand(Command):
 class HistoryCommand(Command):
     
     def run(self):
-        print("\n".join([ f"\t{line_num+1} {line}" for line_num, line in enumerate( self.shell_context.history ) ] ))
+        print("\n".join([ f"\t{line_num+1} {line}" for line_num, line in enumerate( self.shell_context.history() ) ] ))
         
                 
 commands = {
@@ -187,8 +178,17 @@ class File:
 class ShellContext:
     
     def __init__(self, cwd, history):
-        self.cwd = cwd
-        self.history = history
+        self._cwd = cwd
+        self._history = history
+        
+    def cwd(self):
+        return self._cwd
+    
+    def history(self):
+        return self._history
+    
+    def setcwd(self, cwd):
+        self._cwd = cwd
 
 
     
@@ -225,19 +225,24 @@ def main():
     
     while True:
                 
+     
+                
         next_line = input_next_line()
         next_command = next_line["command"]
-        shell_context.history.append( next_line["command"] + " " + " ".join(next_line["args"])  )
+        history = shell_context.history + [ next_line["command"] + " " + " ".join(next_line["args"]) ]
+        
+        shell_context = ShellContext( shell_context.cwd(), history )
                 
         if next_command in commands.keys(): 
             com = commands[next_command] ( next_line["args"], shell_context )
             com.run()
-            shell_context.cwd = com.shell_context.cwd
-            
+            shell_context = ShellContext(com.shell_context.cwd(), history)
+        
+        
         elif File.find_in_path(next_command) :
             subprocess.run(
                 [next_command, *next_line["args"]],
-                cwd=shell_context.cwd
+                cwd=shell_context.cwd()
             )         
                            
         else:
