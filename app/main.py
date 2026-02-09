@@ -261,7 +261,7 @@ def main():
         if next_command in commands.keys(): 
             com = commands[next_command] ( next_line["args"], shell_context )
             com.run()
-            shell_context = ShellContext(com.shell_context.cwd(), history)
+            shell_context = ShellContext(com.shell_context.cwd(), shell_context.history() )
         
         
         elif File.find_in_path(next_command) :
