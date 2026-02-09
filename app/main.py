@@ -278,22 +278,19 @@ def completer(text: str, state: int) -> str:
     return matching_com
 
     
-def readline_setup():
+def main():
+    
     readline.parse_and_bind("tab: complete")
     readline.set_completer(completer)
     readline.set_auto_history(False)
-    
-def main():
-    
     shell_context = ShellContext( os.getcwd(), [] )
     
     while True:
                 
         next_line = input_next_line(readline.add_history)
-        shell_context.set_history( add_line( shell_context.history(), next_line ) )
-        
         next_command = next_line["command"]
-        
+        shell_context.set_history( add_line( shell_context.history(), next_line ) )
+                
         if next_command in commands.keys(): 
             CommandClass = commands[next_command]
             com =  CommandClass ( next_line["args"], shell_context )
