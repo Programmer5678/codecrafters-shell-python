@@ -116,7 +116,7 @@ class CdCommand(Command):
 class HistoryCommand(Command):
     
     def run(self):
-        print("\n".join([ f"\t{line_num+1} {line}" for line_num, line in enumerate( self.shell_context.history() ) ] ))
+        print("\n".join([ f"\t{line_num+1} {line}" for line_num, line in enumerate( self.shell_context.history ) ] ))
         
                 
 commands = {
