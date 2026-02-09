@@ -104,7 +104,7 @@ class CdCommand(Command):
 class HistoryCommand(Command):
     
     def run(self):
-        print("\n".join([ f"\t{line_num+1} {line}" for line_num, line in enumerate( self.shell_context.history() ) ] ))
+        print("\n".join([ f"\t{line_num+1} {line}" for line_num, line in enumerate( self.shell_context.history() + ["history"] ) ] ))
  
  
         
@@ -255,10 +255,7 @@ def main():
                 
         next_line = input_next_line()
         next_command = next_line["command"]
-        
-        history = shell_context.history() + [ next_line["command"] + " " + " ".join(next_line["args"]) ]
-        shell_context = ShellContext( shell_context.cwd(), history )
-                
+          
         if next_command in commands.keys(): 
             com = commands[next_command] ( next_line["args"], shell_context )
             com.run()
@@ -270,7 +267,9 @@ def main():
         else:
             com = NotCommand(shell_context, next_command)
             com.run()
-            
+             
+        history = shell_context.history() + [ next_line["command"] + " " + " ".join(next_line["args"]) ]
+        shell_context = ShellContext( shell_context.cwd(), history )
         shell_context = ShellContext(com.shell_context.cwd(), shell_context.history() )
                   
 
