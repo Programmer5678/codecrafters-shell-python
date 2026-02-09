@@ -233,7 +233,7 @@ def main():
         shell_context.history.append( next_line["command"] + " " + " ".join(next_line["args"])  )
                 
         if next_command in commands.keys(): 
-            com = commands[next_command] ( next_line["args"], shell_context.cwd, shell_context.history )
+            com = commands[next_command] ( next_line["args"], shell_context.cwd, shell_context.history, shell_context )
             com.run()
             shell_context.cwd = com.shell_context.cwd
             
