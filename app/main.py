@@ -21,9 +21,13 @@ class ExitCommand(Command):
     def run( self ):
         raise SystemExit(0)
     
+
+    
 class EchoCommand(Command):
     def run( self ):
         print( " ".join( self.args() ) )
+        
+        self.shell_context.set_history ( self.shell_context.history() + [ self.command + " " + " ".join(self.args) ] )
              
 
 class TypeCommand(Command):
@@ -53,11 +57,14 @@ class TypeCommand(Command):
                 else:
                     _print_not_found(arg)
 
+        self.shell_context.set_history ( self.shell_context.history() + [ self.command + " " + " ".join(self.args) ] )
       
 class PwdCommand(Command):
 
     def run(self):
         print( self.shell_context.cwd() )  
+        
+        self.shell_context.set_history ( self.shell_context.history() + [ self.command + " " + " ".join(self.args) ] )
             
 class CdCommand(Command):
     
@@ -98,6 +105,8 @@ class CdCommand(Command):
         else: 
             print(f"cd: {target_path}: No such file or directory")    
             
+        self.shell_context.set_history ( self.shell_context.history() + [ self.command + " " + " ".join(self.args) ] )
+            
             
         
         
@@ -105,6 +114,8 @@ class HistoryCommand(Command):
     
     def run(self):
         print("\n".join([ f"\t{line_num+1} {line}" for line_num, line in enumerate( self.shell_context.history() + ["history"] ) ] ))
+        
+        self.shell_context.set_history ( self.shell_context.history() + [ self.command + " " + " ".join(self.args) ] )
  
  
         
@@ -118,6 +129,8 @@ class NotCommand(Command):
     def run(self):
         print_not_found(self.command)
         
+        self.shell_context.set_history ( self.shell_context.history() + [ self.command + " " + " ".join(self.args) ] )
+        
 
 class ProgramCommand(Command):
     
@@ -130,7 +143,9 @@ class ProgramCommand(Command):
         subprocess.run(
                 [self.command, *self.args],
                 cwd=self.shell_context.cwd()
-            )    
+            )   
+        
+        self.shell_context.set_history ( self.shell_context.history() + [ self.command + " " + " ".join(self.args) ] )
         
         
                 
@@ -216,6 +231,9 @@ class ShellContext:
     
     def setcwd(self, cwd):
         self._cwd = cwd
+        
+    def set_history(self, history):
+        self._history = history
 
 
 def print_not_found(command):
@@ -272,3 +290,17 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
+    
+#Issue - struggling to decide where to change the cwd and history.
+# Each command changes the history
+# and possibly the cwd 
+# Why do i even need polymorphism here? we dont want endless switchcase etc.
+# What about the shell context though. Consider seperating the run and 
+# the calculation of new shell context cause its getting ugly and bloated...
+# yeah the history is easy. we just add latest command. But cwd can also change in cd
+# So it varies just with the cwd. Maybe we oughta seperate the two?
+# But the command needs to hold history and cwd no matter what. i think this new change made the code uglier not neater. All for what a cwd?
+
+# What exactly was the original smell? It seems we are updating history and cwd in a non localized way its all. history at start, cwd at end etc.
+# But is it really a big deal? Not for now. I shall revert 
