@@ -104,7 +104,19 @@ class CdCommand(Command):
 class HistoryCommand(Command):
     
     def run(self):
-        print("\n".join([ f"\t{line_num+1} {line}" for line_num, line in enumerate( self.shell_context.history() ) ] ))
+        
+        def history_line(line_num, line_content):
+            return f"\t{line_num+1} {line_content}"
+        
+        history_lines = [ history_line(line_num, line) for line_num, line in enumerate( self.shell_context.history() ) ] 
+        
+        if len( self.args() ) == 0:
+            print(   "\n".join( history_lines )   )
+        elif len( self.args() ) == 1:
+            print(   "\n".join( history_lines[:-self.args()[0]] )   )
+            
+        else:
+            print("history: too many arguments") 
         
                 
 commands = {
@@ -214,10 +226,7 @@ def main():
             line = input()
             
         return { "command" : command(line), "args": args(line)}
-            
-    
-    
-        
+                
     def print_not_found(command):
         print(f"{command}: command not found")   
         
@@ -239,7 +248,6 @@ def main():
             com =  CommandClass ( next_line["args"], shell_context )
             com.run()
             shell_context.setcwd( com.shell_context.cwd() )
-        
         
         elif File.find_in_path(next_command) :
             subprocess.run(
