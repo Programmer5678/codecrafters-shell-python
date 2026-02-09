@@ -1,7 +1,8 @@
 import os 
-
 from abc import ABC, abstractmethod
 import subprocess
+
+import readline
 
 
 class Command(ABC):
@@ -107,18 +108,36 @@ class HistoryCommand(Command):
         
         def history_line(line_num, line_content):
             return f"\t{line_num+1} {line_content}"
+         
+        def print_all_lines(history_lines):
+            print(   "\n".join( history_lines )   )
+            
+        def print_last_n_lines(history_lines, nl):
+            print(   "\n".join( history_lines[-nl:] )   ) 
+            
+        def no_num_lines_arg():
+            return len( self.args() ) == 0
+        
+        def num_lines_arg():
+            return int(self.args()[0])
+        
+        def too_many_args():
+            return len( self.args() ) > 1
+        
+        def print_too_many_args():
+            print("history: too many arguments") 
         
         history_lines = [ history_line(line_num, line) for line_num, line in enumerate( self.shell_context.history() ) ] 
         
-        if len( self.args() ) == 0:
-            print(   "\n".join( history_lines )   )
-        elif len( self.args() ) == 1:
-            i = int(self.args()[0])
-            print(   "\n".join( history_lines[-i:] )   )
+        if no_num_lines_arg():
+            print_all_lines(history_lines)
             
+        elif too_many_args():
+            print_too_many_args()
+
         else:
-            print("history: too many arguments") 
-        
+            print_last_n_lines( history_lines, num_lines_arg() )
+    
                 
 commands = {
     "exit" : ExitCommand,
@@ -207,40 +226,68 @@ class ShellContext:
         self._history = history
 
 
+
+
+
+
+def input_next_line(add_history):
+        
+    def empty_line(line):
+        return line == None or len(line.split()) == 0
+    
+    def command(line):
+        return line.split()[0]
+    
+    def args(line):
+        return line.split()[1:]
+    
+    line = None
+    while empty_line(line):
+        line = input("$ ")
+    
+    add_history(line)
+        
+    return { "command" : command(line), "args": args(line)}
+                
+def print_not_found(command):
+    print(f"{command}: command not found")   
+    
+
+def add_line( history, next_line ):
+    return history + [ next_line["command"] + " " + " ".join(next_line["args"]) ]
+    
+
+    
+def completer(text: str, state: int) -> str:
+    
+    def not_first_match():
+        return state > 0
+    
+    def multiple_matches_exist():
+        return len(matching_commands) > 1
+    
+    if not_first_match():
+        return None
+    
+    matching_commands = [ com for com in commands.keys() if com.startswith(text) ]  
+
+    if multiple_matches_exist():
+        return None
+    
+    matching_com = matching_commands[0]
+    return matching_com
+
     
 def main():
-        
-    def input_next_line():
-        
-        def empty_line(line):
-            return line == None or len(line.split()) == 0
-        
-        def command(line):
-            return line.split()[0]
-        
-        def args(line):
-            return line.split()[1:]
-        
-        line = None
-        while empty_line(line):
-            print("$ ", end="", flush=True)
-            line = input()
-            
-        return { "command" : command(line), "args": args(line)}
-                
-    def print_not_found(command):
-        print(f"{command}: command not found")   
-        
-
-    def add_line( history, next_line ):
-        return history + [ next_line["command"] + " " + " ".join(next_line["args"]) ]
-
     
+    readline.parse_and_bind("tab: complete")
+    readline.set_completer(completer)
+    readline.set_auto_history(False)
     shell_context = ShellContext( os.getcwd(), [] )
     
     while True:
                 
-        next_line = input_next_line()
+        next_line = input_next_line(readline.add_history)
         next_command = next_line["command"]
         shell_context.set_history( add_line( shell_context.history(), next_line ) )
                 
