@@ -218,20 +218,18 @@ def main():
         print(f"{command}: command not found")   
         
 
+
     
-    cwd = os.getcwd()
-    history = []
-    
-    shell_context = ShellContext(cwd, history)
+    shell_context = ShellContext( os.getcwd(), [] )
     
     while True:
                 
         next_line = input_next_line()
         next_command = next_line["command"]
-        history.append( next_line["command"] + " " + " ".join(next_line["args"])  )
+        shell_context.history.append( next_line["command"] + " " + " ".join(next_line["args"])  )
                 
         if next_command in commands.keys(): 
-            com = commands[next_command] ( next_line["args"], shell_context.cwd, history )
+            com = commands[next_command] ( next_line["args"], shell_context.cwd, shell_context.history )
             com.run()
             shell_context.cwd = com.cwd()
             
