@@ -6,15 +6,19 @@ import subprocess
 
 class Command(ABC):
     
-    def __init__(self, args, cwd):
+    def __init__(self, args, cwd, history):
         self._cwd = cwd
         self._args = args
+        self._history = history
         
     def args(self):
         return self._args
     
     def cwd(self):
         return self._cwd
+    
+    def history(self):
+        return self._history
     
     def setcwd(self, cwd):
         self._cwd = cwd
@@ -106,8 +110,9 @@ class CdCommand(Command):
         
         
 class HistoryCommand(Command):
+    
     def run(self):
-        pass
+        print("\n".join([ f"\t{line_num+1} {line}" for line_num, line in enumerate(self.history()) ] ))
         
                 
 commands = {
@@ -176,12 +181,7 @@ class File:
         return File.find_exec(path_dirs(), arg)
     
     
-    
-    
-    
-    
-    
-    
+
 
     
 def main():
@@ -215,14 +215,16 @@ def main():
 
         
     cwd = os.getcwd()
+    history = []
     
     while True:
                 
         next_line = input_next_line()
         next_command = next_line["command"]
+        history.append( next_line["command"] + " " + " ".join(next_line["args"])  )
                 
         if next_command in commands.keys(): 
-            com = commands[next_command]( next_line["args"], cwd )
+            com = commands[next_command] ( next_line["args"], cwd, history )
             com.run()
             cwd = com.cwd()
             
