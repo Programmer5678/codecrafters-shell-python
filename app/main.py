@@ -6,10 +6,11 @@ import subprocess
 
 class Command(ABC):
     
-    def __init__(self, args, cwd, history):
+    def __init__(self, args, cwd, history, shell_context):
         self._cwd = cwd
         self._args = args
         self._history = history
+        self.shell_context = shell_context
         
     def args(self):
         return self._args
@@ -67,7 +68,7 @@ class TypeCommand(Command):
 class PwdCommand(Command):
 
     def run(self):
-        print( self.cwd() )  
+        print( self.shell_context.cwd )  
             
 class CdCommand(Command):
     
@@ -91,7 +92,7 @@ class CdCommand(Command):
                 return home_dir()
                 
             else:
-                return os.path.abspath(os.path.join(self.cwd(), target_path))
+                return os.path.abspath(os.path.join(self.shell_context.cwd , target_path))
             
             
         
@@ -103,6 +104,9 @@ class CdCommand(Command):
             
         if os.path.isdir(target_full_path):
             self.setcwd(target_full_path)
+            self.shell_context.cwd = target_full_path
+            
+            
         else: 
             print(f"cd: {target_path}: No such file or directory")    
             
@@ -112,7 +116,7 @@ class CdCommand(Command):
 class HistoryCommand(Command):
     
     def run(self):
-        print("\n".join([ f"\t{line_num+1} {line}" for line_num, line in enumerate(self.history()) ] ))
+        print("\n".join([ f"\t{line_num+1} {line}" for line_num, line in enumerate( self.shell_context.history() ) ] ))
         
                 
 commands = {
@@ -231,7 +235,7 @@ def main():
         if next_command in commands.keys(): 
             com = commands[next_command] ( next_line["args"], shell_context.cwd, shell_context.history )
             com.run()
-            shell_context.cwd = com.cwd()
+            shell_context.cwd = com.shell_context.cwd
             
         elif File.find_in_path(next_command) :
             subprocess.run(
