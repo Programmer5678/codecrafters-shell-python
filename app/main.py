@@ -255,14 +255,13 @@ def main():
                 
         next_line = input_next_line()
         next_command = next_line["command"]
+        
         history = shell_context.history() + [ next_line["command"] + " " + " ".join(next_line["args"]) ]
         shell_context = ShellContext( shell_context.cwd(), history )
                 
         if next_command in commands.keys(): 
             com = commands[next_command] ( next_line["args"], shell_context )
             com.run()
-            shell_context = ShellContext(com.shell_context.cwd(), shell_context.history() )
-        
         
         elif File.find_in_path(next_command) :
             com = ProgramCommand(shell_context, next_command, next_line["args"] )  
@@ -271,6 +270,8 @@ def main():
         else:
             com = NotCommand(shell_context, next_command)
             com.run()
+            
+        shell_context = ShellContext(com.shell_context.cwd(), shell_context.history() )
                   
 
 
