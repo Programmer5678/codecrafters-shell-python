@@ -189,6 +189,9 @@ class ShellContext:
     
     def setcwd(self, cwd):
         self._cwd = cwd
+            
+    def set_history(self, history):
+        self._history = history
 
 
     
@@ -219,24 +222,23 @@ def main():
         print(f"{command}: command not found")   
         
 
+    def update_history( history, next_line ):
+        return history + [ next_line["command"] + " " + " ".join(next_line["args"]) ]
 
     
     shell_context = ShellContext( os.getcwd(), [] )
     
     while True:
                 
-     
-                
         next_line = input_next_line()
         next_command = next_line["command"]
-        history = shell_context.history() + [ next_line["command"] + " " + " ".join(next_line["args"]) ]
-        
-        shell_context = ShellContext( shell_context.cwd(), history )
+        shell_context.set_history( update_history( shell_context.history() ) )
                 
         if next_command in commands.keys(): 
-            com = commands[next_command] ( next_line["args"], shell_context )
+            CommandClass = commands[next_command]
+            com =  CommandClass ( next_line["args"], shell_context )
             com.run()
-            shell_context = ShellContext(com.shell_context.cwd(), history)
+            shell_context.setcwd( com.shell_context.cwd() )
         
         
         elif File.find_in_path(next_command) :
