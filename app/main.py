@@ -113,7 +113,8 @@ class HistoryCommand(Command):
         if len( self.args() ) == 0:
             print(   "\n".join( history_lines )   )
         elif len( self.args() ) == 1:
-            print(   "\n".join( history_lines[:-self.args()[0]] )   )
+            i = int(self.args()[0])
+            print(   "\n".join( history_lines[-i:] )   )
             
         else:
             print("history: too many arguments") 
