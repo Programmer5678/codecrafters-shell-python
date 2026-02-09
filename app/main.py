@@ -118,6 +118,20 @@ class NotCommand(Command):
     def run(self):
         print_not_found(self.command)
         
+
+class ProgramCommand(Command):
+    
+    def __init__(self, shell_context, command, args):
+        self.shell_context = shell_context
+        self.command = command
+        self.args = args
+        
+    def run(self):
+        subprocess.run(
+                [self.command, *self.args],
+                cwd=self.shell_context.cwd()
+            )    
+        
         
                 
 commands = {
@@ -205,7 +219,7 @@ class ShellContext:
 
 
 def print_not_found(command):
-        print(f"{command}: command not found")
+    print(f"{command}: command not found")
     
 def main():
         
@@ -251,10 +265,8 @@ def main():
         
         
         elif File.find_in_path(next_command) :
-            subprocess.run(
-                [next_command, *next_line["args"]],
-                cwd=shell_context.cwd()
-            )         
+            com = ProgramCommand(shell_context, next_command, next_line["args"] )  
+            com.run()    
                            
         else:
             com = NotCommand(shell_context, next_command)
