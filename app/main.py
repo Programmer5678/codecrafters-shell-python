@@ -183,10 +183,15 @@ class File:
     
 
 
+class ShellContext:
+    
+    def __init__(self, cwd, history):
+        self.cwd = cwd
+        self.history = history
+
+
     
 def main():
-
-        
         
     def input_next_line():
         
@@ -213,9 +218,11 @@ def main():
         print(f"{command}: command not found")   
         
 
-        
+    
     cwd = os.getcwd()
     history = []
+    
+    shell_context = ShellContext(cwd, history)
     
     while True:
                 
@@ -224,14 +231,14 @@ def main():
         history.append( next_line["command"] + " " + " ".join(next_line["args"])  )
                 
         if next_command in commands.keys(): 
-            com = commands[next_command] ( next_line["args"], cwd, history )
+            com = commands[next_command] ( next_line["args"], shell_context.cwd, history )
             com.run()
-            cwd = com.cwd()
+            shell_context.cwd = com.cwd()
             
         elif File.find_in_path(next_command) :
             subprocess.run(
                 [next_command, *next_line["args"]],
-                cwd=cwd
+                cwd=shell_context.cwd
             )         
                            
         else:
