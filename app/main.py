@@ -229,7 +229,7 @@ def main():
                 
         next_line = input_next_line()
         next_command = next_line["command"]
-        history = shell_context.history + [ next_line["command"] + " " + " ".join(next_line["args"]) ]
+        history = shell_context.history() + [ next_line["command"] + " " + " ".join(next_line["args"]) ]
         
         shell_context = ShellContext( shell_context.cwd(), history )
                 
