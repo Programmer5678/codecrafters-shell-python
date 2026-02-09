@@ -257,7 +257,7 @@ def main():
             )         
                            
         else:
-            com = NotCommand(next_command)
+            com = NotCommand(shell_context, next_command)
             com.run()
                   
 
