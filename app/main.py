@@ -222,7 +222,7 @@ def main():
         print(f"{command}: command not found")   
         
 
-    def update_history( history, next_line ):
+    def add_line( history, next_line ):
         return history + [ next_line["command"] + " " + " ".join(next_line["args"]) ]
 
     
@@ -232,7 +232,7 @@ def main():
                 
         next_line = input_next_line()
         next_command = next_line["command"]
-        shell_context.set_history( update_history( shell_context.history() ) )
+        shell_context.set_history( add_line( shell_context.history(), next_line ) )
                 
         if next_command in commands.keys(): 
             CommandClass = commands[next_command]
