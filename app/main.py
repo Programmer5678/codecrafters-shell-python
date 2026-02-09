@@ -258,20 +258,16 @@ def main():
           
         if next_command in commands.keys(): 
             com = commands[next_command] ( next_line["args"], shell_context )
-            com.run()
         
         elif File.find_in_path(next_command) :
             com = ProgramCommand(shell_context, next_command, next_line["args"] )  
-            com.run()    
                            
         else:
             com = NotCommand(shell_context, next_command)
-            com.run()
+            
+        com.run()
              
-        history = shell_context.history() + [ next_line["command"] + " " + " ".join(next_line["args"]) ]
-        shell_context = ShellContext( shell_context.cwd(), history )
-        shell_context = ShellContext(com.shell_context.cwd(), shell_context.history() )
-                  
+        shell_context = ShellContext( com.shell_context.cwd(), shell_context.history() + [ next_line["command"] + " " + " ".join(next_line["args"]) ]  )                  
 
 
 if __name__ == "__main__":
