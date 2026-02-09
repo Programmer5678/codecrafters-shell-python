@@ -6,23 +6,21 @@ import subprocess
 
 class Command(ABC):
     
-    def __init__(self, args, cwd, history, shell_context):
-        self._cwd = cwd
+    def __init__(self, args, shell_context):
         self._args = args
-        self._history = history
         self.shell_context = shell_context
         
     def args(self):
         return self._args
     
-    def cwd(self):
-        return self._cwd
+    # def cwd(self):
+    #     return self._cwd
     
-    def history(self):
-        return self._history
+    # def history(self):
+    #     return self._history
     
-    def setcwd(self, cwd):
-        self._cwd = cwd
+    # def setcwd(self, cwd):
+    #     self._cwd = cwd
     
     @abstractmethod
     def run( self ):
@@ -103,7 +101,6 @@ class CdCommand(Command):
         target_full_path = absolute(target_path) 
             
         if os.path.isdir(target_full_path):
-            self.setcwd(target_full_path)
             self.shell_context.cwd = target_full_path
             
             
@@ -233,7 +230,7 @@ def main():
         shell_context.history.append( next_line["command"] + " " + " ".join(next_line["args"])  )
                 
         if next_command in commands.keys(): 
-            com = commands[next_command] ( next_line["args"], shell_context.cwd, shell_context.history, shell_context )
+            com = commands[next_command] ( next_line["args"], shell_context )
             com.run()
             shell_context.cwd = com.shell_context.cwd
             
