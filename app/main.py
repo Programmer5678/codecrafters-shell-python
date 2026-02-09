@@ -105,6 +105,19 @@ class HistoryCommand(Command):
     
     def run(self):
         print("\n".join([ f"\t{line_num+1} {line}" for line_num, line in enumerate( self.shell_context.history() ) ] ))
+ 
+ 
+        
+class NotCommand(Command):
+    
+    def __init__(self, shell_context, command):
+        self.shell_context = shell_context
+        self.command = command
+        
+    
+    def run(self):
+        print_not_found(self.command)
+        
         
                 
 commands = {
@@ -191,6 +204,8 @@ class ShellContext:
         self._cwd = cwd
 
 
+def print_not_found(command):
+        print(f"{command}: command not found")
     
 def main():
         
@@ -215,8 +230,7 @@ def main():
     
     
         
-    def print_not_found(command):
-        print(f"{command}: command not found")   
+       
         
 
 
@@ -225,12 +239,9 @@ def main():
     
     while True:
                 
-     
-                
         next_line = input_next_line()
         next_command = next_line["command"]
         history = shell_context.history() + [ next_line["command"] + " " + " ".join(next_line["args"]) ]
-        
         shell_context = ShellContext( shell_context.cwd(), history )
                 
         if next_command in commands.keys(): 
@@ -246,7 +257,8 @@ def main():
             )         
                            
         else:
-            print_not_found( next_command )
+            com = NotCommand(next_command)
+            com.run()
                   
 
 
