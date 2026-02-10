@@ -329,13 +329,12 @@ def main():
                 ) 
                 
                 if boob == len(tits) - 1 : # If no more pipes
-                    print(str(current_proc.stdout).rstrip("\n") )
-                    pass
+                    print( current_proc.stdout.decode("utf-8").rstrip("\n") )
                 
                 current_output = current_proc.stdout 
                 
                 if current_proc.stderr:
-                    print(f"{current_proc.stderr}", file=sys.stderr)   
+                    print( current_proc.stderr.decode("utf-8").rstrip("\n") , file=sys.stderr)   
                 
                 # print("ITER DONE")
                 
