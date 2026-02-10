@@ -329,7 +329,7 @@ def main():
                 ) 
                 
                 if boob == len(tits) - 1 : # If no more pipes
-                    print(current_proc.stdout )
+                    print(str(current_proc.stdout).rstrip("\n") )
                     pass
                 
                 current_output = current_proc.stdout 
