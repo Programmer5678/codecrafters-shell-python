@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 import subprocess
 
 import readline
+import sys
 
 
 class Command(ABC):
@@ -40,7 +41,7 @@ class TypeCommand(Command):
         def _print_exec(arg, executable):
             print(arg + " is " + executable.full_path())
 
-        def _print_not_found(arg):
+        def _err_not_found(arg):
             print(arg + ": not found")
 
         # ---- main loop ----
@@ -52,7 +53,7 @@ class TypeCommand(Command):
                 if executable:
                     _print_exec(arg, executable)
                 else:
-                    _print_not_found(arg)
+                    _err_not_found(arg)
 
       
 class PwdCommand(Command):
@@ -63,6 +64,9 @@ class PwdCommand(Command):
 class CdCommand(Command):
     
     def run(self):
+        
+        def err_no_such_file_dir():
+            print(f"cd: {target_path}: No such file or directory", file=sys.stderr) 
         
         def absolute(target_path):
             
@@ -97,9 +101,9 @@ class CdCommand(Command):
             
             
         else: 
-            print(f"cd: {target_path}: No such file or directory")    
+            err_no_such_file_dir()
             
-            
+ 
         
         
 class HistoryCommand(Command):
@@ -124,8 +128,8 @@ class HistoryCommand(Command):
         def too_many_args():
             return len( self.args() ) > 1
         
-        def print_too_many_args():
-            print("history: too many arguments") 
+        def err_too_many_args():
+            print("history: too many arguments", file=sys.stderr) 
         
         history_lines = [ history_line(line_num, line) for line_num, line in enumerate( self.shell_context.history() ) ] 
         
@@ -133,7 +137,7 @@ class HistoryCommand(Command):
             print_all_lines(history_lines)
             
         elif too_many_args():
-            print_too_many_args()
+            err_too_many_args()
 
         else:
             print_last_n_lines( history_lines, num_lines_arg() )
@@ -246,12 +250,12 @@ def input_next_line(add_history):
         line = input("$ ")
     
     add_history(line)
-        
-    return { "command" : command(line), "args": args(line)}
-                
-def print_not_found(command):
-    print(f"{command}: command not found")   
     
+    coms = line.split("|")
+    return [ { "command" : command(com), "args": args(com)} for com in coms ]
+                
+def err_not_found(command):
+    print(f"{command}: command not found", file=sys.stderr)     
 
 def add_line( history, next_line ):
     return history + [ next_line["command"] + " " + " ".join(next_line["args"]) ]
@@ -277,7 +281,12 @@ def completer(text: str, state: int) -> str:
     matching_com = matching_commands[0]
     return matching_com
 
-    
+
+#OK so a pipeline is when i have | in my command
+# --> this works for now only for executable.
+# so get com1 , com2. Make sure executables. 
+# then run com2 with com1 as stdin
+
 def main():
     
     readline.parse_and_bind("tab: complete")
@@ -287,24 +296,58 @@ def main():
     
     while True:
                 
-        next_line = input_next_line(readline.add_history)
-        next_command = next_line["command"]
-        shell_context.set_history( add_line( shell_context.history(), next_line ) )
-                
-        if next_command in commands.keys(): 
-            CommandClass = commands[next_command]
-            com =  CommandClass ( next_line["args"], shell_context )
-            com.run()
-            shell_context.setcwd( com.shell_context.cwd() )
+        tits = input_next_line(readline.add_history)
         
-        elif File.find_in_path(next_command) :
-            subprocess.run(
-                [next_command, *next_line["args"]],
-                cwd=shell_context.cwd()
-            )         
-                           
-        else:
-            print_not_found( next_command )
+        
+        current_output = None
+        
+        for boob, next_line in enumerate(tits):
+        
+            next_command = next_line["command"]
+            shell_context.set_history( add_line( shell_context.history(), next_line ) )
+                    
+            if next_command in commands.keys(): 
+                
+                if len(tits) != 1:
+                    raise Exception("No pipes here yet!")
+                
+                CommandClass = commands[next_command]
+                com =  CommandClass ( next_line["args"], shell_context )
+                com.run()
+                shell_context.setcwd( com.shell_context.cwd() )
+                
+            
+            elif File.find_in_path(next_command) :
+                                            
+                current_proc = subprocess.run(
+                    [next_command, *next_line["args"]],
+                    
+                    input=current_output,
+                    capture_output=True,
+                    
+                    cwd=shell_context.cwd()
+                ) 
+                
+                if boob == len(tits) - 1 : # If no more pipes
+                    print(current_proc.stdout )
+                    pass
+                
+                current_output = current_proc.stdout 
+                
+                if current_proc.stderr:
+                    print(f"{current_proc.stderr}", file=sys.stderr)   
+                
+                # print("ITER DONE")
+                
+                            
+            else:
+                
+                if len(tits) != 1:
+                    raise Exception("No pipes here yet!")
+                
+                err_not_found( next_command )
+                
+            
                   
 
 
