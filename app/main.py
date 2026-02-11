@@ -240,25 +240,28 @@ class ShellContext:
 
 
 
-def input_next_line(add_history):
+def input_next_line():
         
     def empty_line(line):
         return line == None or len(line.split()) == 0
-    
-    def command(line):
-        return line.split()[0]
-    
-    def args(line):
-        return line.split()[1:]
     
     line = None
     while empty_line(line):
         line = input("$ ")
     
-    add_history(line)
+    readline.add_history(line)
     
-    coms = line.split("|")
-    return [ { "command" : command(com), "args": args(com)} for com in coms ]
+    com_lines = line.split("|")
+    
+    
+    # def command(line):
+    #     return line.split()[0]
+    
+    # def args(line):
+    #     return line.split()[1:]
+    
+    return [ CommandLine(com_line) for com_line in com_lines ]
+# [ { "command" : command(com), "args": args(com)} for com in com_lines ]
                 
 def err_not_found(command):
     print(f"{command}: command not found", file=sys.stderr)     
@@ -286,8 +289,25 @@ def completer(text: str, state: int) -> str:
     return matching_com
 
 
+# Add iterators inside Line to loop through CommandLines
+
 # class Line:
-#     def __init__
+#     def __init__( line ):
+#         command_lines = line.split("|")
+        
+
+
+class CommandLine:
+    
+    def command(self):
+        return self.command_line_str.split()[0]
+    
+    def args(self):
+        return self.command_line_str.split()[1:]
+    
+    def __init__( self, command_line_str ):
+        self.command_line_str = command_line_str
+        
 
 
 #OK so a pipeline is when i have | in my command
@@ -304,10 +324,10 @@ def main():
     
     while True:
                 
-        command_lines = input_next_line(readline.add_history)
+        command_lines = input_next_line()
         prev_stdout = subprocess.PIPE # This is the output pipe of previous command(process)
                     
-        shell_context.set_history( shell_context.history() + [ ( cl["command"] + " " + " ".join(cl["args"]) ) for cl in command_lines ]  )    
+        shell_context.set_history( shell_context.history() + [ ( cl.command() + " " + " ".join( cl.args() ) ) for cl in command_lines ]  )    
                 
         # loop throught command lines
         for index, command_line in enumerate(command_lines):
@@ -316,7 +336,7 @@ def main():
                 return index == len(command_lines) - 1
             
             
-            command = command_line["command"]
+            command = command_line.command()
             
             #update shell_context history 
                     
@@ -327,7 +347,7 @@ def main():
                 
                 
                 CommandClass = command_class(command)
-                com =  CommandClass ( command_line["args"], shell_context ) # new command 
+                com =  CommandClass ( command_line.args(), shell_context ) # new command 
                 com.run() #run command
             
                 shell_context.setcwd( com.shell_context.cwd() ) # set cwd
@@ -337,7 +357,7 @@ def main():
                                    
                 # Start the process
                 p = subprocess.Popen(
-                    [command, *command_line["args"]],
+                    [command, *command_line.args() ],
                     stdin=prev_stdout,
                     stdout=sys.stdout if last_command() else subprocess.PIPE,
                     stderr=sys.stderr,
