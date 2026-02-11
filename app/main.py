@@ -331,7 +331,7 @@ def main():
         command_lines = input_next_line()
         prev_stdout = subprocess.PIPE # This is the output pipe of previous command(process)
                     
-        shell_context.set_history( shell_context.history() + [" | ".join([ ( cl.command() + " " + " ".join( cl.args() ) ) for cl in command_lines ])]  )    
+        shell_context.set_history( shell_context.history() + ["|".join([str(cl) for cl in command_lines]) ]  )    
                 
         # loop throught command lines
         for index, command_line in enumerate(command_lines):
