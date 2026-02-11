@@ -152,6 +152,12 @@ commands = {
     "history"  : HistoryCommand
 }
 
+def is_builtin(command):
+    return command in commands.keys()
+
+def command_class(command):
+    return commands[command] 
+
 
 
 class File:
@@ -257,8 +263,6 @@ def input_next_line(add_history):
 def err_not_found(command):
     print(f"{command}: command not found", file=sys.stderr)     
 
-def add_line( history, next_line ):
-    return history + [ next_line["command"] + " " + " ".join(next_line["args"]) ]
     
 
     
@@ -282,6 +286,10 @@ def completer(text: str, state: int) -> str:
     return matching_com
 
 
+# class Line:
+#     def __init__
+
+
 #OK so a pipeline is when i have | in my command
 # --> this works for now only for executable.
 # so get com1 , com2. Make sure executables. 
@@ -296,69 +304,59 @@ def main():
     
     while True:
                 
-        tits = input_next_line(readline.add_history)
-        
-        
-        current_output = None
-        
-        
-        for boob, next_line in enumerate(tits):
-        
-            next_command = next_line["command"]
-            shell_context.set_history( add_line( shell_context.history(), next_line ) )
+        command_lines = input_next_line(readline.add_history)
+        prev_stdout = subprocess.PIPE # This is the output pipe of previous command(process)
                     
-            if next_command in commands.keys(): 
+        shell_context.set_history( shell_context.history() + [ ( cl["command"] + " " + " ".join(cl["args"]) ) for cl in command_lines ]  )    
                 
-                if len(tits) != 1:
+        # loop throught command lines
+        for index, command_line in enumerate(command_lines):
+            
+            def last_command():
+                return index == len(command_lines) - 1
+            
+            
+            command = command_line["command"]
+            
+            #update shell_context history 
+                    
+            if is_builtin(command): 
+                
+                if len(command_lines) != 1:
                     raise Exception("No pipes here yet!")
                 
-                CommandClass = commands[next_command]
-                com =  CommandClass ( next_line["args"], shell_context )
-                com.run()
-                shell_context.setcwd( com.shell_context.cwd() )
+                
+                CommandClass = command_class(command)
+                com =  CommandClass ( command_line["args"], shell_context ) # new command 
+                com.run() #run command
+            
+                shell_context.setcwd( com.shell_context.cwd() ) # set cwd
                 
             
-            elif File.find_in_path(next_command) :
+            elif File.find_in_path(command) :
                                    
-                input_data = current_output or subprocess.PIPE # could be None if no previous output
-                out_to_terminal = (boob == len(tits) - 1)
-                
-                
                 # Start the process
                 p = subprocess.Popen(
-                    [next_command, *next_line["args"]],
-                    stdin=input_data,
-                    stdout=sys.stdout if out_to_terminal else subprocess.PIPE,
+                    [command, *command_line["args"]],
+                    stdin=prev_stdout,
+                    stdout=sys.stdout if last_command() else subprocess.PIPE,
                     stderr=sys.stderr,
                     text=True,  # ensures input/output are str, not bytes
                     cwd=shell_context.cwd()
                 )
-                
-                if current_output:
-                    current_output.close() 
-                current_output = p.stdout
-                
-                if boob == len(tits) - 1:
+                                                       
+                if last_command():
                     p.wait()
-            
-                # # Communicate with the process (feeds stdin, collects stdout/stderr)
-                # current_output, current_err = p.stdout, p.stderr
-                # # p.communicate(input=input_data)              
-                
-                # # for line in current_err:
-                # #     print(line.rstrip("\n"))
-                
-                # if boob == len(tits) - 1 : # If no more pipes - just print the output line by line
-                #     for line in current_output:
-                #         print( line.rstrip("\n") )
+                    
+                prev_stdout = p.stdout
                 
                 
             else:
                 
-                if len(tits) != 1:
+                if len(command_lines) != 1:
                     raise Exception("No pipes here yet!")
                 
-                err_not_found( next_command )
+                err_not_found( command )
                 
             
                   
