@@ -301,6 +301,7 @@ def main():
         
         current_output = None
         
+        
         for boob, next_line in enumerate(tits):
         
             next_command = next_line["command"]
@@ -318,27 +319,40 @@ def main():
                 
             
             elif File.find_in_path(next_command) :
-                                            
-                current_proc = subprocess.run(
+                                   
+                input_data = current_output or subprocess.PIPE # could be None if no previous output
+                out_to_terminal = (boob == len(tits) - 1)
+                
+                
+                # Start the process
+                p = subprocess.Popen(
                     [next_command, *next_line["args"]],
-                    
-                    input=current_output,
-                    capture_output=True,
-                    
+                    stdin=input_data,
+                    stdout=sys.stdout if out_to_terminal else subprocess.PIPE,
+                    stderr=sys.stderr,
+                    text=True,  # ensures input/output are str, not bytes
                     cwd=shell_context.cwd()
-                ) 
+                )
                 
-                if boob == len(tits) - 1 : # If no more pipes
-                    print( current_proc.stdout.decode("utf-8").rstrip("\n") )
+                if current_output:
+                    current_output.close() 
+                current_output = p.stdout
                 
-                current_output = current_proc.stdout 
+                if boob == len(tits) - 1:
+                    p.wait()
+            
+                # # Communicate with the process (feeds stdin, collects stdout/stderr)
+                # current_output, current_err = p.stdout, p.stderr
+                # # p.communicate(input=input_data)              
                 
-                if current_proc.stderr:
-                    print( current_proc.stderr.decode("utf-8").rstrip("\n") , file=sys.stderr)   
+                # # for line in current_err:
+                # #     print(line.rstrip("\n"))
                 
-                # print("ITER DONE")
+                # if boob == len(tits) - 1 : # If no more pipes - just print the output line by line
+                #     for line in current_output:
+                #         print( line.rstrip("\n") )
                 
-                            
+                
             else:
                 
                 if len(tits) != 1:
