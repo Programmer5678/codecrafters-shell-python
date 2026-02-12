@@ -330,6 +330,9 @@ class CommandInvoc:
     
     def shell_context(self):
         return self._shell_context
+    
+    def setcwd(self, cwd):
+        self._shell_context.setcwd(cwd)
        
     @classmethod 
     def from_spec(cls, spec, end_pipe, shell_context):
@@ -408,12 +411,14 @@ def main():
                 CommandClass = command_class( command_invoc.spec().command() )
                 com =  CommandClass ( command_invoc.spec().args(), shell_context ) # new command 
                 com.run() #run command
+                
+                command_invoc.setcwd( com.shell_context.cwd() )
             
-                shell_context.setcwd( com.shell_context.cwd() ) # set cwd
+                shell_context.setcwd( command_invoc.shell_context().cwd() ) # set cwd
                 
             
             elif isinstance(command_invoc, ExecCommandInvoc):
-                prev_stdout = command_invoc.stdout( prev_stdout)
+                prev_stdout = command_invoc.stdout( prev_stdout )
                 
                 
             # else:
