@@ -371,7 +371,10 @@ class ExecCommandInvoc(CommandInvoc):
         return p.stdout
 
 class NotFoundCommandInvoc (CommandInvoc):
-    pass
+    def stdout(self):
+        return err_not_found(
+            self.spec().command()
+        )
 
 
         
@@ -423,9 +426,7 @@ def main():
                 if len(command_lines) != 1:
                     raise Exception("No pipes here yet!")
                 
-                err_not_found( 
-                              command_invoc.spec().command()
-                              )
+                command_invoc.stdout()
                 
             if command_invoc.end_pipe():
                 shell_context.setcwd( command_invoc.shell_context().cwd() ) # set cwd
