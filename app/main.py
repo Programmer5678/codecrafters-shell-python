@@ -341,7 +341,8 @@ class CommandInvoc:
             return NotFoundCommandInvoc(spec, end_pipe, shell_context)
         
 class BuiltinCommandInvoc(CommandInvoc):
-    def stdout(self, shel)
+    # def stdout(self, shel)
+    pass
 
 class ExecCommandInvoc(CommandInvoc):
     
