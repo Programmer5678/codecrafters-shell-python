@@ -340,9 +340,22 @@ class BuiltinCommandInvoc(CommandInvoc):
     pass
 
 class ExecCommandInvoc(CommandInvoc):
-    pass
-#     def run(self):
+    
+    def stdout(self, stdin):
+        # Start the process
+        p = subprocess.Popen(
+            [ self.spec().command() , *self.spec().args() ],
+            stdin=stdin,
+            stdout=sys.stdout if self.end_pipe() else subprocess.PIPE,
+            stderr=sys.stderr,
+            text=True,  # ensures input/output are str, not bytes
+            cwd=self.cwd()
+        )
+                                                
+        if self.end_pipe():
+            p.wait()
 
+        return p.stdout
 
 class NotFoundCommandInvoc (CommandInvoc):
     pass
@@ -382,10 +395,8 @@ def main():
             
             if isinstance(command_invoc, BuiltinCommandInvoc):
             
-                
                 if len(command_lines) != 1:
                     raise Exception("No pipes here yet!")
-                
                 
                 CommandClass = command_class( command_invoc.spec().command() )
                 com =  CommandClass ( command_invoc.spec().args(), shell_context ) # new command 
@@ -395,28 +406,7 @@ def main():
                 
             
             elif isinstance(command_invoc, ExecCommandInvoc):
-            # elif File.find_in_path(command) :
-                                   
-                #last_command_in_pipe
-                # in_pipe in general?
-                                   
-                #What varies and is dynamic - so shouldnt be part of the ExecCommandInvoc is just stdin = prev_stdout
-                # shell_context is static! No changes!
-                                   
-                # Start the process
-                p = subprocess.Popen(
-                    [ command_invoc.spec().command() , *command_invoc.spec().args() ],
-                    stdin=prev_stdout,
-                    stdout=sys.stdout if command_invoc.end_pipe() else subprocess.PIPE,
-                    stderr=sys.stderr,
-                    text=True,  # ensures input/output are str, not bytes
-                    cwd=shell_context.cwd()
-                )
-                                                       
-                if command_invoc.end_pipe():
-                    p.wait()
-                    
-                prev_stdout = p.stdout
+                prev_stdout = command_invoc.stdout(prev_stdout)
                 
                 
             # else:
