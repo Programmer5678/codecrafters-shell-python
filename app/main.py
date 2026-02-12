@@ -260,7 +260,7 @@ def input_next_line():
     # def args(line):
     #     return line.split()[1:]
     
-    return [ CommandInvocSpec(com_line, index == len( com_line ) - 1 ) for index, com_line in enumerate(com_lines) ]
+    return [ CommandInvocSpec(com_line ) for index, com_line in enumerate(com_lines) ]
 
 
 
@@ -302,9 +302,8 @@ def completer(text: str, state: int) -> str:
 
 class CommandInvocSpec:
     
-    def __init__( self, command_invoc_str, end_pipe ):
+    def __init__( self, command_invoc_str ):
         self.command_invoc_str = command_invoc_str
-        self._end_pipe = end_pipe
     
     def __repr__(self):
         return self.command_invoc_str
@@ -315,25 +314,27 @@ class CommandInvocSpec:
     def args(self):
         return self.command_invoc_str.split()[1:]
     
-    def end_pipe(self):
-        return self._end_pipe
 
 class CommandInvoc:
-    def __init__( self, spec ):
+    def __init__( self, spec, end_pipe ):
         self._spec = spec 
+        self._end_pipe = end_pipe
         
     def spec(self):
         return self._spec
        
+    def end_pipe(self):
+        return self._end_pipe
+       
     @classmethod 
-    def from_spec(cls, spec):
+    def from_spec(cls, spec, end_pipe):
         
         if is_builtin( spec.command() ):
-            return BuiltinCommandInvoc(spec)
+            return BuiltinCommandInvoc(spec, end_pipe)
         elif File.find_in_path( spec.command() ) :
-            return ExecCommandInvoc(spec)
+            return ExecCommandInvoc(spec, end_pipe)
         else:
-            return NotFoundCommandInvoc(spec)
+            return NotFoundCommandInvoc(spec, end_pipe)
         
 class BuiltinCommandInvoc(CommandInvoc):
     pass
@@ -364,18 +365,17 @@ def main():
     while True:
                 
         command_lines = input_next_line()
+        
+        command_invocs = [ CommandInvoc.from_spec(command_invoc_spec, 
+                                                  (index == len( command_lines ) - 1)) 
+                          for index, command_invoc_spec in enumerate(command_lines) ]
+        
         prev_stdout = subprocess.PIPE # This is the output pipe of previous command(process)
                     
         shell_context.set_history( shell_context.history() + ["|".join([str(cl) for cl in command_lines]) ]  )    
                 
         # loop throught command lines
-        for index, command_invoc_spec in enumerate(command_lines):
-            
-            def last_command():
-                return index == len(command_lines) - 1
-            
-            
-            command_invoc = CommandInvoc.from_spec(command_invoc_spec)
+        for command_invoc in command_invocs:
             
             # command = command_invoc.spec().command()
             #update shell_context history 
