@@ -314,6 +314,9 @@ class CommandInvocSpec:
 class CommandInvoc:
     def __init__( self, spec ):
         self._spec = spec 
+        
+    def spec(self):
+        return self._spec
        
     @classmethod 
     def from_spec(cls, spec):
@@ -363,31 +366,32 @@ def main():
                 return index == len(command_lines) - 1
             
             
-            command = command_invoc_spec.command()
-            nein = CommandInvoc.from_spec(command_invoc_spec)
             
+            command_invoc = CommandInvoc.from_spec(command_invoc_spec)
+            
+            # command = command_invoc.spec().command()
             #update shell_context history 
             
-            if isinstance(nein, BuiltinCommandInvoc):
-            # if is_builtin(command): 
+            if isinstance(command_invoc, BuiltinCommandInvoc):
+            
                 
                 if len(command_lines) != 1:
                     raise Exception("No pipes here yet!")
                 
                 
-                CommandClass = command_class(command)
-                com =  CommandClass ( command_invoc_spec.args(), shell_context ) # new command 
+                CommandClass = command_class( command_invoc.spec().command() )
+                com =  CommandClass ( command_invoc.spec().args(), shell_context ) # new command 
                 com.run() #run command
             
                 shell_context.setcwd( com.shell_context.cwd() ) # set cwd
                 
             
-            elif isinstance(nein, ExecCommandInvoc):
+            elif isinstance(command_invoc, ExecCommandInvoc):
             # elif File.find_in_path(command) :
                                    
                 # Start the process
                 p = subprocess.Popen(
-                    [command, *command_invoc_spec.args() ],
+                    [ command_invoc.spec().command() , *command_invoc.spec().args() ],
                     stdin=prev_stdout,
                     stdout=sys.stdout if last_command() else subprocess.PIPE,
                     stderr=sys.stderr,
@@ -402,12 +406,14 @@ def main():
                 
                 
             # else:
-            elif isinstance( nein, NotFoundCommandInvoc ):
+            elif isinstance( command_invoc, NotFoundCommandInvoc ):
                 
                 if len(command_lines) != 1:
                     raise Exception("No pipes here yet!")
                 
-                err_not_found( command )
+                err_not_found( 
+                              command_invoc.spec().command()
+                              )
                 
             
                 
