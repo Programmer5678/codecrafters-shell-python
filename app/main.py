@@ -316,32 +316,36 @@ class CommandInvocSpec:
     
 
 class CommandInvoc:
-    def __init__( self, spec, end_pipe ):
+    def __init__( self, spec, end_pipe, shell_context ):
         self._spec = spec 
         self._end_pipe = end_pipe
+        self._shell_context = shell_context
         
     def spec(self):
         return self._spec
        
     def end_pipe(self):
         return self._end_pipe
+    
+    def shell_context(self):
+        return self._shell_context
        
     @classmethod 
-    def from_spec(cls, spec, end_pipe):
+    def from_spec(cls, spec, end_pipe, shell_context):
         
         if is_builtin( spec.command() ):
-            return BuiltinCommandInvoc(spec, end_pipe)
+            return BuiltinCommandInvoc(spec, end_pipe, shell_context)
         elif File.find_in_path( spec.command() ) :
-            return ExecCommandInvoc(spec, end_pipe)
+            return ExecCommandInvoc(spec, end_pipe, shell_context)
         else:
-            return NotFoundCommandInvoc(spec, end_pipe)
+            return NotFoundCommandInvoc(spec, end_pipe, shell_context)
         
 class BuiltinCommandInvoc(CommandInvoc):
-    pass
+    def stdout(self, shel)
 
 class ExecCommandInvoc(CommandInvoc):
     
-    def stdout(self, shell_context, stdin):
+    def stdout(self, stdin):
         # Start the process
         p = subprocess.Popen(
             [ self.spec().command() , *self.spec().args() ],
@@ -349,7 +353,7 @@ class ExecCommandInvoc(CommandInvoc):
             stdout=sys.stdout if self.end_pipe() else subprocess.PIPE,
             stderr=sys.stderr,
             text=True,  # ensures input/output are str, not bytes
-            cwd=shell_context.cwd()
+            cwd=self.shell_context().cwd()
         )
                                                 
         if self.end_pipe():
@@ -380,7 +384,8 @@ def main():
         command_lines = input_next_line()
         
         command_invocs = [ CommandInvoc.from_spec(command_invoc_spec, 
-                                                  (index == len( command_lines ) - 1)) 
+                                                  (index == len( command_lines ) - 1),
+                                                  shell_context.clone() )
                           for index, command_invoc_spec in enumerate(command_lines) ]
         
         prev_stdout = subprocess.PIPE # This is the output pipe of previous command(process)
@@ -406,7 +411,7 @@ def main():
                 
             
             elif isinstance(command_invoc, ExecCommandInvoc):
-                prev_stdout = command_invoc.stdout(shell_context, prev_stdout)
+                prev_stdout = command_invoc.stdout( prev_stdout)
                 
                 
             # else:
@@ -418,6 +423,8 @@ def main():
                 err_not_found( 
                               command_invoc.spec().command()
                               )
+                
+        # shell_context.setcwd( command_invocs.shell_context.cwd() )
                 
             
                 
