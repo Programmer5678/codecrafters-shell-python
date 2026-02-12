@@ -368,8 +368,8 @@ def main():
             
             #update shell_context history 
             
-                    
-            if is_builtin(command): 
+            if isinstance(nein, BuiltinCommandInvoc):
+            # if is_builtin(command): 
                 
                 if len(command_lines) != 1:
                     raise Exception("No pipes here yet!")
@@ -382,7 +382,8 @@ def main():
                 shell_context.setcwd( com.shell_context.cwd() ) # set cwd
                 
             
-            elif File.find_in_path(command) :
+            elif isinstance(nein, ExecCommandInvoc):
+            # elif File.find_in_path(command) :
                                    
                 # Start the process
                 p = subprocess.Popen(
@@ -400,7 +401,8 @@ def main():
                 prev_stdout = p.stdout
                 
                 
-            else:
+            # else:
+            elif isinstance( nein, NotFoundCommandInvoc ):
                 
                 if len(command_lines) != 1:
                     raise Exception("No pipes here yet!")
