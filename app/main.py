@@ -414,9 +414,6 @@ def main():
                 
                 command_invoc.setcwd( com.shell_context.cwd() )
                 
-                if command_invoc.end_pipe():
-                    shell_context.setcwd( command_invoc.shell_context().cwd() ) # set cwd
-                
             
             elif isinstance(command_invoc, ExecCommandInvoc):
                 prev_stdout = command_invoc.stdout( prev_stdout )
@@ -431,6 +428,10 @@ def main():
                 err_not_found( 
                               command_invoc.spec().command()
                               )
+                
+                
+            if command_invoc.end_pipe():
+                shell_context.setcwd( command_invoc.shell_context().cwd() ) # set cwd
                 
         # shell_context.setcwd( command_invocs.shell_context.cwd() )
                 
