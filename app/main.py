@@ -260,7 +260,7 @@ def input_next_line():
     # def args(line):
     #     return line.split()[1:]
     
-    return [ CommandLine(com_line) for com_line in com_lines ]
+    return [ CommandInvocSpec(com_line) for com_line in com_lines ]
 # [ { "command" : command(com), "args": args(com)} for com in com_lines ]
                 
 def err_not_found(command):
@@ -289,7 +289,7 @@ def completer(text: str, state: int) -> str:
     return matching_com
 
 
-# Add iterators inside Line to loop through CommandLines
+# Add iterators inside Line to loop through CommandInvocSpecs
 
 # class Line:
 #     def __init__( line ):
@@ -297,22 +297,45 @@ def completer(text: str, state: int) -> str:
         
 
 
-class CommandLine:
+class CommandInvocSpec:
     
-    def command(self):
-        return self.command_line_str.split()[0]
-    
-    def args(self):
-        return self.command_line_str.split()[1:]
+    def __init__( self, command_invoc_str ):
+        self.command_invoc_str = command_invoc_str
     
     def __repr__(self):
-        return self.command_line_str
+        return self.command_invoc_str
     
-    def __init__( self, command_line_str ):
-        self.command_line_str = command_line_str
-        
-        
+    def command(self):
+        return self.command_invoc_str.split()[0]
+    
+    def args(self):
+        return self.command_invoc_str.split()[1:]
 
+class CommandInvoc:
+    def __init__( self, spec ):
+        self._spec = spec 
+       
+    @classmethod 
+    def from_spec(cls, spec):
+        
+        if is_builtin( spec.command() ):
+            return BuiltinCommandInvoc(spec)
+        elif File.find_in_path( spec.command() ) :
+            return ExecCommandInvoc(spec)
+        else:
+            return NotFoundCommandInvoc(spec)
+        
+class BuiltinCommandInvoc(CommandInvoc):
+    pass
+
+class ExecCommandInvoc(CommandInvoc):
+    pass
+
+class NotFoundCommandInvoc (CommandInvoc):
+    pass
+
+
+        
 
 #OK so a pipeline is when i have | in my command
 # --> this works for now only for executable.
@@ -334,15 +357,17 @@ def main():
         shell_context.set_history( shell_context.history() + ["|".join([str(cl) for cl in command_lines]) ]  )    
                 
         # loop throught command lines
-        for index, command_line in enumerate(command_lines):
+        for index, command_invoc_spec in enumerate(command_lines):
             
             def last_command():
                 return index == len(command_lines) - 1
             
             
-            command = command_line.command()
+            command = command_invoc_spec.command()
+            nein = CommandInvoc.from_spec(command_invoc_spec)
             
             #update shell_context history 
+            
                     
             if is_builtin(command): 
                 
@@ -351,7 +376,7 @@ def main():
                 
                 
                 CommandClass = command_class(command)
-                com =  CommandClass ( command_line.args(), shell_context ) # new command 
+                com =  CommandClass ( command_invoc_spec.args(), shell_context ) # new command 
                 com.run() #run command
             
                 shell_context.setcwd( com.shell_context.cwd() ) # set cwd
@@ -361,7 +386,7 @@ def main():
                                    
                 # Start the process
                 p = subprocess.Popen(
-                    [command, *command_line.args() ],
+                    [command, *command_invoc_spec.args() ],
                     stdin=prev_stdout,
                     stdout=sys.stdout if last_command() else subprocess.PIPE,
                     stderr=sys.stderr,
