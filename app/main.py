@@ -341,7 +341,7 @@ class BuiltinCommandInvoc(CommandInvoc):
 
 class ExecCommandInvoc(CommandInvoc):
     
-    def stdout(self, stdin):
+    def stdout(self, shell_context, stdin):
         # Start the process
         p = subprocess.Popen(
             [ self.spec().command() , *self.spec().args() ],
@@ -349,7 +349,7 @@ class ExecCommandInvoc(CommandInvoc):
             stdout=sys.stdout if self.end_pipe() else subprocess.PIPE,
             stderr=sys.stderr,
             text=True,  # ensures input/output are str, not bytes
-            cwd=self.cwd()
+            cwd=shell_context.cwd()
         )
                                                 
         if self.end_pipe():
@@ -406,7 +406,7 @@ def main():
                 
             
             elif isinstance(command_invoc, ExecCommandInvoc):
-                prev_stdout = command_invoc.stdout(prev_stdout)
+                prev_stdout = command_invoc.stdout(shell_context, prev_stdout)
                 
                 
             # else:
