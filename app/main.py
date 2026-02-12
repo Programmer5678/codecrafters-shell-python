@@ -260,7 +260,10 @@ def input_next_line():
     # def args(line):
     #     return line.split()[1:]
     
-    return [ CommandInvocSpec(com_line) for com_line in com_lines ]
+    return [ CommandInvocSpec(com_line, index == len( com_line ) - 1 ) for index, com_line in enumerate(com_lines) ]
+
+
+
 # [ { "command" : command(com), "args": args(com)} for com in com_lines ]
                 
 def err_not_found(command):
@@ -299,8 +302,9 @@ def completer(text: str, state: int) -> str:
 
 class CommandInvocSpec:
     
-    def __init__( self, command_invoc_str ):
+    def __init__( self, command_invoc_str, end_pipe ):
         self.command_invoc_str = command_invoc_str
+        self._end_pipe = end_pipe
     
     def __repr__(self):
         return self.command_invoc_str
@@ -310,6 +314,9 @@ class CommandInvocSpec:
     
     def args(self):
         return self.command_invoc_str.split()[1:]
+    
+    def end_pipe(self):
+        return self._end_pipe
 
 class CommandInvoc:
     def __init__( self, spec ):
@@ -333,6 +340,8 @@ class BuiltinCommandInvoc(CommandInvoc):
 
 class ExecCommandInvoc(CommandInvoc):
     pass
+#     def run(self):
+
 
 class NotFoundCommandInvoc (CommandInvoc):
     pass
@@ -366,7 +375,6 @@ def main():
                 return index == len(command_lines) - 1
             
             
-            
             command_invoc = CommandInvoc.from_spec(command_invoc_spec)
             
             # command = command_invoc.spec().command()
@@ -389,17 +397,23 @@ def main():
             elif isinstance(command_invoc, ExecCommandInvoc):
             # elif File.find_in_path(command) :
                                    
+                #last_command_in_pipe
+                # in_pipe in general?
+                                   
+                #What varies and is dynamic - so shouldnt be part of the ExecCommandInvoc is just stdin = prev_stdout
+                # shell_context is static! No changes!
+                                   
                 # Start the process
                 p = subprocess.Popen(
                     [ command_invoc.spec().command() , *command_invoc.spec().args() ],
                     stdin=prev_stdout,
-                    stdout=sys.stdout if last_command() else subprocess.PIPE,
+                    stdout=sys.stdout if command_invoc.end_pipe() else subprocess.PIPE,
                     stderr=sys.stderr,
                     text=True,  # ensures input/output are str, not bytes
                     cwd=shell_context.cwd()
                 )
                                                        
-                if last_command():
+                if command_invoc.end_pipe():
                     p.wait()
                     
                 prev_stdout = p.stdout
