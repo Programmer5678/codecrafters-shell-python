@@ -346,7 +346,11 @@ class CommandInvoc:
         
 class BuiltinCommandInvoc(CommandInvoc):
     # def stdout(self, shel)
-    pass
+    def stdout(self):
+        CommandClass = command_class( self.spec().command() )
+        com =  CommandClass ( self.spec().args(), copy.deepcopy(self.shell_context()) ) # new command 
+        com.run() #run command
+        self.setcwd( com.shell_context.cwd() )
 
 class ExecCommandInvoc(CommandInvoc):
     
@@ -408,16 +412,10 @@ def main():
                 if len(command_lines) != 1:
                     raise Exception("No pipes here yet!")
                 
-                CommandClass = command_class( command_invoc.spec().command() )
-                com =  CommandClass ( command_invoc.spec().args(), shell_context ) # new command 
-                com.run() #run command
+                command_invoc.stdout()
                 
-                command_invoc.setcwd( com.shell_context.cwd() )
-                
-            
             elif isinstance(command_invoc, ExecCommandInvoc):
                 prev_stdout = command_invoc.stdout( prev_stdout )
-                
                 
             # else:
             elif isinstance( command_invoc, NotFoundCommandInvoc ):
@@ -428,7 +426,6 @@ def main():
                 err_not_found( 
                               command_invoc.spec().command()
                               )
-                
                 
             if command_invoc.end_pipe():
                 shell_context.setcwd( command_invoc.shell_context().cwd() ) # set cwd
