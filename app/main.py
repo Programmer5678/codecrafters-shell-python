@@ -1,3 +1,4 @@
+import copy
 import os 
 from abc import ABC, abstractmethod
 import subprocess
@@ -386,7 +387,7 @@ def main():
         
         command_invocs = [ CommandInvoc.from_spec(command_invoc_spec, 
                                                   (index == len( command_lines ) - 1),
-                                                  shell_context.clone() )
+                                                  copy.deepcopy(shell_context) )
                           for index, command_invoc_spec in enumerate(command_lines) ]
         
         prev_stdout = subprocess.PIPE # This is the output pipe of previous command(process)
