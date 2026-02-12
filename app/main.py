@@ -392,15 +392,15 @@ def main():
                 
         command_lines = input_next_line()
         
+        shell_context.set_history( shell_context.history() + ["|".join([str(cl) for cl in command_lines]) ]  )            
+        
         command_invocs = [ CommandInvoc.from_spec(command_invoc_spec, 
                                                   (index == len( command_lines ) - 1),
                                                   copy.deepcopy(shell_context) )
                           for index, command_invoc_spec in enumerate(command_lines) ]
         
         prev_stdout = subprocess.PIPE # This is the output pipe of previous command(process)
-                    
-        shell_context.set_history( shell_context.history() + ["|".join([str(cl) for cl in command_lines]) ]  )    
-                
+                                    
         # loop throught command lines
         for command_invoc in command_invocs:
             
