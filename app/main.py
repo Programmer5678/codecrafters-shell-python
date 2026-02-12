@@ -413,8 +413,9 @@ def main():
                 com.run() #run command
                 
                 command_invoc.setcwd( com.shell_context.cwd() )
-            
-                shell_context.setcwd( command_invoc.shell_context().cwd() ) # set cwd
+                
+                if command_invoc.end_pipe():
+                    shell_context.setcwd( command_invoc.shell_context().cwd() ) # set cwd
                 
             
             elif isinstance(command_invoc, ExecCommandInvoc):
