@@ -1,10 +1,12 @@
+from collections import namedtuple
 import copy
+from dataclasses import dataclass
 import os 
-from abc import ABC, abstractmethod
 import subprocess
 
 import readline
 import sys
+from typing import List
 
 
 # class Command(ABC):
@@ -20,14 +22,29 @@ import sys
 #     def run( self ):
 #         pass
     
+    
+    
+    
+    
+# I want the current Command subclasses to use self.spec().args() rather than self.args()
+# and self.shell_context() rather than self.shell_context
+    
 class ExitCommand:
     
     def __init__(self, args, shell_context):
-        self._args = args
+        
+        @dataclass 
+        class Spec:
+            _args: List[str]
+            
+            def args(self):
+                return self._args
+            
+        self._spec = Spec( args )
         self.shell_context = shell_context
         
-    def args(self):
-        return self._args
+    def spec(self):
+        return self._spec
     
     def run( self ):
         raise SystemExit(0)
@@ -35,24 +52,40 @@ class ExitCommand:
 class EchoCommand:
     
     def __init__(self, args, shell_context):
-        self._args = args
+        
+        @dataclass 
+        class Spec:
+            _args: List[str]
+            
+            def args(self):
+                return self._args
+            
+        self._spec = Spec( args )
         self.shell_context = shell_context
         
-    def args(self):
-        return self._args
+    def spec(self):
+        return self._spec
     
     def run( self ):
-        print( " ".join( self.args() ) )
+        print( " ".join( self.spec().args() ) )
              
 
 class TypeCommand:
     
     def __init__(self, args, shell_context):
-        self._args = args
+        
+        @dataclass 
+        class Spec:
+            _args: List[str]
+            
+            def args(self):
+                return self._args
+            
+        self._spec = Spec( args )
         self.shell_context = shell_context
         
-    def args(self):
-        return self._args
+    def spec(self):
+        return self._spec
 
     def run(self):
 
@@ -69,7 +102,7 @@ class TypeCommand:
             print(arg + ": not found")
 
         # ---- main loop ----
-        for arg in self.args():
+        for arg in self.spec().args():
             if _shell_builtin(arg):
                 _print_shell_builtin(arg)
             else:
@@ -83,11 +116,19 @@ class TypeCommand:
 class PwdCommand:
     
     def __init__(self, args, shell_context):
-        self._args = args
+        
+        @dataclass 
+        class Spec:
+            _args: List[str]
+            
+            def args(self):
+                return self._args
+            
+        self._spec = Spec( args )
         self.shell_context = shell_context
         
-    def args(self):
-        return self._args
+    def spec(self):
+        return self._spec
 
     def run(self):
         print( self.shell_context.cwd() )  
@@ -95,11 +136,19 @@ class PwdCommand:
 class CdCommand:
     
     def __init__(self, args, shell_context):
-        self._args = args
+        
+        @dataclass 
+        class Spec:
+            _args: List[str]
+            
+            def args(self):
+                return self._args
+            
+        self._spec = Spec( args )
         self.shell_context = shell_context
         
-    def args(self):
-        return self._args
+    def spec(self):
+        return self._spec
     
     def run(self):
         
@@ -128,10 +177,10 @@ class CdCommand:
             
             
         
-        if( len(self.args()) > 1 ):
+        if( len(self.spec().args()) > 1 ):
             print("cd: too many arguments")
             
-        target_path=self.args()[0]
+        target_path=self.spec().args()[0]
         target_full_path = absolute(target_path) 
             
         if os.path.isdir(target_full_path):
@@ -147,11 +196,19 @@ class CdCommand:
 class HistoryCommand:
     
     def __init__(self, args, shell_context):
-        self._args = args
+        
+        @dataclass 
+        class Spec:
+            _args: List[str]
+            
+            def args(self):
+                return self._args
+            
+        self._spec = Spec( args )
         self.shell_context = shell_context
         
-    def args(self):
-        return self._args
+    def spec(self):
+        return self._spec
     
     def run(self):
         
@@ -165,13 +222,13 @@ class HistoryCommand:
             print(   "\n".join( history_lines[-nl:] )   ) 
             
         def no_num_lines_arg():
-            return len( self.args() ) == 0
+            return len( self.spec().args() ) == 0
         
         def num_lines_arg():
-            return int(self.args()[0])
+            return int(self.spec().args()[0])
         
         def too_many_args():
-            return len( self.args() ) > 1
+            return len( self.spec().args() ) > 1
         
         def err_too_many_args():
             print("history: too many arguments", file=sys.stderr) 
@@ -359,6 +416,7 @@ class CommandInvocSpec:
     def args(self):
         return self.command_invoc_str.split()[1:]
     
+
 
 class CommandInvoc:
     def __init__( self, spec, end_pipe, shell_context ):
