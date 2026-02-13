@@ -12,52 +12,20 @@ from typing import List
 
 
     
-class ExitCommand:
+class ExitCommand(CommandInvoc):
     
-    def __init__(self, spec, end_pipe, shell_context):
-
-        self._spec = spec
-        self._shell_context = copy.deepcopy(shell_context)
-        
-    def spec(self):
-        return self._spec
-    
-    def shell_context(self):
-        return self._shell_context
     
     def run( self ):
         raise SystemExit(0)
     
-class EchoCommand:
-    
-    def __init__(self, spec, end_pipe, shell_context):
-
-        self._spec = spec
-        self._shell_context = copy.deepcopy(shell_context)
-        
-    def spec(self):
-        return self._spec
-    
-    def shell_context(self):
-        return self._shell_context
+class EchoCommand(CommandInvoc):
     
     def run( self ):
         print( " ".join( self.spec().args() ) )
              
 
-class TypeCommand:
+class TypeCommand(CommandInvoc):
     
-    def __init__(self, spec, end_pipe, shell_context):
-
-        self._spec = spec
-        self._shell_context = copy.deepcopy(shell_context)
-        
-    def spec(self):
-        return self._spec
-    
-    def shell_context(self):
-        return self._shell_context
-
     def run(self):
 
         def _shell_builtin(arg):
@@ -84,34 +52,12 @@ class TypeCommand:
                     _err_not_found(arg)
 
       
-class PwdCommand:
-    
-    def __init__(self, spec, end_pipe, shell_context):
-
-        self._spec = spec
-        self._shell_context = copy.deepcopy(shell_context)
-        
-    def spec(self):
-        return self._spec
-    
-    def shell_context(self):
-        return self._shell_context
+class PwdCommand(CommandInvoc):
 
     def run(self):
         print( self.shell_context().cwd() )  
             
-class CdCommand:
-    
-    def __init__(self, spec, end_pipe, shell_context):
-
-        self._spec = spec
-        self._shell_context = copy.deepcopy(shell_context)
-        
-    def spec(self):
-        return self._spec
-    
-    def shell_context(self):
-        return self._shell_context
+class CdCommand(CommandInvoc):
     
     def run(self):
         
@@ -156,18 +102,7 @@ class CdCommand:
  
         
         
-class HistoryCommand:
-    
-    def __init__(self, spec, end_pipe, shell_context):
-
-        self._spec = spec
-        self._shell_context = copy.deepcopy(shell_context)
-        
-    def spec(self):
-        return self._spec
-    
-    def shell_context(self):
-        return self._shell_context
+class HistoryCommand(CommandInvoc):
     
     def run(self):
         
