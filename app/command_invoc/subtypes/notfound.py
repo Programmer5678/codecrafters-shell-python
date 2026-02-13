@@ -1,6 +1,8 @@
+import sys
 from app.command_invoc.models import CommandInvoc
-from app.main import err_not_found
 
+def err_not_found(command):
+    print(f"{command}: command not found", file=sys.stderr) 
 
 class NotFoundCommandInvoc (CommandInvoc):
     def run(self, stdin):

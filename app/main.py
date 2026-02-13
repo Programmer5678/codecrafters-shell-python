@@ -52,13 +52,6 @@ def input_next_line():
     return [ CommandInvocSpec(com_line ) for  com_line in com_lines ]
 
 
-
-# [ { "command" : command(com), "args": args(com)} for com in com_lines ]
-                
-def err_not_found(command):
-    print(f"{command}: command not found", file=sys.stderr)     
-
-
     
 def completer(text: str, state: int) -> str:
     
