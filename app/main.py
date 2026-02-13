@@ -31,16 +31,17 @@ from typing import List
     
 class ExitCommand:
     
-    def __init__(self, args, shell_context):
+    def __init__(self, spec, shell_context):
         
-        @dataclass 
-        class Spec:
-            _args: List[str]
+        # @dataclass 
+        # class Spec:
+        #     _args: List[str]
             
-            def args(self):
-                return self._args
+        #     def args(self):
+        #         return self._args
             
-        self._spec = Spec( args )
+        # self._spec = Spec( args )
+        self._spec = spec
         self._shell_context = shell_context
         
     def spec(self):
@@ -54,16 +55,9 @@ class ExitCommand:
     
 class EchoCommand:
     
-    def __init__(self, args, shell_context):
+    def __init__(self, spec, shell_context):
         
-        @dataclass 
-        class Spec:
-            _args: List[str]
-            
-            def args(self):
-                return self._args
-            
-        self._spec = Spec( args )
+        self._spec = spec
         self._shell_context = shell_context
         
     def spec(self):
@@ -78,16 +72,9 @@ class EchoCommand:
 
 class TypeCommand:
     
-    def __init__(self, args, shell_context):
+    def __init__(self, spec, shell_context):
         
-        @dataclass 
-        class Spec:
-            _args: List[str]
-            
-            def args(self):
-                return self._args
-            
-        self._spec = Spec( args )
+        self._spec = spec
         self._shell_context = shell_context
         
     def spec(self):
@@ -124,16 +111,9 @@ class TypeCommand:
       
 class PwdCommand:
     
-    def __init__(self, args, shell_context):
+    def __init__(self, spec, shell_context):
         
-        @dataclass 
-        class Spec:
-            _args: List[str]
-            
-            def args(self):
-                return self._args
-            
-        self._spec = Spec( args )
+        self._spec = spec
         self._shell_context = shell_context
         
     def spec(self):
@@ -147,16 +127,8 @@ class PwdCommand:
             
 class CdCommand:
     
-    def __init__(self, args, shell_context):
-        
-        @dataclass 
-        class Spec:
-            _args: List[str]
-            
-            def args(self):
-                return self._args
-            
-        self._spec = Spec( args )
+    def __init__(self, spec, shell_context):
+        self._spec = spec
         self._shell_context = shell_context
         
     def spec(self):
@@ -210,16 +182,8 @@ class CdCommand:
         
 class HistoryCommand:
     
-    def __init__(self, args, shell_context):
-        
-        @dataclass 
-        class Spec:
-            _args: List[str]
-            
-            def args(self):
-                return self._args
-            
-        self._spec = Spec( args )
+    def __init__(self, spec, shell_context):
+        self._spec = spec
         self._shell_context = shell_context
         
     def spec(self):
@@ -455,7 +419,7 @@ class CommandInvoc:
         self._shell_context.setcwd(cwd)
        
     @classmethod 
-    def from_spec(cls, spec, end_pipe, shell_context):
+    def resolve(cls, spec, end_pipe, shell_context):
         
         if is_builtin( spec.command() ):
             return BuiltinCommandInvoc(spec, end_pipe, shell_context)
@@ -468,7 +432,8 @@ class BuiltinCommandInvoc(CommandInvoc):
     # def run(self, shel)
     def run(self):
         CommandClass = command_class( self.spec().command() )
-        com =  CommandClass ( self.spec().args(), copy.deepcopy(self.shell_context()) ) # new command 
+        
+        com =  CommandClass ( self.spec(), copy.deepcopy(self.shell_context()) ) # new command 
         com.run() #run command
         self.setcwd( com.shell_context().cwd() )
 
@@ -517,7 +482,7 @@ def main():
         
         shell_context.set_history( shell_context.history() + ["|".join([str(cl) for cl in command_lines]) ]  )            
         
-        command_invocs = [ CommandInvoc.from_spec(command_invoc_spec, 
+        command_invocs = [ CommandInvoc.resolve(command_invoc_spec, 
                                                   (index == len( command_lines ) - 1),
                                                   copy.deepcopy(shell_context) )
                           for index, command_invoc_spec in enumerate(command_lines) ]
