@@ -36,7 +36,7 @@ class CommandInvocSpec:
 class CommandInvocArgs:
     spec : CommandInvocSpec
     end_pipe : bool
-    shell_context: ShellContext
+    shell_context: Any
 
 class CommandInvoc(ABC):
     
@@ -81,6 +81,7 @@ class CommandInvoc(ABC):
 
 class ExecCommandInvoc(CommandInvoc):
     
+    
     def run(self, stdin):
         # Start the process
         p = subprocess.Popen(
@@ -105,49 +106,57 @@ class NotFoundCommandInvoc (CommandInvoc):
 
 
 
-    
-    
-    
+
+# I want a class that determines if name is part of commandInvoc or not. But command is something we pass into. 
+# so how is this possible? do we need command?    
+# Did i got too far in inheritance. maybe BuiltCommand and ExecCmommand dont have enough in common. But boy they do! the shell_context everything. except command.
+# We can move command outside and only pass executable!?
+# The spec still has sort of a meaning though ( how this command was called ? )
+# Ill keep it for now. And just add a call to validate command = expected_command().
     
 class BuiltinCommandInvoc(CommandInvoc):
-    
-    _commands = {
-        "exit" : "ExitCommand",
-        "echo" : "EchoCommand",
-        "type" : "TypeCommand",
-        "pwd" : "PwdCommand",
-        "cd" : "CdCommand",
-        "history"  : "HistoryCommand"
-    }
+        
     
     @classmethod
+    def commands(cls):
+        return {
+            Subclass.expected_command : Subclass
+            for Subclass in cls.__subclasses__()
+        }
+            
+    @classmethod
     def is_builtin(cls, command):
-        return command in cls._commands.keys()
+        return command in cls.commands().keys()
     
     
     @classmethod
     def resolve(cls, args: CommandInvocArgs):
         
         def command_class( command ):
-            return cls._commands[command] 
+            return cls.commands()[command] 
         
-        CommandClass = globals()[command_class( args.spec.command() ) ]      
-        return CommandClass ( args )  # new command
+        # CommandClass = globals()[command_class( args.spec.command() ) ]      
+        return command_class( args.spec.command()  ) ( args )  # new command
     
     
 class ExitCommand(BuiltinCommandInvoc):
     
+    expected_command = "exit"
     
     def run( self, stdin ):
         raise SystemExit(0)
     
 class EchoCommand(BuiltinCommandInvoc):
     
+    expected_command="echo"
+    
     def run( self, stdin ):
         print( " ".join( self.spec().args() ) )
              
 
 class TypeCommand(BuiltinCommandInvoc):
+    
+    expected_command="type"
     
     def run(self, stdin):
 
@@ -173,11 +182,15 @@ class TypeCommand(BuiltinCommandInvoc):
 
       
 class PwdCommand(BuiltinCommandInvoc):
+    
+    expected_command="pwd"
 
     def run(self, stdin):
         print( self.shell_context().cwd() )  
             
 class CdCommand(BuiltinCommandInvoc):
+    
+    expected_command="cd"
     
     def run(self, stdin):
         
@@ -223,6 +236,8 @@ class CdCommand(BuiltinCommandInvoc):
         
         
 class HistoryCommand(BuiltinCommandInvoc):
+    
+    expected_command = "history"
     
     def run(self, stdin):
         
@@ -384,7 +399,7 @@ def completer(text: str, state: int) -> str:
     if not_first_match():
         return None
     
-    matching_commands = [ com for com in commands.keys() if com.startswith(text) ]  
+    matching_commands = [ com for com in BuiltinCommandInvoc.commands().keys() if com.startswith(text) ]  
 
     if multiple_matches_exist():
         return None
