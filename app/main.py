@@ -56,7 +56,7 @@ class CommandInvoc:
         if is_builtin( spec.command() ):
             
             CommandClass = command_class( spec.command() )            
-            return CommandClass ( spec, end_pipe, shell_context())  # new command
+            return CommandClass ( spec, end_pipe, shell_context )  # new command
         
         elif File.find_in_path( spec.command() ) :
             return ExecCommandInvoc(spec, end_pipe, shell_context)
