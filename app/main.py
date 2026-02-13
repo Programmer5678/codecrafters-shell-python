@@ -41,10 +41,13 @@ class ExitCommand:
                 return self._args
             
         self._spec = Spec( args )
-        self.shell_context = shell_context
+        self._shell_context = shell_context
         
     def spec(self):
         return self._spec
+    
+    def shell_context(self):
+        return self._shell_context
     
     def run( self ):
         raise SystemExit(0)
@@ -61,10 +64,13 @@ class EchoCommand:
                 return self._args
             
         self._spec = Spec( args )
-        self.shell_context = shell_context
+        self._shell_context = shell_context
         
     def spec(self):
         return self._spec
+    
+    def shell_context(self):
+        return self._shell_context
     
     def run( self ):
         print( " ".join( self.spec().args() ) )
@@ -82,10 +88,13 @@ class TypeCommand:
                 return self._args
             
         self._spec = Spec( args )
-        self.shell_context = shell_context
+        self._shell_context = shell_context
         
     def spec(self):
         return self._spec
+    
+    def shell_context(self):
+        return self._shell_context
 
     def run(self):
 
@@ -125,13 +134,16 @@ class PwdCommand:
                 return self._args
             
         self._spec = Spec( args )
-        self.shell_context = shell_context
+        self._shell_context = shell_context
         
     def spec(self):
         return self._spec
+    
+    def shell_context(self):
+        return self._shell_context
 
     def run(self):
-        print( self.shell_context.cwd() )  
+        print( self.shell_context().cwd() )  
             
 class CdCommand:
     
@@ -145,10 +157,13 @@ class CdCommand:
                 return self._args
             
         self._spec = Spec( args )
-        self.shell_context = shell_context
+        self._shell_context = shell_context
         
     def spec(self):
         return self._spec
+    
+    def shell_context(self):
+        return self._shell_context
     
     def run(self):
         
@@ -173,7 +188,7 @@ class CdCommand:
                 return home_dir()
                 
             else:
-                return os.path.abspath(os.path.join(self.shell_context.cwd() , target_path))
+                return os.path.abspath(os.path.join(self.shell_context().cwd() , target_path))
             
             
         
@@ -184,7 +199,7 @@ class CdCommand:
         target_full_path = absolute(target_path) 
             
         if os.path.isdir(target_full_path):
-            self.shell_context.setcwd(target_full_path)
+            self.shell_context().setcwd(target_full_path)
             
             
         else: 
@@ -205,10 +220,13 @@ class HistoryCommand:
                 return self._args
             
         self._spec = Spec( args )
-        self.shell_context = shell_context
+        self._shell_context = shell_context
         
     def spec(self):
         return self._spec
+    
+    def shell_context(self):
+        return self._shell_context
     
     def run(self):
         
@@ -233,7 +251,7 @@ class HistoryCommand:
         def err_too_many_args():
             print("history: too many arguments", file=sys.stderr) 
         
-        history_lines = [ history_line(line_num, line) for line_num, line in enumerate( self.shell_context.history() ) ] 
+        history_lines = [ history_line(line_num, line) for line_num, line in enumerate( self.shell_context().history() ) ] 
         
         if no_num_lines_arg():
             print_all_lines(history_lines)
