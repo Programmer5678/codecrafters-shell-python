@@ -152,7 +152,7 @@ class TypeCommand(BuiltinCommandInvoc):
     def run(self, stdin):
 
         def _shell_builtin(arg):
-            return arg in commands
+            return arg in BuiltinCommandInvoc._commands
 
         def _print_shell_builtin(arg):
             print(arg + " is a shell builtin")
