@@ -54,28 +54,13 @@ class CommandInvoc:
     def resolve(cls, spec, end_pipe, shell_context):
         
         if is_builtin( spec.command() ):
-            
-            CommandClass = command_class( spec.command() )            
-            return CommandClass ( spec, end_pipe, shell_context )  # new command
+            return BuiltinCommandInvoc.resolve( spec, end_pipe, shell_context )  
         
         elif File.find_in_path( spec.command() ) :
             return ExecCommandInvoc(spec, end_pipe, shell_context)
         else:
             return NotFoundCommandInvoc(spec, end_pipe, shell_context)
   
-  
-        
-# class BuiltinCommandInvoc(CommandInvoc):
-#     # def run(self, shel)
-#     def run(self):
-#         CommandClass = command_class( self.spec().command() )
-        
-#         com =  CommandClass ( self.spec(), self.end_pipe, self.shell_context())  # new command 
-#         com.run() #run command
-#         self.setcwd( com.shell_context().cwd() )
-
-
-
 
 
 class ExecCommandInvoc(CommandInvoc):
@@ -109,7 +94,11 @@ class NotFoundCommandInvoc (CommandInvoc):
     
     
 class BuiltinCommandInvoc(CommandInvoc):
-    pass    
+    
+    @classmethod
+    def resolve(cls, spec, end_pipe, shell_context):
+        CommandClass = command_class( spec.command() )            
+        return CommandClass ( spec, end_pipe, shell_context )  # new command
     
     
 class ExitCommand(BuiltinCommandInvoc):
