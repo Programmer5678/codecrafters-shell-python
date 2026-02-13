@@ -11,11 +11,11 @@ from typing import List
 
 
 
-def is_builtin(command):
-    return command in commands.keys()
 
-def command_class(command):
-    return commands[command] 
+
+
+
+
 
 class CommandInvocSpec:
     
@@ -66,7 +66,7 @@ class CommandInvoc(ABC):
     @classmethod 
     def resolve(cls, args: CommandInvocArgs ):
         
-        if is_builtin( args.spec.command() ):
+        if BuiltinCommandInvoc.is_builtin( args.spec.command() ):
             return BuiltinCommandInvoc.resolve( args )  
         
         elif File.find_in_path( args.spec.command() ) :
@@ -111,9 +111,27 @@ class NotFoundCommandInvoc (CommandInvoc):
     
 class BuiltinCommandInvoc(CommandInvoc):
     
+    _commands = {
+        "exit" : "ExitCommand",
+        "echo" : "EchoCommand",
+        "type" : "TypeCommand",
+        "pwd" : "PwdCommand",
+        "cd" : "CdCommand",
+        "history"  : "HistoryCommand"
+    }
+    
+    @classmethod
+    def is_builtin(cls, command):
+        return command in cls._commands.keys()
+    
+    
     @classmethod
     def resolve(cls, args: CommandInvocArgs):
-        CommandClass = command_class( args.spec.command() )            
+        
+        def command_class( command ):
+            return cls._commands[command] 
+        
+        CommandClass = cls.command_class( args.spec.command() )            
         return CommandClass ( args )  # new command
     
     
@@ -244,14 +262,6 @@ class HistoryCommand(BuiltinCommandInvoc):
             print_last_n_lines( history_lines, num_lines_arg() )
     
                 
-commands = {
-    "exit" : ExitCommand,
-    "echo" : EchoCommand,
-    "type" : TypeCommand,
-    "pwd" : PwdCommand,
-    "cd" : CdCommand,
-    "history"  : HistoryCommand
-}
 
 
 
@@ -364,7 +374,6 @@ def input_next_line():
 def err_not_found(command):
     print(f"{command}: command not found", file=sys.stderr)     
 
-    
 
     
 def completer(text: str, state: int) -> str:
@@ -386,15 +395,6 @@ def completer(text: str, state: int) -> str:
     matching_com = matching_commands[0]
     return matching_com
 
-
-
-
-        
-
-#OK so a pipeline is when i have | in my command
-# --> this works for now only for executable.
-# so get com1 , com2. Make sure executables. 
-# then run com2 with com1 as stdin
 
 def main():
     
