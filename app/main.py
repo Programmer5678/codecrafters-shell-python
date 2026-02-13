@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from collections import namedtuple
 import copy
 from dataclasses import dataclass
@@ -37,8 +38,7 @@ class CommandInvocArgs:
     end_pipe : bool
     shell_context: ShellContext
 
-
-class CommandInvoc:
+class CommandInvoc(ABC):
     
     def __init__( self, args: CommandInvocArgs):
         self._spec = args.spec 
@@ -56,6 +56,12 @@ class CommandInvoc:
     
     def setcwd(self, cwd):
         self._shell_context.setcwd(cwd)
+        
+        
+    @abstractmethod
+    def run(self, stdin):
+        pass
+        
        
     @classmethod 
     def resolve(cls, args: CommandInvocArgs ):
@@ -67,6 +73,8 @@ class CommandInvoc:
             return ExecCommandInvoc( args )
         else:
             return NotFoundCommandInvoc(args)
+        
+    
   
 
 
@@ -90,7 +98,7 @@ class ExecCommandInvoc(CommandInvoc):
         return p.stdout
 
 class NotFoundCommandInvoc (CommandInvoc):
-    def run(self):
+    def run(self, stdin):
         return err_not_found(
             self.spec().command()
         )
@@ -112,18 +120,18 @@ class BuiltinCommandInvoc(CommandInvoc):
 class ExitCommand(BuiltinCommandInvoc):
     
     
-    def run( self ):
+    def run( self, stdin ):
         raise SystemExit(0)
     
 class EchoCommand(BuiltinCommandInvoc):
     
-    def run( self ):
+    def run( self, stdin ):
         print( " ".join( self.spec().args() ) )
              
 
 class TypeCommand(BuiltinCommandInvoc):
     
-    def run(self):
+    def run(self, stdin):
 
         def _shell_builtin(arg):
             return arg in commands
@@ -151,12 +159,12 @@ class TypeCommand(BuiltinCommandInvoc):
       
 class PwdCommand(BuiltinCommandInvoc):
 
-    def run(self):
+    def run(self, stdin):
         print( self.shell_context().cwd() )  
             
 class CdCommand(BuiltinCommandInvoc):
     
-    def run(self):
+    def run(self, stdin):
         
         def err_no_such_file_dir():
             print(f"cd: {target_path}: No such file or directory", file=sys.stderr) 
@@ -201,7 +209,7 @@ class CdCommand(BuiltinCommandInvoc):
         
 class HistoryCommand(BuiltinCommandInvoc):
     
-    def run(self):
+    def run(self, stdin):
         
         def history_line(line_num, line_content):
             return f"\t{line_num+1} {line_content}"
