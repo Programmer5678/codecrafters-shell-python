@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 from typing import Any
-from app.main import File
-
-
+from app.search_files import find_in_path
 import copy
 from abc import ABC, abstractmethod
 
@@ -64,7 +62,7 @@ class CommandInvoc(ABC):
         if BuiltinCommandInvoc.is_builtin( args.spec.command() ):
             return BuiltinCommandInvoc.resolve( args )
 
-        elif File.find_in_path( args.spec.command() ) :
+        elif find_in_path( args.spec.command() ) :
             return ExecCommandInvoc( args )
         else:
             return NotFoundCommandInvoc(args)
