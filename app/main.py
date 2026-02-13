@@ -131,7 +131,7 @@ class BuiltinCommandInvoc(CommandInvoc):
         def command_class( command ):
             return cls._commands[command] 
         
-        CommandClass = cls.command_class( args.spec.command() )            
+        CommandClass = command_class( args.spec.command() )            
         return CommandClass ( args )  # new command
     
     
