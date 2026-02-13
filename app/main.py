@@ -428,7 +428,7 @@ def main():
                 if len(command_lines) != 1:
                     raise Exception("No pipes here yet!")
                 
-                command_invoc.run()
+                command_invoc.run(None)
                 
             elif isinstance(command_invoc, ExecCommandInvoc):
                 prev_stdout = command_invoc.run( prev_stdout )
@@ -438,7 +438,7 @@ def main():
                 if len(command_lines) != 1:
                     raise Exception("No pipes here yet!")
                 
-                command_invoc.run()
+                command_invoc.run(None)
                 
             if command_invoc.end_pipe():
                 shell_context.setcwd( command_invoc.shell_context().cwd() ) # set cwd
