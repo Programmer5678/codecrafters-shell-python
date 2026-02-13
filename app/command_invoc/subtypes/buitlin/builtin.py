@@ -12,6 +12,7 @@ class BuiltinCommandInvoc(CommandInvoc):
 
     @classmethod
     def commands(cls):
+        
         return {
             Subclass.expected_command : Subclass
             for Subclass in cls.__subclasses__()

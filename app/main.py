@@ -12,6 +12,14 @@ from app.command_invoc.subtypes.buitlin.builtin import BuiltinCommandInvoc
 from app.command_invoc.subtypes.exec import ExecCommandInvoc
 from app.command_invoc.subtypes.notfound import NotFoundCommandInvoc
 
+from app.command_invoc.subtypes.buitlin.subtypes.cd import CdCommand
+from app.command_invoc.subtypes.buitlin.subtypes.echo import EchoCommand
+from app.command_invoc.subtypes.buitlin.subtypes.exit import ExitCommand
+from app.command_invoc.subtypes.buitlin.subtypes.history import HistoryCommand
+from app.command_invoc.subtypes.buitlin.subtypes.pwd import PwdCommand
+from app.command_invoc.subtypes.buitlin.subtypes.type import TypeCommand
+
+
 class ShellContext:
     
     def __init__(self, cwd, history):
@@ -29,10 +37,6 @@ class ShellContext:
             
     def set_history(self, history):
         self._history = history
-
-
-
-
 
 
 def input_next_line():

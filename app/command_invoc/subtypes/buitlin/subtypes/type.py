@@ -1,5 +1,5 @@
 from app.command_invoc.subtypes.buitlin.builtin import BuiltinCommandInvoc
-from app.main import File
+from app.search_files import find_in_path
 
 
 class TypeCommand(BuiltinCommandInvoc):
@@ -22,7 +22,7 @@ class TypeCommand(BuiltinCommandInvoc):
             if BuiltinCommandInvoc.is_builtin(arg):
                 _print_shell_builtin(arg)
             else:
-                executable = File.find_in_path(arg)
+                executable = find_in_path(arg)
                 if executable:
                     _print_exec(arg, executable)
                 else:
