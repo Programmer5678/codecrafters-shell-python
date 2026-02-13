@@ -116,6 +116,12 @@ class NotFoundCommandInvoc (CommandInvoc):
     
 class BuiltinCommandInvoc(CommandInvoc):
         
+    def __init__(self, args : CommandInvocArgs):
+        super().__init__(args)
+        
+        def command_matches_expected():
+            return self.expected_command == args.spec.command()
+        assert( command_matches_expected()  )
     
     @classmethod
     def commands(cls):
