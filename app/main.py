@@ -1,285 +1,22 @@
-from abc import ABC, abstractmethod
-from collections import namedtuple
-import copy
-from dataclasses import dataclass
 import os 
 import subprocess
 
 import readline
 import sys
-from typing import Any, List
+from typing import List
+
+from app.command_invoc.models import CommandInvoc
+from app.command_invoc.models import CommandInvocArgs
+from app.command_invoc.models import CommandInvocSpec
+from app.command_invoc.subtypes.buitlin.builtin import BuiltinCommandInvoc
+from app.command_invoc.subtypes.exec import ExecCommandInvoc
+from app.command_invoc.subtypes.notfound import NotFoundCommandInvoc
 
 
 
 
 
 
-
-
-
-class CommandInvocSpec:
-    
-    def __init__( self, command_invoc_str ):
-        self.command_invoc_str = command_invoc_str
-    
-    def __repr__(self):
-        return self.command_invoc_str
-    
-    def command(self):
-        return self.command_invoc_str.split()[0]
-    
-    def args(self):
-        return self.command_invoc_str.split()[1:]
-
-
-@dataclass
-class CommandInvocArgs:
-    spec : CommandInvocSpec
-    end_pipe : bool
-    shell_context: Any
-
-class CommandInvoc(ABC):
-    
-    def __init__( self, args: CommandInvocArgs):
-        self._spec = args.spec 
-        self._end_pipe = args.end_pipe
-        self._shell_context = copy.deepcopy(args.shell_context)
-        
-    def spec(self):
-        return self._spec
-       
-    def end_pipe(self):
-        return self._end_pipe
-    
-    def shell_context(self):
-        return self._shell_context
-    
-    def setcwd(self, cwd):
-        self._shell_context.setcwd(cwd)
-        
-        
-    @abstractmethod
-    def run(self, stdin):
-        pass
-        
-       
-    @classmethod 
-    def resolve(cls, args: CommandInvocArgs ):
-        
-        if BuiltinCommandInvoc.is_builtin( args.spec.command() ):
-            return BuiltinCommandInvoc.resolve( args )  
-        
-        elif File.find_in_path( args.spec.command() ) :
-            return ExecCommandInvoc( args )
-        else:
-            return NotFoundCommandInvoc(args)
-        
-    
-  
-
-
-
-class ExecCommandInvoc(CommandInvoc):
-    
-    
-    def run(self, stdin):
-        # Start the process
-        p = subprocess.Popen(
-            [ self.spec().command() , *self.spec().args() ],
-            stdin=stdin,
-            stdout=sys.stdout if self.end_pipe() else subprocess.PIPE,
-            stderr=sys.stderr,
-            text=True,  # ensures input/output are str, not bytes
-            cwd=self.shell_context().cwd()
-        )
-                                                
-        if self.end_pipe():
-            p.wait()
-
-        return p.stdout
-
-class NotFoundCommandInvoc (CommandInvoc):
-    def run(self, stdin):
-        return err_not_found(
-            self.spec().command()
-        )
-
-
-
-
-# I want a class that determines if name is part of commandInvoc or not. But command is something we pass into. 
-# so how is this possible? do we need command?    
-# Did i got too far in inheritance. maybe BuiltCommand and ExecCmommand dont have enough in common. But boy they do! the shell_context everything. except command.
-# We can move command outside and only pass executable!?
-# The spec still has sort of a meaning though ( how this command was called ? )
-# Ill keep it for now. And just add a call to validate command = expected_command().
-    
-class BuiltinCommandInvoc(CommandInvoc):
-        
-    def __init__(self, args : CommandInvocArgs):
-        super().__init__(args)
-        
-        def command_matches_expected():
-            return self.expected_command == args.spec.command()
-        assert( command_matches_expected()  )
-    
-    @classmethod
-    def commands(cls):
-        return {
-            Subclass.expected_command : Subclass
-            for Subclass in cls.__subclasses__()
-        }
-            
-    @classmethod
-    def is_builtin(cls, command):
-        return command in cls.commands().keys()
-    
-    
-    @classmethod
-    def resolve(cls, args: CommandInvocArgs):
-        
-        def command_class( command ):
-            return cls.commands()[command] 
-        
-        # CommandClass = globals()[command_class( args.spec.command() ) ]      
-        return command_class( args.spec.command()  ) ( args )  # new command
-    
-    
-class ExitCommand(BuiltinCommandInvoc):
-    
-    expected_command = "exit"
-    
-    def run( self, stdin ):
-        raise SystemExit(0)
-    
-class EchoCommand(BuiltinCommandInvoc):
-    
-    expected_command="echo"
-    
-    def run( self, stdin ):
-        print( " ".join( self.spec().args() ) )
-             
-
-class TypeCommand(BuiltinCommandInvoc):
-    
-    expected_command="type"
-    
-    def run(self, stdin):
-
-        def _print_shell_builtin(com):
-            print(com + " is a shell builtin")
-
-        def _print_exec(com, executable):
-            print(com + " is " + executable.full_path())
-
-        def _err_not_found(com):
-            print(com + ": not found")
-
-        # ---- main loop ----
-        for arg in self.spec().args():
-            if BuiltinCommandInvoc.is_builtin(arg):
-                _print_shell_builtin(arg)
-            else:
-                executable = File.find_in_path(arg)
-                if executable:
-                    _print_exec(arg, executable)
-                else:
-                    _err_not_found(arg)
-
-      
-class PwdCommand(BuiltinCommandInvoc):
-    
-    expected_command="pwd"
-
-    def run(self, stdin):
-        print( self.shell_context().cwd() )  
-            
-class CdCommand(BuiltinCommandInvoc):
-    
-    expected_command="cd"
-    
-    def run(self, stdin):
-        
-        def err_no_such_file_dir():
-            print(f"cd: {target_path}: No such file or directory", file=sys.stderr) 
-        
-        def absolute(target_path):
-            
-            def is_absolute(path):
-                return path[0] == '/'
-            
-            def is_home_dir(path):
-                return path == "~"
-            
-            def home_dir():
-                return os.path.expanduser("~")
-            
-            if is_absolute(target_path):
-                return os.path.abspath(target_path)
-            
-            elif is_home_dir(target_path):
-                return home_dir()
-                
-            else:
-                return os.path.abspath(os.path.join(self.shell_context().cwd() , target_path))
-            
-            
-        
-        if( len(self.spec().args()) > 1 ):
-            print("cd: too many arguments")
-            
-        target_path=self.spec().args()[0]
-        target_full_path = absolute(target_path) 
-            
-        if os.path.isdir(target_full_path):
-            self.shell_context().setcwd(target_full_path)
-            
-            
-        else: 
-            err_no_such_file_dir()
-            
- 
-        
-        
-class HistoryCommand(BuiltinCommandInvoc):
-    
-    expected_command = "history"
-    
-    def run(self, stdin):
-        
-        def history_line(line_num, line_content):
-            return f"\t{line_num+1} {line_content}"
-         
-        def print_all_lines(history_lines):
-            print(   "\n".join( history_lines )   )
-            
-        def print_last_n_lines(history_lines, nl):
-            print(   "\n".join( history_lines[-nl:] )   ) 
-            
-        def no_num_lines_arg():
-            return len( self.spec().args() ) == 0
-        
-        def num_lines_arg():
-            return int(self.spec().args()[0])
-        
-        def too_many_args():
-            return len( self.spec().args() ) > 1
-        
-        def err_too_many_args():
-            print("history: too many arguments", file=sys.stderr) 
-        
-        history_lines = [ history_line(line_num, line) for line_num, line in enumerate( self.shell_context().history() ) ] 
-        
-        if no_num_lines_arg():
-            print_all_lines(history_lines)
-            
-        elif too_many_args():
-            err_too_many_args()
-
-        else:
-            print_last_n_lines( history_lines, num_lines_arg() )
-    
-                
 
 
 
@@ -376,13 +113,7 @@ def input_next_line():
     
     com_lines = line.split("|")
     
-    
-    # def command(line):
-    #     return line.split()[0]
-    
-    # def args(line):
-    #     return line.split()[1:]
-    
+
     return [ CommandInvocSpec(com_line ) for  com_line in com_lines ]
 
 
