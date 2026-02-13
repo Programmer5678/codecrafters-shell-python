@@ -470,7 +470,7 @@ class BuiltinCommandInvoc(CommandInvoc):
         CommandClass = command_class( self.spec().command() )
         com =  CommandClass ( self.spec().args(), copy.deepcopy(self.shell_context()) ) # new command 
         com.run() #run command
-        self.setcwd( com.shell_context.cwd() )
+        self.setcwd( com.shell_context().cwd() )
 
 class ExecCommandInvoc(CommandInvoc):
     
