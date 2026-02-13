@@ -8,14 +8,7 @@ import readline
 import sys
 from typing import List
 
-commands = {
-    "exit" : ExitCommand,
-    "echo" : EchoCommand,
-    "type" : TypeCommand,
-    "pwd" : PwdCommand,
-    "cd" : CdCommand,
-    "history"  : HistoryCommand
-}
+
 
 def is_builtin(command):
     return command in commands.keys()
@@ -235,7 +228,14 @@ class HistoryCommand(CommandInvoc):
             print_last_n_lines( history_lines, num_lines_arg() )
     
                 
-
+commands = {
+    "exit" : ExitCommand,
+    "echo" : EchoCommand,
+    "type" : TypeCommand,
+    "pwd" : PwdCommand,
+    "cd" : CdCommand,
+    "history"  : HistoryCommand
+}
 
 
 
