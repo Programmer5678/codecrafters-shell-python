@@ -54,7 +54,10 @@ class CommandInvoc:
     def resolve(cls, spec, end_pipe, shell_context):
         
         if is_builtin( spec.command() ):
-            return BuiltinCommandInvoc(spec, end_pipe, shell_context)
+            
+            CommandClass = command_class( spec.command() )            
+            return CommandClass ( spec, end_pipe, shell_context())  # new command
+        
         elif File.find_in_path( spec.command() ) :
             return ExecCommandInvoc(spec, end_pipe, shell_context)
         else:
@@ -62,14 +65,15 @@ class CommandInvoc:
   
   
         
-class BuiltinCommandInvoc(CommandInvoc):
-    # def run(self, shel)
-    def run(self):
-        CommandClass = command_class( self.spec().command() )
+# class BuiltinCommandInvoc(CommandInvoc):
+#     # def run(self, shel)
+#     def run(self):
+#         CommandClass = command_class( self.spec().command() )
         
-        com =  CommandClass ( self.spec(), self.end_pipe, self.shell_context())  # new command 
-        com.run() #run command
-        self.setcwd( com.shell_context().cwd() )
+#         com =  CommandClass ( self.spec(), self.end_pipe, self.shell_context())  # new command 
+#         com.run() #run command
+#         self.setcwd( com.shell_context().cwd() )
+
 
 
 
@@ -101,19 +105,26 @@ class NotFoundCommandInvoc (CommandInvoc):
 
 
     
-class ExitCommand(CommandInvoc):
+    
+    
+    
+class BuiltinCommandInvoc(CommandInvoc):
+    pass    
+    
+    
+class ExitCommand(BuiltinCommandInvoc):
     
     
     def run( self ):
         raise SystemExit(0)
     
-class EchoCommand(CommandInvoc):
+class EchoCommand(BuiltinCommandInvoc):
     
     def run( self ):
         print( " ".join( self.spec().args() ) )
              
 
-class TypeCommand(CommandInvoc):
+class TypeCommand(BuiltinCommandInvoc):
     
     def run(self):
 
@@ -141,12 +152,12 @@ class TypeCommand(CommandInvoc):
                     _err_not_found(arg)
 
       
-class PwdCommand(CommandInvoc):
+class PwdCommand(BuiltinCommandInvoc):
 
     def run(self):
         print( self.shell_context().cwd() )  
             
-class CdCommand(CommandInvoc):
+class CdCommand(BuiltinCommandInvoc):
     
     def run(self):
         
@@ -191,7 +202,7 @@ class CdCommand(CommandInvoc):
  
         
         
-class HistoryCommand(CommandInvoc):
+class HistoryCommand(BuiltinCommandInvoc):
     
     def run(self):
         
