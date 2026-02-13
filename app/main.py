@@ -8,6 +8,102 @@ import readline
 import sys
 from typing import List
 
+commands = {
+    "exit" : ExitCommand,
+    "echo" : EchoCommand,
+    "type" : TypeCommand,
+    "pwd" : PwdCommand,
+    "cd" : CdCommand,
+    "history"  : HistoryCommand
+}
+
+def is_builtin(command):
+    return command in commands.keys()
+
+def command_class(command):
+    return commands[command] 
+
+class CommandInvocSpec:
+    
+    def __init__( self, command_invoc_str ):
+        self.command_invoc_str = command_invoc_str
+    
+    def __repr__(self):
+        return self.command_invoc_str
+    
+    def command(self):
+        return self.command_invoc_str.split()[0]
+    
+    def args(self):
+        return self.command_invoc_str.split()[1:]
+    
+
+
+class CommandInvoc:
+    def __init__( self, spec, end_pipe, shell_context ):
+        self._spec = spec 
+        self._end_pipe = end_pipe
+        self._shell_context = copy.deepcopy(shell_context)
+        
+    def spec(self):
+        return self._spec
+       
+    def end_pipe(self):
+        return self._end_pipe
+    
+    def shell_context(self):
+        return self._shell_context
+    
+    def setcwd(self, cwd):
+        self._shell_context.setcwd(cwd)
+       
+    @classmethod 
+    def resolve(cls, spec, end_pipe, shell_context):
+        
+        if is_builtin( spec.command() ):
+            return BuiltinCommandInvoc(spec, end_pipe, shell_context)
+        elif File.find_in_path( spec.command() ) :
+            return ExecCommandInvoc(spec, end_pipe, shell_context)
+        else:
+            return NotFoundCommandInvoc(spec, end_pipe, shell_context)
+  
+  
+        
+class BuiltinCommandInvoc(CommandInvoc):
+    # def run(self, shel)
+    def run(self):
+        CommandClass = command_class( self.spec().command() )
+        
+        com =  CommandClass ( self.spec(), self.end_pipe, self.shell_context())  # new command 
+        com.run() #run command
+        self.setcwd( com.shell_context().cwd() )
+
+
+
+
+class ExecCommandInvoc(CommandInvoc):
+    
+    def run(self, stdin):
+        # Start the process
+        p = subprocess.Popen(
+            [ self.spec().command() , *self.spec().args() ],
+            stdin=stdin,
+            stdout=sys.stdout if self.end_pipe() else subprocess.PIPE,
+            stderr=sys.stderr,
+            text=True,  # ensures input/output are str, not bytes
+            cwd=self.shell_context().cwd()
+        )
+                                                
+        if self.end_pipe():
+            p.wait()
+
+        return p.stdout
+
+class NotFoundCommandInvoc (CommandInvoc):
+    def run(self):
+        return err_not_found(
+            self.spec().command()
+        )
 
 
 
@@ -139,20 +235,7 @@ class HistoryCommand(CommandInvoc):
             print_last_n_lines( history_lines, num_lines_arg() )
     
                 
-commands = {
-    "exit" : ExitCommand,
-    "echo" : EchoCommand,
-    "type" : TypeCommand,
-    "pwd" : PwdCommand,
-    "cd" : CdCommand,
-    "history"  : HistoryCommand
-}
 
-def is_builtin(command):
-    return command in commands.keys()
-
-def command_class(command):
-    return commands[command] 
 
 
 
@@ -288,95 +371,6 @@ def completer(text: str, state: int) -> str:
     return matching_com
 
 
-# Add iterators inside Line to loop through CommandInvocSpecs
-
-# class Line:
-#     def __init__( line ):
-#         command_lines = line.split("|")
-        
-
-
-class CommandInvocSpec:
-    
-    def __init__( self, command_invoc_str ):
-        self.command_invoc_str = command_invoc_str
-    
-    def __repr__(self):
-        return self.command_invoc_str
-    
-    def command(self):
-        return self.command_invoc_str.split()[0]
-    
-    def args(self):
-        return self.command_invoc_str.split()[1:]
-    
-
-
-class CommandInvoc:
-    def __init__( self, spec, end_pipe, shell_context ):
-        self._spec = spec 
-        self._end_pipe = end_pipe
-        self._shell_context = copy.deepcopy(shell_context)
-        
-    def spec(self):
-        return self._spec
-       
-    def end_pipe(self):
-        return self._end_pipe
-    
-    def shell_context(self):
-        return self._shell_context
-    
-    def setcwd(self, cwd):
-        self._shell_context.setcwd(cwd)
-       
-    @classmethod 
-    def resolve(cls, spec, end_pipe, shell_context):
-        
-        if is_builtin( spec.command() ):
-            return BuiltinCommandInvoc(spec, end_pipe, shell_context)
-        elif File.find_in_path( spec.command() ) :
-            return ExecCommandInvoc(spec, end_pipe, shell_context)
-        else:
-            return NotFoundCommandInvoc(spec, end_pipe, shell_context)
-  
-  
-        
-class BuiltinCommandInvoc(CommandInvoc):
-    # def run(self, shel)
-    def run(self):
-        CommandClass = command_class( self.spec().command() )
-        
-        com =  CommandClass ( self.spec(), self.end_pipe, self.shell_context())  # new command 
-        com.run() #run command
-        self.setcwd( com.shell_context().cwd() )
-
-
-
-
-class ExecCommandInvoc(CommandInvoc):
-    
-    def run(self, stdin):
-        # Start the process
-        p = subprocess.Popen(
-            [ self.spec().command() , *self.spec().args() ],
-            stdin=stdin,
-            stdout=sys.stdout if self.end_pipe() else subprocess.PIPE,
-            stderr=sys.stderr,
-            text=True,  # ensures input/output are str, not bytes
-            cwd=self.shell_context().cwd()
-        )
-                                                
-        if self.end_pipe():
-            p.wait()
-
-        return p.stdout
-
-class NotFoundCommandInvoc (CommandInvoc):
-    def run(self):
-        return err_not_found(
-            self.spec().command()
-        )
 
 
         
