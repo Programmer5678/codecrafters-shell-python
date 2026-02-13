@@ -29,14 +29,21 @@ class CommandInvocSpec:
     
     def args(self):
         return self.command_invoc_str.split()[1:]
-    
+
+
+@dataclass
+class CommandInvocArgs:
+    spec : CommandInvocSpec
+    end_pipe : bool
+    shell_context: ShellContext
 
 
 class CommandInvoc:
-    def __init__( self, spec, end_pipe, shell_context ):
-        self._spec = spec 
-        self._end_pipe = end_pipe
-        self._shell_context = copy.deepcopy(shell_context)
+    
+    def __init__( self, args: CommandInvocArgs):
+        self._spec = args.spec 
+        self._end_pipe = args.end_pipe
+        self._shell_context = copy.deepcopy(args.shell_context)
         
     def spec(self):
         return self._spec
@@ -51,16 +58,17 @@ class CommandInvoc:
         self._shell_context.setcwd(cwd)
        
     @classmethod 
-    def resolve(cls, spec, end_pipe, shell_context):
+    def resolve(cls, args: CommandInvocArgs ):
         
-        if is_builtin( spec.command() ):
-            return BuiltinCommandInvoc.resolve( spec, end_pipe, shell_context )  
+        if is_builtin( args.spec.command() ):
+            return BuiltinCommandInvoc.resolve( args )  
         
-        elif File.find_in_path( spec.command() ) :
-            return ExecCommandInvoc(spec, end_pipe, shell_context)
+        elif File.find_in_path( args.spec.command() ) :
+            return ExecCommandInvoc( args )
         else:
-            return NotFoundCommandInvoc(spec, end_pipe, shell_context)
+            return NotFoundCommandInvoc(args)
   
+
 
 
 class ExecCommandInvoc(CommandInvoc):
@@ -96,9 +104,9 @@ class NotFoundCommandInvoc (CommandInvoc):
 class BuiltinCommandInvoc(CommandInvoc):
     
     @classmethod
-    def resolve(cls, spec, end_pipe, shell_context):
-        CommandClass = command_class( spec.command() )            
-        return CommandClass ( spec, end_pipe, shell_context )  # new command
+    def resolve(cls, args: CommandInvocArgs):
+        CommandClass = command_class( args.spec.command() )            
+        return CommandClass ( args )  # new command
     
     
 class ExitCommand(BuiltinCommandInvoc):
@@ -393,9 +401,13 @@ def main():
         
         shell_context.set_history( shell_context.history() + ["|".join([str(cl) for cl in command_lines]) ]  )            
         
-        command_invocs = [ CommandInvoc.resolve(command_invoc_spec, 
+        command_invocs = [ CommandInvoc.resolve(
+                                            CommandInvocArgs(
+                                            command_invoc_spec, 
                                                   (index == len( command_lines ) - 1),
-                                                  shell_context )
+                                                  shell_context
+                                            )
+                                                  )
                           for index, command_invoc_spec in enumerate(command_lines) ]
         
         prev_stdout = subprocess.PIPE # This is the output pipe of previous command(process)
