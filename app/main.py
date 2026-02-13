@@ -9,38 +9,13 @@ import sys
 from typing import List
 
 
-# class Command(ABC):
-    
-#     def __init__(self, args, shell_context):
-#         self._args = args
-#         self.shell_context = shell_context
-        
-#     def args(self):
-#         return self._args
-    
-#     @abstractmethod
-#     def run( self ):
-#         pass
-    
-    
-    
-    
-    
-# I want the current Command subclasses to use self.spec().args() rather than self.args()
-# and self.shell_context() rather than self.shell_context
+
+
     
 class ExitCommand:
     
-    def __init__(self, spec, shell_context):
-        
-        # @dataclass 
-        # class Spec:
-        #     _args: List[str]
-            
-        #     def args(self):
-        #         return self._args
-            
-        # self._spec = Spec( args )
+    def __init__(self, spec, end_pipe, shell_context):
+
         self._spec = spec
         self._shell_context = shell_context
         
@@ -55,7 +30,7 @@ class ExitCommand:
     
 class EchoCommand:
     
-    def __init__(self, spec, shell_context):
+    def __init__(self, spec, end_pipe, shell_context):
         
         self._spec = spec
         self._shell_context = shell_context
@@ -72,7 +47,7 @@ class EchoCommand:
 
 class TypeCommand:
     
-    def __init__(self, spec, shell_context):
+    def __init__(self, spec, end_pipe, shell_context):
         
         self._spec = spec
         self._shell_context = shell_context
@@ -111,7 +86,7 @@ class TypeCommand:
       
 class PwdCommand:
     
-    def __init__(self, spec, shell_context):
+    def __init__(self, spec, end_pipe, shell_context):
         
         self._spec = spec
         self._shell_context = shell_context
@@ -127,7 +102,7 @@ class PwdCommand:
             
 class CdCommand:
     
-    def __init__(self, spec, shell_context):
+    def __init__(self, spec, end_pipe, shell_context):
         self._spec = spec
         self._shell_context = shell_context
         
@@ -182,7 +157,7 @@ class CdCommand:
         
 class HistoryCommand:
     
-    def __init__(self, spec, shell_context):
+    def __init__(self, spec, end_pipe, shell_context):
         self._spec = spec
         self._shell_context = shell_context
         
@@ -433,7 +408,7 @@ class BuiltinCommandInvoc(CommandInvoc):
     def run(self):
         CommandClass = command_class( self.spec().command() )
         
-        com =  CommandClass ( self.spec(), copy.deepcopy(self.shell_context()) ) # new command 
+        com =  CommandClass ( self.spec(), self.end_pipe, copy.deepcopy(self.shell_context()) ) # new command 
         com.run() #run command
         self.setcwd( com.shell_context().cwd() )
 
