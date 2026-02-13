@@ -1,8 +1,5 @@
 from dataclasses import dataclass
 from typing import Any
-
-from app.command_invoc.subtypes.exec import ExecCommandInvoc
-from app.command_invoc.subtypes.notfound import NotFoundCommandInvoc
 from app.main import File
 
 
@@ -61,6 +58,8 @@ class CommandInvoc(ABC):
     def resolve(cls, args: CommandInvocArgs ):
 
         from app.command_invoc.subtypes.buitlin.builtin import BuiltinCommandInvoc
+        from app.command_invoc.subtypes.exec import ExecCommandInvoc
+        from app.command_invoc.subtypes.notfound import NotFoundCommandInvoc
 
         if BuiltinCommandInvoc.is_builtin( args.spec.command() ):
             return BuiltinCommandInvoc.resolve( args )
