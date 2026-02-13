@@ -17,7 +17,7 @@ class ExitCommand:
     def __init__(self, spec, end_pipe, shell_context):
 
         self._spec = spec
-        self._shell_context = shell_context
+        self._shell_context = copy.deepcopy(shell_context)
         
     def spec(self):
         return self._spec
@@ -31,9 +31,9 @@ class ExitCommand:
 class EchoCommand:
     
     def __init__(self, spec, end_pipe, shell_context):
-        
+
         self._spec = spec
-        self._shell_context = shell_context
+        self._shell_context = copy.deepcopy(shell_context)
         
     def spec(self):
         return self._spec
@@ -48,9 +48,9 @@ class EchoCommand:
 class TypeCommand:
     
     def __init__(self, spec, end_pipe, shell_context):
-        
+
         self._spec = spec
-        self._shell_context = shell_context
+        self._shell_context = copy.deepcopy(shell_context)
         
     def spec(self):
         return self._spec
@@ -87,9 +87,9 @@ class TypeCommand:
 class PwdCommand:
     
     def __init__(self, spec, end_pipe, shell_context):
-        
+
         self._spec = spec
-        self._shell_context = shell_context
+        self._shell_context = copy.deepcopy(shell_context)
         
     def spec(self):
         return self._spec
@@ -103,8 +103,9 @@ class PwdCommand:
 class CdCommand:
     
     def __init__(self, spec, end_pipe, shell_context):
+
         self._spec = spec
-        self._shell_context = shell_context
+        self._shell_context = copy.deepcopy(shell_context)
         
     def spec(self):
         return self._spec
@@ -158,8 +159,9 @@ class CdCommand:
 class HistoryCommand:
     
     def __init__(self, spec, end_pipe, shell_context):
+
         self._spec = spec
-        self._shell_context = shell_context
+        self._shell_context = copy.deepcopy(shell_context)
         
     def spec(self):
         return self._spec
@@ -379,7 +381,7 @@ class CommandInvoc:
     def __init__( self, spec, end_pipe, shell_context ):
         self._spec = spec 
         self._end_pipe = end_pipe
-        self._shell_context = shell_context
+        self._shell_context = copy.deepcopy(shell_context)
         
     def spec(self):
         return self._spec
@@ -402,15 +404,20 @@ class CommandInvoc:
             return ExecCommandInvoc(spec, end_pipe, shell_context)
         else:
             return NotFoundCommandInvoc(spec, end_pipe, shell_context)
+  
+  
         
 class BuiltinCommandInvoc(CommandInvoc):
     # def run(self, shel)
     def run(self):
         CommandClass = command_class( self.spec().command() )
         
-        com =  CommandClass ( self.spec(), self.end_pipe, copy.deepcopy(self.shell_context()) ) # new command 
+        com =  CommandClass ( self.spec(), self.end_pipe, self.shell_context())  # new command 
         com.run() #run command
         self.setcwd( com.shell_context().cwd() )
+
+
+
 
 class ExecCommandInvoc(CommandInvoc):
     
@@ -459,7 +466,7 @@ def main():
         
         command_invocs = [ CommandInvoc.resolve(command_invoc_spec, 
                                                   (index == len( command_lines ) - 1),
-                                                  copy.deepcopy(shell_context) )
+                                                  shell_context )
                           for index, command_invoc_spec in enumerate(command_lines) ]
         
         prev_stdout = subprocess.PIPE # This is the output pipe of previous command(process)
