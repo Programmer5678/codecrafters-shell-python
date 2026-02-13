@@ -7,7 +7,20 @@ import readline
 import sys
 
 
-class Command(ABC):
+# class Command(ABC):
+    
+#     def __init__(self, args, shell_context):
+#         self._args = args
+#         self.shell_context = shell_context
+        
+#     def args(self):
+#         return self._args
+    
+#     @abstractmethod
+#     def run( self ):
+#         pass
+    
+class ExitCommand:
     
     def __init__(self, args, shell_context):
         self._args = args
@@ -16,20 +29,30 @@ class Command(ABC):
     def args(self):
         return self._args
     
-    @abstractmethod
-    def run( self ):
-        pass
-    
-class ExitCommand(Command):
     def run( self ):
         raise SystemExit(0)
     
-class EchoCommand(Command):
+class EchoCommand:
+    
+    def __init__(self, args, shell_context):
+        self._args = args
+        self.shell_context = shell_context
+        
+    def args(self):
+        return self._args
+    
     def run( self ):
         print( " ".join( self.args() ) )
              
 
-class TypeCommand(Command):
+class TypeCommand:
+    
+    def __init__(self, args, shell_context):
+        self._args = args
+        self.shell_context = shell_context
+        
+    def args(self):
+        return self._args
 
     def run(self):
 
@@ -57,12 +80,26 @@ class TypeCommand(Command):
                     _err_not_found(arg)
 
       
-class PwdCommand(Command):
+class PwdCommand:
+    
+    def __init__(self, args, shell_context):
+        self._args = args
+        self.shell_context = shell_context
+        
+    def args(self):
+        return self._args
 
     def run(self):
         print( self.shell_context.cwd() )  
             
-class CdCommand(Command):
+class CdCommand:
+    
+    def __init__(self, args, shell_context):
+        self._args = args
+        self.shell_context = shell_context
+        
+    def args(self):
+        return self._args
     
     def run(self):
         
@@ -107,7 +144,14 @@ class CdCommand(Command):
  
         
         
-class HistoryCommand(Command):
+class HistoryCommand:
+    
+    def __init__(self, args, shell_context):
+        self._args = args
+        self.shell_context = shell_context
+        
+    def args(self):
+        return self._args
     
     def run(self):
         
@@ -261,7 +305,7 @@ def input_next_line():
     # def args(line):
     #     return line.split()[1:]
     
-    return [ CommandInvocSpec(com_line ) for index, com_line in enumerate(com_lines) ]
+    return [ CommandInvocSpec(com_line ) for  com_line in com_lines ]
 
 
 
@@ -345,8 +389,8 @@ class CommandInvoc:
             return NotFoundCommandInvoc(spec, end_pipe, shell_context)
         
 class BuiltinCommandInvoc(CommandInvoc):
-    # def stdout(self, shel)
-    def stdout(self):
+    # def run(self, shel)
+    def run(self):
         CommandClass = command_class( self.spec().command() )
         com =  CommandClass ( self.spec().args(), copy.deepcopy(self.shell_context()) ) # new command 
         com.run() #run command
@@ -354,7 +398,7 @@ class BuiltinCommandInvoc(CommandInvoc):
 
 class ExecCommandInvoc(CommandInvoc):
     
-    def stdout(self, stdin):
+    def run(self, stdin):
         # Start the process
         p = subprocess.Popen(
             [ self.spec().command() , *self.spec().args() ],
@@ -371,7 +415,7 @@ class ExecCommandInvoc(CommandInvoc):
         return p.stdout
 
 class NotFoundCommandInvoc (CommandInvoc):
-    def stdout(self):
+    def run(self):
         return err_not_found(
             self.spec().command()
         )
@@ -407,32 +451,26 @@ def main():
         # loop throught command lines
         for command_invoc in command_invocs:
             
-            # command = command_invoc.spec().command()
-            #update shell_context history 
-            
             if isinstance(command_invoc, BuiltinCommandInvoc):
             
                 if len(command_lines) != 1:
                     raise Exception("No pipes here yet!")
                 
-                command_invoc.stdout()
+                command_invoc.run()
                 
             elif isinstance(command_invoc, ExecCommandInvoc):
-                prev_stdout = command_invoc.stdout( prev_stdout )
+                prev_stdout = command_invoc.run( prev_stdout )
                 
-            # else:
             elif isinstance( command_invoc, NotFoundCommandInvoc ):
                 
                 if len(command_lines) != 1:
                     raise Exception("No pipes here yet!")
                 
-                command_invoc.stdout()
+                command_invoc.run()
                 
             if command_invoc.end_pipe():
                 shell_context.setcwd( command_invoc.shell_context().cwd() ) # set cwd
-                
-        # shell_context.setcwd( command_invocs.shell_context.cwd() )
-                
+                                
             
                 
 if __name__ == "__main__":
