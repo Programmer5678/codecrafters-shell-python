@@ -16,8 +16,5 @@ class ExecCommandInvoc(CommandInvoc):
             text=True,  # ensures input/output are str, not bytes
             cwd=self.shell_context().cwd()
         )
-        
-        if self.end_pipe():
-            p.wait()
 
-        return p.stdout
+        return (p.stdout, lambda : p.wait() )

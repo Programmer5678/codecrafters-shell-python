@@ -77,6 +77,18 @@ def completer(text: str, state: int) -> str:
     return matching_com
 
 
+
+class ProcWaiter:
+    def __init__(self):
+        self._waiter_funcs = []
+        
+    def add_waiter(self, waiter):
+        self._waiter_funcs.append(waiter)
+        
+    def wait_for_all(self):
+        for waiter in self._waiter_funcs:
+            waiter()
+
 def main():
     
     readline.parse_and_bind("tab: complete")
@@ -101,6 +113,11 @@ def main():
                           for index, command_invoc_spec in enumerate(command_lines) ]
         
         prev_stdout = subprocess.PIPE # This is the output pipe of previous command(process)
+                       
+                      
+                            
+        proc_waiter = ProcWaiter()
+        apply_effect = lambda : None
                                     
         # loop throught command lines
         for command_invoc in command_invocs:
@@ -113,7 +130,8 @@ def main():
                 command_invoc.run(None)
                 
             elif isinstance(command_invoc, ExecCommandInvoc):
-                prev_stdout = command_invoc.run( prev_stdout )
+                prev_stdout, proc_wait = command_invoc.run( prev_stdout )
+                proc_waiter.add_waiter(proc_wait)
                 
             elif isinstance( command_invoc, NotFoundCommandInvoc ):
                 
@@ -122,10 +140,13 @@ def main():
                 
                 command_invoc.run(None)
                 
+               
             if command_invoc.end_pipe():
-                shell_context.setcwd( command_invoc.shell_context().cwd() ) # set cwd
-                print("SHOULD BE DONE")
-                                
+                
+                apply_effect = lambda : shell_context.setcwd( command_invoc.shell_context().cwd() ) # set cwd
+    
+        proc_waiter.wait_for_all()
+        apply_effect()                                
             
                 
 if __name__ == "__main__":
