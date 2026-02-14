@@ -93,10 +93,11 @@ def main():
         command_invocs = [ CommandInvoc.resolve(
                                             CommandInvocArgs(
                                             command_invoc_spec, 
+                                                len(command_lines) > 1,# in pipe
                                                   (index == len( command_lines ) - 1),
                                                   shell_context
                                             )
-                                                  )
+                            )
                           for index, command_invoc_spec in enumerate(command_lines) ]
         
         prev_stdout = subprocess.PIPE # This is the output pipe of previous command(process)
@@ -123,6 +124,7 @@ def main():
                 
             if command_invoc.end_pipe():
                 shell_context.setcwd( command_invoc.shell_context().cwd() ) # set cwd
+                print("SHOULD BE DONE")
                                 
             
                 

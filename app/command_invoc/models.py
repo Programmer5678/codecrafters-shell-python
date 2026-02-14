@@ -23,6 +23,7 @@ class CommandInvocSpec:
 @dataclass
 class CommandInvocArgs:
     spec : CommandInvocSpec
+    in_pipe : bool
     end_pipe : bool
     shell_context: Any
 
