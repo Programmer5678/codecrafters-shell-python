@@ -2,6 +2,11 @@ from app.command_invoc.models import CommandInvoc, CommandInvocArgs
 import os
 from abc import abstractmethod
 
+
+
+
+STDOUT = 1    
+
 class BuiltinCommandInvoc(CommandInvoc):
 
     def __init__(self, args : CommandInvocArgs):
@@ -12,17 +17,9 @@ class BuiltinCommandInvoc(CommandInvoc):
         assert( command_matches_expected()  )
         
     
-    import os
-
-STDOUT = 1
-
-class BuiltinCommandInvoc:
-    
-    
-    
     def run(self, stdin):
 
-        def proc_fds():
+        def proc_filedescriptors():
             """Return (next_stdin, stdout) for this process stage."""
             return (None, STDOUT) if self.end_pipe() else os.pipe()
 
@@ -46,13 +43,14 @@ class BuiltinCommandInvoc:
                 os.close(in_fd)
 
         if self.in_pipe():
-            next_stdin, stdout = proc_fds()
+            next_stdin, stdout = proc_filedescriptors()
             child_pid = run_in_child(stdout)
             parent_close_fds(stdout, stdin)
             return next_stdin, lambda: os.waitpid(child_pid, 0)
         else:
             self.run_core(STDOUT)
             return None, lambda: None
+        
         
     @abstractmethod
     def run_core(self, out):
