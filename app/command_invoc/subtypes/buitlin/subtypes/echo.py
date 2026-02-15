@@ -23,10 +23,14 @@ class EchoCommand(BuiltinCommandInvoc):
                   
             child_pid = os.fork()   
             if child_pid == 0:
-                self.on_way(stdout)
+                self.actual_run(stdout)
+                if stdout != 1:
+                    os.close(stdout)
                 os._exit(0)
             
-            os.close(stdout)
+            if stdout != 1: 
+                os.close(stdout)
+                
         
         if stdin:
             os.close(stdin)
