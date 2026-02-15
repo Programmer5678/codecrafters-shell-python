@@ -34,24 +34,21 @@ class TypeCommand(BuiltinCommandInvoc):
     
     def run( self, stdin ):
         
-        if self.end_pipe():
-            next_stdin = None
-            p = Process(target=self.on_way, args=( 1 ,))
-            p.start()
-            
-        else:
-            next_stdin, stdout = os.pipe()
-            p = Process(target=self.on_way, args=(stdout,))
-            p.start()
+        next_stdin, stdout = ( None, 1 ) if self.end_pipe() else os.pipe()
+                
+                
+        child_pid = os.fork()   
+        if child_pid == 0:
+            self.actual_run(stdout)
+            if stdout != 1:
+                os.close(stdout)
+            os._exit(0)
+        
+        
+        if stdout != 1: 
             os.close(stdout)
         
         if stdin:
             os.close(stdin)
         
-        return next_stdin, lambda : p.join()
-
-    def on_way(self, out):
-        
-        self.actual_run(out)
-        if out != 1: # 1 = STDOUT
-            os.close( out )
+        return next_stdin, lambda : os.waitpid( child_pid , 0)
