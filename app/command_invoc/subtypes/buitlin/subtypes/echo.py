@@ -17,6 +17,10 @@ class EchoCommand(BuiltinCommandInvoc):
         else:
             next_stdin, stdout = os.pipe()
             # os.write(stdout, b"hi")
+            
+            print( "A Proc: ", os.getpid() , " parent : ", os.getppid() )
+            print( "Fd stat :", os.fstat(stdout) )
+            
             p = Process(target=self.on_way, args=(stdout,))
             p.start()
             os.close(stdout)
@@ -34,5 +38,8 @@ class EchoCommand(BuiltinCommandInvoc):
             os.close( out )
     
     def actual_run(self, out):
+        
+        print( "Proc: ", os.getpid() , " parent : ", os.getppid() )
+        print( "Fd stat :", os.fstat(out) )
         os.write( out, (" ".join( self.spec().args()) + "\n").encode() )
         
