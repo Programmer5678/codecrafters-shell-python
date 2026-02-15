@@ -9,7 +9,7 @@ class TypeCommand(BuiltinCommandInvoc):
 
     expected_command="type"
 
-    def actual_run(self, out ):
+    def run_core(self, out ):
 
         def _print_shell_builtin(com):
             os.write( out, (com + " is a shell builtin"+ "\n").encode() )
@@ -32,23 +32,3 @@ class TypeCommand(BuiltinCommandInvoc):
                     _err_not_found(arg)
                     
     
-    def run( self, stdin ):
-        
-        next_stdin, stdout = ( None, 1 ) if self.end_pipe() else os.pipe()
-                
-                
-        child_pid = os.fork()   
-        if child_pid == 0:
-            self.actual_run(stdout)
-            if stdout != 1:
-                os.close(stdout)
-            os._exit(0)
-        
-        
-        if stdout != 1: 
-            os.close(stdout)
-        
-        if stdin:
-            os.close(stdin)
-        
-        return next_stdin, lambda : os.waitpid( child_pid , 0)

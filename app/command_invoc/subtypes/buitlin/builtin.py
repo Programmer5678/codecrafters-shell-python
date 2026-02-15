@@ -1,4 +1,5 @@
 from app.command_invoc.models import CommandInvoc, CommandInvocArgs
+import os
 
 
 class BuiltinCommandInvoc(CommandInvoc):
@@ -9,7 +10,29 @@ class BuiltinCommandInvoc(CommandInvoc):
         def command_matches_expected():
             return self.expected_command == args.spec.command()
         assert( command_matches_expected()  )
-
+        
+    
+    def run( self, stdin ):
+        
+        next_stdin, stdout = ( None, 1 ) if self.end_pipe() else os.pipe()
+                
+                
+        child_pid = os.fork()   
+        if child_pid == 0:
+            self.run_core(stdout)
+            if stdout != 1:
+                os.close(stdout)
+            os._exit(0)
+        
+        
+        if stdout != 1: 
+            os.close(stdout)
+        
+        if stdin:
+            os.close(stdin)
+        
+        return next_stdin, lambda : os.waitpid( child_pid , 0)
+    
     @classmethod
     def commands(cls):
         

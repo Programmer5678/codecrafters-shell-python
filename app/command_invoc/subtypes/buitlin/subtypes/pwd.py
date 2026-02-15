@@ -7,25 +7,6 @@ class PwdCommand(BuiltinCommandInvoc):
 
     expected_command="pwd"
 
-    def actual_run(self, out):
+    def run_core(self, out):
         os.write( out, (self.shell_context().cwd()+"\n").encode() )
         
-    def run( self, stdin ):
-        
-        next_stdin, stdout = ( None, 1 ) if self.end_pipe() else os.pipe()
-                
-        child_pid = os.fork()   
-        if child_pid == 0:
-            self.actual_run(stdout)
-            if stdout != 1:
-                os.close(stdout)
-            os._exit(0)
-        
-        
-        if stdout != 1: 
-            os.close(stdout)
-        
-        if stdin:
-            os.close(stdin)
-        
-        return next_stdin, lambda : os.waitpid( child_pid , 0)

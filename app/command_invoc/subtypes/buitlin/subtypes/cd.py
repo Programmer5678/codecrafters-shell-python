@@ -6,7 +6,7 @@ class CdCommand(BuiltinCommandInvoc):
 
     expected_command="cd"
 
-    def run(self, stdin):
+    def run_core(self, out):
 
         def err_no_such_file_dir():
             print(f"cd: {target_path}: No such file or directory", file=sys.stderr)
