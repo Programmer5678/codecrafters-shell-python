@@ -8,7 +8,7 @@ from typing import List
 from app.command_invoc.models import CommandInvoc
 from app.command_invoc.models import CommandInvocArgs
 from app.command_invoc.models import CommandInvocSpec
-from app.command_invoc.subtypes.buitlin.builtin import BuiltinCommandInvoc
+from app.command_invoc.subtypes.buitlin.builtin import BuiltinCommandInvoc, PipelineResult
 from app.command_invoc.subtypes.exec import ExecCommandInvoc
 from app.command_invoc.subtypes.notfound import NotFoundCommandInvoc
 
@@ -113,7 +113,7 @@ def main():
                             )
                           for index, command_invoc_spec in enumerate(command_lines) ]
         
-        prev_stdout = subprocess.PIPE # This is the output pipe of previous command(process)
+        next_stdin = subprocess.PIPE # This is the output pipe of previous command(process)
                        
                       
                             
@@ -127,15 +127,16 @@ def main():
             
                 # if len(command_lines) != 1:
                 #     raise Exception("No pipes here yet!")
-                r = command_invoc.run(None) 
-                if isinstance(r, tuple ):
-                    prev_stdout, proc_wait = r 
-                    proc_waiter.add_waiter( proc_wait )
+                
+                pipeline_res = command_invoc.run(None) 
+                if isinstance(pipeline_res, PipelineResult ):
+                    proc_waiter.add_waiter( pipeline_res.child_wait() )
                 
                 
             elif isinstance(command_invoc, ExecCommandInvoc):
-                prev_stdout, proc_wait = command_invoc.run( prev_stdout )
-                proc_waiter.add_waiter(proc_wait)
+                pipeline_res = command_invoc.run( next_stdin )
+                next_stdin = pipeline_res.next_stdin
+                proc_waiter.add_waiter(pipeline_res.child_wait())
                 
             elif isinstance( command_invoc, NotFoundCommandInvoc ):
                 

@@ -5,6 +5,19 @@ from abc import abstractmethod
 
 
 
+class PipelineResult:
+
+    def __init__(self, next_stdin, child_wait):
+        self._next_stdin = next_stdin
+        self._child_wait = child_wait
+        
+    def next_stdin(self):
+        return self._next_stdin
+    
+    def child_wait(self):
+        return self._child_wait
+
+
 STDOUT = 1    
 
 class BuiltinCommandInvoc(CommandInvoc):
@@ -19,7 +32,7 @@ class BuiltinCommandInvoc(CommandInvoc):
     
     def run(self, stdin):
 
-        def proc_filedescriptors():
+        def proc_fds():
             """Return (next_stdin, stdout) for this process stage."""
             return (None, STDOUT) if self.end_pipe() else os.pipe()
 
@@ -43,13 +56,13 @@ class BuiltinCommandInvoc(CommandInvoc):
                 os.close(in_fd)
 
         if self.in_pipe():
-            next_stdin, stdout = proc_filedescriptors()
+            next_stdin, stdout = proc_fds()
             child_pid = run_in_child(stdout)
             parent_close_fds(stdout, stdin)
-            return next_stdin, lambda: os.waitpid(child_pid, 0)
+            return PipelineResult( next_stdin, lambda: os.waitpid(child_pid, 0) )
         else:
             self.run_core(STDOUT)
-            return None, lambda: None
+            return PipelineResult(None, lambda: None)
         
         
     @abstractmethod
