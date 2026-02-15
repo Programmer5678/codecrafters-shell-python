@@ -25,10 +25,15 @@ class EchoCommand(BuiltinCommandInvoc):
         
         return next_stdin, lambda : p.join()
     
-    def actual_run(self, out):
-        os.write( out, "Mekhaka ul adama khama\n".encode() )
+    def on_way(self, out):
+        
+        self.actual_run(out)
         if out != 1: # 1 = STDOUT
             os.close( out )
+    
+    def actual_run(self, out):
+        os.write( out, (" ".join( self.spec().args()) + "\n").encode() )
+        
         
         
             
