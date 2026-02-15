@@ -5,7 +5,7 @@ import readline
 import sys
 from typing import List
 
-from app.command_invoc.models import CommandInvoc
+from app.command_invoc.models import CommandInvoc, PipelineResult
 from app.command_invoc.models import CommandInvocArgs
 from app.command_invoc.models import CommandInvocSpec
 from app.command_invoc.subtypes.buitlin.builtin import BuiltinCommandInvoc
@@ -127,7 +127,12 @@ def main():
             
                 # if len(command_lines) != 1:
                 #     raise Exception("No pipes here yet!")
-                r = command_invoc.run(None) 
+                
+                
+                a, b = command_invoc.run(None) 
+                pr = PipelineResult(a, b)
+                r = ( pr.next_stdin(), pr.child_wait() )
+                
                 if isinstance(r, tuple ):
                     prev_stdout, proc_wait = r 
                     proc_waiter.add_waiter( proc_wait )
@@ -135,6 +140,12 @@ def main():
                 
             elif isinstance(command_invoc, ExecCommandInvoc):
                 prev_stdout, proc_wait = command_invoc.run( prev_stdout )
+                
+                
+                a, b = command_invoc.run( prev_stdout )
+                pr = PipelineResult( a, b )
+                prev_stdout, proc_wait = pr.next_stdin(), pr.child_wait()
+                
                 proc_waiter.add_waiter(proc_wait)
                 
             elif isinstance( command_invoc, NotFoundCommandInvoc ):
