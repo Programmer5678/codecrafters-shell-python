@@ -1,6 +1,6 @@
 from app.command_invoc.models import CommandInvoc, CommandInvocArgs
 import os
-
+from abc import abstractmethod
 
 class BuiltinCommandInvoc(CommandInvoc):
 
@@ -12,36 +12,52 @@ class BuiltinCommandInvoc(CommandInvoc):
         assert( command_matches_expected()  )
         
     
-    def run( self, stdin ):
-        
-        
-        if self.in_pipe():
-            
-            next_stdin, stdout = ( None, 1 ) if self.end_pipe() else os.pipe()
-                    
-                    
-            child_pid = os.fork()   
+    import os
+
+STDOUT = 1
+
+class BuiltinCommandInvoc:
+    
+    
+    
+    def run(self, stdin):
+
+        def proc_fds():
+            """Return (next_stdin, stdout) for this process stage."""
+            return (None, STDOUT) if self.end_pipe() else os.pipe()
+
+        def run_in_child(out_fd):
+            """Fork and run the child logic, exiting immediately."""
+            child_pid = os.fork()
             if child_pid == 0:
-                
-                self.run_core(stdout)
-                
-                if stdout != 1:
-                    os.close(stdout)
-                os._exit(0)
-            
-            
-            if stdout != 1: 
-                os.close(stdout)
-            
-            if stdin:
-                os.close(stdin)
-            
-            return next_stdin, lambda : os.waitpid( child_pid , 0)
-        
+                try:
+                    self.run_core(out_fd)
+                finally:
+                    if out_fd != STDOUT:
+                        os.close(out_fd)
+                    os._exit(0)
+            return child_pid
+
+        def parent_close_fds(out_fd, in_fd):
+            """Close file descriptors the parent does not need."""
+            if out_fd != STDOUT:
+                os.close(out_fd)
+            if in_fd:
+                os.close(in_fd)
+
+        if self.in_pipe():
+            next_stdin, stdout = proc_fds()
+            child_pid = run_in_child(stdout)
+            parent_close_fds(stdout, stdin)
+            return next_stdin, lambda: os.waitpid(child_pid, 0)
         else:
-            self.run_core(1)
-            return None, lambda : None
+            self.run_core(STDOUT)
+            return None, lambda: None
         
+    @abstractmethod
+    def run_core(self, out):
+        pass
+        """The core of the run, without all the process and pipe management"""
     
     @classmethod
     def commands(cls):
