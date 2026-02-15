@@ -14,24 +14,34 @@ class BuiltinCommandInvoc(CommandInvoc):
     
     def run( self, stdin ):
         
-        next_stdin, stdout = ( None, 1 ) if self.end_pipe() else os.pipe()
+        
+        if self.in_pipe():
+            
+            next_stdin, stdout = ( None, 1 ) if self.end_pipe() else os.pipe()
+                    
+                    
+            child_pid = os.fork()   
+            if child_pid == 0:
                 
+                self.run_core(stdout)
                 
-        child_pid = os.fork()   
-        if child_pid == 0:
-            self.run_core(stdout)
-            if stdout != 1:
+                if stdout != 1:
+                    os.close(stdout)
+                os._exit(0)
+            
+            
+            if stdout != 1: 
                 os.close(stdout)
-            os._exit(0)
+            
+            if stdin:
+                os.close(stdin)
+            
+            return next_stdin, lambda : os.waitpid( child_pid , 0)
         
+        else:
+            self.run_core(1)
+            return None, lambda : None
         
-        if stdout != 1: 
-            os.close(stdout)
-        
-        if stdin:
-            os.close(stdin)
-        
-        return next_stdin, lambda : os.waitpid( child_pid , 0)
     
     @classmethod
     def commands(cls):

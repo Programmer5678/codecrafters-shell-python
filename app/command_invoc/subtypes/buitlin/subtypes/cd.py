@@ -42,6 +42,5 @@ class CdCommand(BuiltinCommandInvoc):
         if os.path.isdir(target_full_path):
             self.shell_context().setcwd(target_full_path)
 
-
         else:
             err_no_such_file_dir()

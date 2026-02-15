@@ -34,9 +34,13 @@ class CommandInvoc(ABC):
         self._spec = args.spec
         self._end_pipe = args.end_pipe
         self._shell_context = copy.deepcopy(args.shell_context)
+        self._in_pipe = args.in_pipe
 
     def spec(self):
         return self._spec
+
+    def in_pipe(self):
+        return self._in_pipe
 
     def end_pipe(self):
         return self._end_pipe
