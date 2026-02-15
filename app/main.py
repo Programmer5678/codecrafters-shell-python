@@ -86,6 +86,7 @@ class ProcWaiter:
         self._waiter_funcs.append(waiter)
         
     def wait_for_all(self):
+        
         for waiter in self._waiter_funcs:
             waiter()
 
@@ -124,10 +125,13 @@ def main():
             
             if isinstance(command_invoc, BuiltinCommandInvoc):
             
-                if len(command_lines) != 1:
-                    raise Exception("No pipes here yet!")
+                # if len(command_lines) != 1:
+                #     raise Exception("No pipes here yet!")
+                r = command_invoc.run(None) 
+                if isinstance(r, tuple ):
+                    prev_stdout, proc_wait = r 
+                    proc_waiter.add_waiter( proc_wait )
                 
-                command_invoc.run(None)
                 
             elif isinstance(command_invoc, ExecCommandInvoc):
                 prev_stdout, proc_wait = command_invoc.run( prev_stdout )
