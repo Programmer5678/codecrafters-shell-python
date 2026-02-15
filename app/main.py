@@ -5,7 +5,7 @@ import readline
 import sys
 from typing import List
 
-from app.command_invoc.models import CommandInvoc, PipelineResult
+from app.command_invoc.models import CommandInvoc
 from app.command_invoc.models import CommandInvocArgs
 from app.command_invoc.models import CommandInvocSpec
 from app.command_invoc.subtypes.buitlin.builtin import BuiltinCommandInvoc
@@ -113,7 +113,7 @@ def main():
                             )
                           for index, command_invoc_spec in enumerate(command_lines) ]
         
-        next_stdin = subprocess.PIPE # This is the output pipe of previous command(process)
+        prev_stdout = subprocess.PIPE # This is the output pipe of previous command(process)
                        
                       
                             
@@ -127,24 +127,22 @@ def main():
             
                 # if len(command_lines) != 1:
                 #     raise Exception("No pipes here yet!")
-                
-                pipeline_res = command_invoc.run(next_stdin) 
-                if isinstance(pipeline_res, PipelineResult ):
-                    next_stdin = pipeline_res.next_stdin
-                    proc_waiter.add_waiter( pipeline_res.child_wait() )
+                r = command_invoc.run(None) 
+                if isinstance(r, tuple ):
+                    prev_stdout, proc_wait = r 
+                    proc_waiter.add_waiter( proc_wait )
                 
                 
             elif isinstance(command_invoc, ExecCommandInvoc):
-                pipeline_res = command_invoc.run( next_stdin )
-                next_stdin = pipeline_res.next_stdin
-                proc_waiter.add_waiter(pipeline_res.child_wait())
+                prev_stdout, proc_wait = command_invoc.run( prev_stdout )
+                proc_waiter.add_waiter(proc_wait)
                 
             elif isinstance( command_invoc, NotFoundCommandInvoc ):
                 
                 if len(command_lines) != 1:
                     raise Exception("No pipes here yet!")
                 
-                command_invoc.run(next_stdin)
+                command_invoc.run(None)
                 
                
             if command_invoc.end_pipe():

@@ -1,9 +1,6 @@
-from app.command_invoc.models import CommandInvoc, CommandInvocArgs, PipelineResult
+from app.command_invoc.models import CommandInvoc, CommandInvocArgs
 import os
 from abc import abstractmethod
-
-
-
 
 
 
@@ -22,7 +19,7 @@ class BuiltinCommandInvoc(CommandInvoc):
     
     def run(self, stdin):
 
-        def proc_fds():
+        def proc_filedescriptors():
             """Return (next_stdin, stdout) for this process stage."""
             return (None, STDOUT) if self.end_pipe() else os.pipe()
 
@@ -46,13 +43,13 @@ class BuiltinCommandInvoc(CommandInvoc):
                 os.close(in_fd)
 
         if self.in_pipe():
-            next_stdin, stdout = proc_fds()
+            next_stdin, stdout = proc_filedescriptors()
             child_pid = run_in_child(stdout)
             parent_close_fds(stdout, stdin)
-            return PipelineResult( next_stdin, lambda: os.waitpid(child_pid, 0) )
+            return next_stdin, lambda: os.waitpid(child_pid, 0)
         else:
             self.run_core(STDOUT)
-            return PipelineResult(None, lambda: None)
+            return None, lambda: None
         
         
     @abstractmethod

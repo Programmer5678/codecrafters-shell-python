@@ -1,4 +1,4 @@
-from app.command_invoc.models import CommandInvoc, PipelineResult
+from app.command_invoc.models import CommandInvoc
 import sys
 import subprocess
 
@@ -17,4 +17,4 @@ class ExecCommandInvoc(CommandInvoc):
             cwd=self.shell_context().cwd()
         )
 
-        return PipelineResult(p.stdout, lambda : p.wait() )
+        return (p.stdout, lambda : p.wait() )
