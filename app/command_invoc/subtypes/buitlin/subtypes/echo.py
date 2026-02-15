@@ -9,40 +9,25 @@ class EchoCommand(BuiltinCommandInvoc):
 
     def run( self, stdin ):
         
+        next_stdin, stdout = ( None, 1 ) if self.end_pipe() else os.pipe()
                 
-        if self.end_pipe():
-            next_stdin = None
-            
-            child_pid = os.fork()
-            if child_pid == 0:
-                self.on_way(1)
-                os._exit(0)
-            
-        else:
-            next_stdin, stdout = os.pipe()
-                  
-            child_pid = os.fork()   
-            if child_pid == 0:
-                self.actual_run(stdout)
-                if stdout != 1:
-                    os.close(stdout)
-                os._exit(0)
-            
-            if stdout != 1: 
+                
+        child_pid = os.fork()   
+        if child_pid == 0:
+            self.actual_run(stdout)
+            if stdout != 1:
                 os.close(stdout)
-                
+            os._exit(0)
+        
+        
+        if stdout != 1: 
+            os.close(stdout)
         
         if stdin:
             os.close(stdin)
         
         return next_stdin, lambda : os.waitpid( child_pid , 0)
     
-    def on_way(self, out):
-        
-        self.actual_run(out)
-        if out != 1: # 1 = STDOUT
-            pass
-            os.close( out )
     
     def actual_run(self, out):
         
