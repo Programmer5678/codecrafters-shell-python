@@ -16,13 +16,13 @@ class EchoCommand(BuiltinCommandInvoc):
             
         else:
             next_stdin, stdout = os.pipe()
-            os.write(stdout, b"hi")
+            # os.write(stdout, b"hi")
             p = Process(target=self.on_way, args=(stdout,))
             p.start()
-            # os.close(stdout)
+            os.close(stdout)
         
-        # if stdin:
-        #     os.close(stdin)
+        if stdin:
+            os.close(stdin)
         
         return next_stdin, lambda : p.join()
     
@@ -31,7 +31,7 @@ class EchoCommand(BuiltinCommandInvoc):
         self.actual_run(out)
         if out != 1: # 1 = STDOUT
             pass
-            # os.close( out )
+            os.close( out )
     
     def actual_run(self, out):
         os.write( out, (" ".join( self.spec().args()) + "\n").encode() )
