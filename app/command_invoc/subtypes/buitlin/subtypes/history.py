@@ -1,20 +1,47 @@
 from app.command_invoc.subtypes.buitlin.builtin import BuiltinCommandInvoc
 
+from multiprocessing import Process
+import os
+import sys
 
 class HistoryCommand(BuiltinCommandInvoc):
 
     expected_command = "history"
 
-    def run(self, stdin):
+    def run( self, stdin ):
+        
+        if self.end_pipe():
+            next_stdin = None
+            p = Process(target=self.on_way, args=( 1 ,))
+            p.start()
+            
+        else:
+            next_stdin, stdout = os.pipe()
+            p = Process(target=self.on_way, args=(stdout,))
+            p.start()
+            os.close(stdout)
+        
+        if stdin:
+            os.close(stdin)
+        
+        return next_stdin, lambda : p.join()
+
+    def on_way(self, out):
+        
+        self.actual_run(out)
+        if out != 1: # 1 = STDOUT
+            os.close( out )
+
+    def actual_run(self, out):
 
         def history_line(line_num, line_content):
             return f"\t{line_num+1} {line_content}"
 
-        def print_all_lines(history_lines):
-            print(   "\n".join( history_lines )   )
+        def print_all_lines(history_lines, out):
+            os.write( out,  ("\n".join( history_lines ) + "\n").encode()  )
 
         def print_last_n_lines(history_lines, nl):
-            print(   "\n".join( history_lines[-nl:] )   )
+            os.write( out,  ("\n".join( history_lines[-nl:] ) + "\n").encode()   )
 
         def no_num_lines_arg():
             return len( self.spec().args() ) == 0
@@ -31,7 +58,7 @@ class HistoryCommand(BuiltinCommandInvoc):
         history_lines = [ history_line(line_num, line) for line_num, line in enumerate( self.shell_context().history() ) ]
 
         if no_num_lines_arg():
-            print_all_lines(history_lines)
+            print_all_lines(history_lines, out)
 
         elif too_many_args():
             err_too_many_args()
