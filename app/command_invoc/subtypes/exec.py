@@ -1,7 +1,6 @@
-from app.command_invoc.models import CommandInvoc
+from app.command_invoc.models import CommandInvoc, PipelineResult
 import sys
 import subprocess
-from app.command_invoc.subtypes.buitlin.builtin import PipelineResult
 
 
 class ExecCommandInvoc(CommandInvoc):

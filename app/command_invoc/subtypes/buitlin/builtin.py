@@ -1,21 +1,11 @@
-from app.command_invoc.models import CommandInvoc, CommandInvocArgs
+from app.command_invoc.models import CommandInvoc, CommandInvocArgs, PipelineResult
 import os
 from abc import abstractmethod
 
 
 
 
-class PipelineResult:
 
-    def __init__(self, next_stdin, child_wait):
-        self._next_stdin = next_stdin
-        self._child_wait = child_wait
-        
-    def next_stdin(self):
-        return self._next_stdin
-    
-    def child_wait(self):
-        return self._child_wait
 
 
 STDOUT = 1    

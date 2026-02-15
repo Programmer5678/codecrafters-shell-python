@@ -5,10 +5,10 @@ import readline
 import sys
 from typing import List
 
-from app.command_invoc.models import CommandInvoc
+from app.command_invoc.models import CommandInvoc, PipelineResult
 from app.command_invoc.models import CommandInvocArgs
 from app.command_invoc.models import CommandInvocSpec
-from app.command_invoc.subtypes.buitlin.builtin import BuiltinCommandInvoc, PipelineResult
+from app.command_invoc.subtypes.buitlin.builtin import BuiltinCommandInvoc
 from app.command_invoc.subtypes.exec import ExecCommandInvoc
 from app.command_invoc.subtypes.notfound import NotFoundCommandInvoc
 
