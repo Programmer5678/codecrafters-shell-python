@@ -33,5 +33,5 @@ class EchoCommand(BuiltinCommandInvoc):
             # os.close( out )
     
     def actual_run(self, out):
-        os.write( out, (" ".join( self.spec().args()) + "\n").encode() )
+        os.write( 1, (" ".join( self.spec().args()) + "\n").encode() )
         
