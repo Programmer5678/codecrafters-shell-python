@@ -1,4 +1,4 @@
-from app.command_invoc.models import CommandInvoc, CommandInvocArgs
+from app.command_invoc.models import CommandInvoc, CommandInvocArgs, PipelineResult
 import os
 from abc import abstractmethod
 
@@ -46,7 +46,7 @@ class BuiltinCommandInvoc(CommandInvoc):
             next_stdin, stdout = proc_filedescriptors()
             child_pid = run_in_child(stdout)
             parent_close_fds(stdout, stdin)
-            return next_stdin, lambda: os.waitpid(child_pid, 0)
+            return PipelineResult(next_stdin, lambda: os.waitpid(child_pid, 0) )
         else:
             self.run_core(STDOUT)
             return None, lambda: None

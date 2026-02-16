@@ -129,8 +129,7 @@ def main():
                 #     raise Exception("No pipes here yet!")
                 
                 
-                a, b = command_invoc.run(None) 
-                pr = PipelineResult(a, b)
+                pr = command_invoc.run(None) 
                 r = ( pr.next_stdin(), pr.child_wait() )
                 
                 if isinstance(r, tuple ):
