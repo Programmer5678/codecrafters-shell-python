@@ -42,14 +42,17 @@ class BuiltinCommandInvoc(CommandInvoc):
             if in_fd:
                 os.close(in_fd)
 
+
         if self.in_pipe():
             next_stdin, stdout = proc_filedescriptors()
             child_pid = run_in_child(stdout)
             parent_close_fds(stdout, stdin)
-            return PipelineResult(next_stdin, lambda: os.waitpid(child_pid, 0) )
+            result = PipelineResult(next_stdin, lambda: os.waitpid(child_pid, 0) )
         else:
             self.run_core(STDOUT)
-            return None, lambda: None
+            result = PipelineResult(None, lambda: None)
+            
+        return result
         
         
     @abstractmethod
