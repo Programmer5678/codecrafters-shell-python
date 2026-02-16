@@ -124,7 +124,7 @@ def main():
             
             if isinstance(command_invoc, BuiltinCommandInvoc):
                 
-                pr = command_invoc.run(None) 
+                pr = command_invoc.run(prev_stdout) 
                 prev_stdout = pr.next_stdin()
                 proc_waiter.add_waiter(  pr.child_wait() )
                 
@@ -132,7 +132,7 @@ def main():
                                 
                 pr = command_invoc.run(prev_stdout)
                 prev_stdout = pr.next_stdin()
-                proc_waiter.add_waiter(pr.child_wait())
+                proc_waiter.add_waiter(  pr.child_wait() )
                 
             elif isinstance( command_invoc, NotFoundCommandInvoc ):
                 
