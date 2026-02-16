@@ -17,8 +17,6 @@ class BuiltinCommandInvoc(CommandInvoc):
         assert( command_matches_expected()  )
         
         
-        
-    
     def run(self, stdin):
         if self.in_pipe():
             result = self._run_in_new_proc(stdin)
@@ -27,11 +25,6 @@ class BuiltinCommandInvoc(CommandInvoc):
             result = PipelineResult(None, lambda: None)
 
         return result
-
-
-    def _proc_filedescriptors(self):
-        """Return (next_stdin, stdout) for this process stage."""
-        return (None, STDOUT) if self.end_pipe() else os.pipe()
 
 
     def _run_in_child(self, in_fd, out_fd):
@@ -45,25 +38,6 @@ class BuiltinCommandInvoc(CommandInvoc):
                     os.close(out_fd)
                 os._exit(0)
         return child_pid
-
-
-    def _parent_close_fds(self, out_fd, in_fd):
-        """Close file descriptors the parent does not need."""
-        if out_fd != STDOUT:
-            os.close(out_fd)
-        if in_fd is not None and in_fd != STDIN:
-            os.close(in_fd)
-
-
-    def _run_in_new_proc(self, stdin):
-        next_stdin, stdout = self._proc_filedescriptors()
-        child_pid = self._run_in_child(stdin, stdout)
-        self._parent_close_fds(stdout, stdin)
-        return PipelineResult(next_stdin, lambda: os.waitpid(child_pid, 0))
-    
-    
-    
-
         
     @abstractmethod
     def run_core(self, out):

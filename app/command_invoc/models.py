@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import os
 from typing import Any
 from app.search_files import find_in_path
 import copy
@@ -41,6 +42,10 @@ class CommandInvocArgs:
     shell_context: Any
 
 
+
+STDIN = 0
+STDOUT = 1
+
 class CommandInvoc(ABC):
 
     def __init__( self, args: CommandInvocArgs):
@@ -68,7 +73,34 @@ class CommandInvoc(ABC):
     @abstractmethod
     def run(self, stdin):
         pass
+    
+    @abstractmethod
+    def _run_in_child(in_fd, out_fd):
+        pass
+    
+    def _proc_filedescriptors(self):
+        """Return (next_stdin, stdout) for this process stage."""
+        return (None, STDOUT) if self.end_pipe() else os.pipe()
 
+    def _parent_close_fds(self, out_fd, in_fd):
+        """Close file descriptors the parent does not need."""
+        if out_fd != STDOUT:
+            os.close(out_fd)
+        if in_fd is not None and in_fd != STDIN:
+            os.close(in_fd)
+            
+    def _run_in_new_proc(self, stdin):
+        """Set up the pipe, spawn child, and return a PipelineResult."""
+        next_stdin, stdout = self._proc_filedescriptors()
+        child_pid = self._run_in_child(stdin, stdout)
+        self._parent_close_fds(stdout, stdin)
+        return PipelineResult(next_stdin, lambda: os.waitpid(child_pid, 0)) 
+    
+    def _run_in_new_proc(self, stdin):
+        next_stdin, stdout = self._proc_filedescriptors()
+        child_pid = self._run_in_child(stdin, stdout)
+        self._parent_close_fds(stdout, stdin)
+        return PipelineResult(next_stdin, lambda: os.waitpid(child_pid, 0))
 
     @classmethod
     def resolve(cls, args: CommandInvocArgs ):
