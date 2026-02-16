@@ -137,8 +137,8 @@ def main():
                 
             elif isinstance(command_invoc, ExecCommandInvoc):                
                 
-                pr = command_invoc.run( prev_stdout )
-                prev_stdout = pr.next_stdin(), 
+                pr = command_invoc.run(prev_stdout)
+                prev_stdout = pr.next_stdin()
                 proc_waiter.add_waiter(pr.child_wait())
                 
             elif isinstance( command_invoc, NotFoundCommandInvoc ):
