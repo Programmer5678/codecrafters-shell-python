@@ -133,6 +133,9 @@ def main():
                 if isinstance(pr, PipelineResult ):
                     prev_stdout = pr.next_stdin()
                     proc_waiter.add_waiter(  pr.child_wait() )
+                    
+                else:
+                    os._exit(-1)
                 
                 
             elif isinstance(command_invoc, ExecCommandInvoc):                
