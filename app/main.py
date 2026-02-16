@@ -129,11 +129,10 @@ def main():
                 #     raise Exception("No pipes here yet!")
                 
                 pr = command_invoc.run(None) 
-                r = ( pr.next_stdin(), pr.child_wait() )
                 
-                if isinstance(r, tuple ):
-                    prev_stdout, proc_wait = r 
-                    proc_waiter.add_waiter( proc_wait )
+                if isinstance(pr, PipelineResult ):
+                    prev_stdout = pr.next_stdin()
+                    proc_waiter.add_waiter(  pr.child_wait() )
                 
                 
             elif isinstance(command_invoc, ExecCommandInvoc):                
