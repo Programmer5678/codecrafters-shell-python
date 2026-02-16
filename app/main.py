@@ -113,7 +113,9 @@ def main():
                             )
                           for index, command_invoc_spec in enumerate(command_lines) ]
         
-        prev_stdout = None         
+        
+        STDIN = 0
+        prev_stdout = STDIN        
         proc_waiter = ProcWaiter()
         apply_effect = lambda : None
                                     
@@ -122,12 +124,12 @@ def main():
             
             if isinstance(command_invoc, BuiltinCommandInvoc):
                 
-                pr = command_invoc.run(prev_stdout) 
+                pr = command_invoc.run(None) 
                 prev_stdout = pr.next_stdin()
                 proc_waiter.add_waiter(  pr.child_wait() )
                 
-            elif isinstance(command_invoc, ExecCommandInvoc):                
-                
+            elif isinstance(command_invoc, ExecCommandInvoc): 
+                                
                 pr = command_invoc.run(prev_stdout)
                 prev_stdout = pr.next_stdin()
                 proc_waiter.add_waiter(pr.child_wait())

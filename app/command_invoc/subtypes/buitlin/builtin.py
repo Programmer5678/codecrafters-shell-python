@@ -4,7 +4,7 @@ from abc import abstractmethod
 
 
 
-
+STDIN = 0
 STDOUT = 1    
 
 class BuiltinCommandInvoc(CommandInvoc):
@@ -39,8 +39,7 @@ class BuiltinCommandInvoc(CommandInvoc):
             """Close file descriptors the parent does not need."""
             if out_fd != STDOUT:
                 os.close(out_fd)
-            if in_fd:
-                print(in_fd)
+            if in_fd != None and in_fd != STDIN :
                 os.close(in_fd)
 
 
