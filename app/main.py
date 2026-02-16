@@ -138,9 +138,7 @@ def main():
                     proc_waiter.add_waiter( proc_wait )
                 
                 
-            elif isinstance(command_invoc, ExecCommandInvoc):
-                prev_stdout, proc_wait = command_invoc.run( prev_stdout )
-                
+            elif isinstance(command_invoc, ExecCommandInvoc):                
                 
                 a, b = command_invoc.run( prev_stdout )
                 pr = PipelineResult( a, b )
