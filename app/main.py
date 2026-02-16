@@ -128,7 +128,6 @@ def main():
                 # if len(command_lines) != 1:
                 #     raise Exception("No pipes here yet!")
                 
-                
                 pr = command_invoc.run(None) 
                 r = ( pr.next_stdin(), pr.child_wait() )
                 
@@ -139,8 +138,7 @@ def main():
                 
             elif isinstance(command_invoc, ExecCommandInvoc):                
                 
-                a, b = command_invoc.run( prev_stdout )
-                pr = PipelineResult( a, b )
+                pr = command_invoc.run( prev_stdout )
                 prev_stdout, proc_wait = pr.next_stdin(), pr.child_wait()
                 
                 proc_waiter.add_waiter(proc_wait)
