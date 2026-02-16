@@ -40,6 +40,7 @@ class BuiltinCommandInvoc(CommandInvoc):
             if out_fd != STDOUT:
                 os.close(out_fd)
             if in_fd:
+                print(in_fd)
                 os.close(in_fd)
 
 

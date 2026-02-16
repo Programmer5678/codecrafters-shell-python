@@ -113,10 +113,7 @@ def main():
                             )
                           for index, command_invoc_spec in enumerate(command_lines) ]
         
-        prev_stdout = subprocess.PIPE # This is the output pipe of previous command(process)
-                       
-                      
-                            
+        prev_stdout = None         
         proc_waiter = ProcWaiter()
         apply_effect = lambda : None
                                     
