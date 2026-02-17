@@ -1,9 +1,11 @@
 from dataclasses import dataclass
+import itertools
 import os
 from typing import Any
 from app.search_files import find_in_path
 import copy
 from abc import ABC, abstractmethod
+
 
 
 class PipelineResult:
@@ -23,6 +25,7 @@ class CommandInvocSpec:
 
     def __init__( self, command_invoc_str ):
         self.command_invoc_str = command_invoc_str
+        # print("Args: ", self.args())
 
     def __repr__(self):
         return self.command_invoc_str
@@ -31,7 +34,36 @@ class CommandInvocSpec:
         return self.command_invoc_str.split()[0]
 
     def args(self):
-        return self.command_invoc_str.split()[1:]
+        
+        def collapse(l):
+            res = []
+            for item in l:
+                if isinstance(item, list):
+                    for el in collapse(item):
+                        res.append(el)
+                else:
+                    res.append(item)
+            return res
+        
+        s = self.command_invoc_str    
+        
+        l = s.split(r"'")
+        
+        for i in range(len(l)):
+            if i % 2 == 0:
+                l[i] = l[i].split()       
+        l = collapse(l) #collapse list
+        
+        return l[1:]
+       
+                
+        
+        
+        
+
+
+
+
 
 
 @dataclass

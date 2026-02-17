@@ -53,7 +53,7 @@ def input_next_line():
     com_lines = line.split("|")
     
 
-    return [ CommandInvocSpec(com_line ) for  com_line in com_lines ]
+    return [ CommandInvocSpec( com_line ) for  com_line in com_lines ]
 
 
     
