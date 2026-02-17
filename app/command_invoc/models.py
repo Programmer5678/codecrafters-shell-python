@@ -35,6 +35,7 @@ class CommandInvocSpec:
     def args(self):
         
         SINGLE_QUOTE = "'"
+        DOUBLE_QUOTE = '"'
         
         def tokenize(st):
             
@@ -44,10 +45,11 @@ class CommandInvocSpec:
                 result[0] += c
 
             def outer_space(c):
-                return c.isspace() and outside_quotes
+                return c.isspace() and outside_single_quotes
 
             result = []
-            outside_quotes = True
+            outside_single_quotes = True
+            outside_double_quotes = True
 
             for index, c in enumerate(st):
                 if outer_space(c):
@@ -56,8 +58,17 @@ class CommandInvocSpec:
                 else:
                     add_char(result, c)
 
-                if c == SINGLE_QUOTE:
-                    outside_quotes = not outside_quotes
+                if c == SINGLE_QUOTE and not outside_single_quotes:
+                    outside_single_quotes = True
+                    
+                if c == DOUBLE_QUOTE and not outside_double_quotes:
+                    outside_double_quotes = True
+                    
+                if outside_double_quotes and outside_single_quotes:
+                    if c == SINGLE_QUOTE:
+                        outside_single_quotes = False
+                    if c == DOUBLE_QUOTE:
+                        outside_double_quotes = False
 
             return result
         
