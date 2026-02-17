@@ -41,14 +41,13 @@ class CommandInvocSpec:
             
             def splitty(st):
                 
-                if all(c.isspace() for c in st):
-                    return []
-                
                 first_word = ""
                 outside_quotes = True
                 for index, c in enumerate(st):
                     if c.isspace() and outside_quotes:
-                        return [ first_word, *splitty(st[index+1:]) ]
+                        
+                        l = [first_word] if first_word else []  
+                        return l + splitty(st[index+1:]) 
         
                     else:
                         first_word+=c
@@ -56,7 +55,7 @@ class CommandInvocSpec:
                     if c == r"'":
                         outside_quotes = not outside_quotes
                         
-                return [first_word]
+                return [first_word] if first_word else []
                         
             r = splitty(s)
             print(r)
