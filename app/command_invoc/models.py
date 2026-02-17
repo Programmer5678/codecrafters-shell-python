@@ -23,21 +23,21 @@ class PipelineResult:
 
 class CommandInvocSpec:
 
-    def __init__( self, command_invoc_str ):
-        self.command_invoc_str = command_invoc_str
-        # print("Args: ", self.args())
+    def __init__( self, raw ):
+        self.raw = raw
 
     def __repr__(self):
-        return self.command_invoc_str
+        return self.raw
 
     def command(self):
-        return self.command_invoc_str.split()[0]
+        return self.raw.split()[0]
 
     def args(self):
         
+        SINGLE_QUOTE = "'"
+        
         def tokenize(st):
-            SINGLE_QUOTE = "'"
-
+            
             def add_char(result, c):
                 if not result:
                     result.append("")
@@ -61,10 +61,14 @@ class CommandInvocSpec:
 
             return result
         
-        def remove_quotes(r):
-            return ["".join(c for c in ss if c != "'") for ss in r]
+        def remove_quotes(tokens):
+            
+            def _remove_quotes_from_str(s):
+                return "".join(c for c in s if c != SINGLE_QUOTE)
+            
+            return [ _remove_quotes_from_str(token) for token in tokens]
         
-        all_tokens = remove_quotes( tokenize( self.command_invoc_str   ) )
+        all_tokens = remove_quotes( tokenize( self.raw   ) )
         
         return all_tokens[1:]
        
