@@ -34,47 +34,34 @@ class CommandInvocSpec:
         return self.command_invoc_str.split()[0]
 
     def args(self):
-        
-        def collapse(l):
-            res = []
-            for item in l:
-                if isinstance(item, list):
-                    for el in collapse(item):
-                        res.append(el)
-                else:
-                    res.append(item)
-            return res
-        
-        s = self.command_invoc_str    
-        
-        l = s.split("'")            
-        
-        r = []
-        prev_empty = False
-        for i in range(len(l)):
-
-            if i % 2 == 0:
+            
+            
+            s = self.command_invoc_str   
+            
+            
+            def splitty(st):
                 
-                if l[i] == '':
-                    prev_empty = True
-
-                else:
-                    split_val = l[i].split()
-                    r.append(split_val)
+                if all(c.isspace() for c in st):
+                    return []
                 
-            else:
-                
-                if prev_empty:
-                    r[-1] = r[-1] + l[i]
-                
-                else:
-                    r.append(l[i])
-                    
-                prev_empty = False
-               
-        r = collapse(r) #collapse list
+                first_word = ""
+                outside_quotes = True
+                for index, c in enumerate(st):
+                    if c.isspace() and outside_quotes:
+                        return [ first_word, *splitty(st[index+1:]) ]
         
-        return r[1:]
+                    else:
+                        first_word+=c
+                            
+                    if c == r"'":
+                        outside_quotes = not outside_quotes
+                        
+                return [first_word]
+                        
+            r = splitty(s)
+            r2 = [ "".join(c for c in ss if c != r"'") for ss in r ]
+            
+            return r2[1:]
        
                 
         
