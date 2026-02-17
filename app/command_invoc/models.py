@@ -58,7 +58,6 @@ class CommandInvocSpec:
                 return [first_word] if first_word else []
                         
             r = splitty(s)
-            print(r)
             r2 = [ "".join(c for c in ss if c != r"'") for ss in r ]
             
             return r2[1:]
