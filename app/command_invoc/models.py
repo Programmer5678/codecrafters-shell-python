@@ -45,7 +45,7 @@ class CommandInvocSpec:
                 result[0] += c
 
             def outer_space(c):
-                return c.isspace() and outside_single_quotes
+                return c.isspace() and ( outside_single_quotes or outside_double_quotes )
 
             result = []
             outside_single_quotes = True
