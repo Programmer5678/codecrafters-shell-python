@@ -39,7 +39,7 @@ class CommandInvocSpec:
         
         def tokenize(st):
             
-            print(st)
+            # print(st)
             
             def add_char(result, c):
                 if not result:
