@@ -47,11 +47,27 @@ class CommandInvocSpec:
         
         s = self.command_invoc_str    
         
-        l = s.split(r"'")
+
+            
         
+        r = []
+        prev_empty = False
         for i in range(len(l)):
+            
             if i % 2 == 0:
-                l[i] = l[i].split()       
+                  
+                if prev_empty:
+                    r[-1].append( l[i].split() )
+                else:
+                    r.append(l[i].split())  
+                
+                prev_empty = False
+                
+            elif l[i] == "":
+                prev_empty = True
+                
+                
+               
         l = collapse(l) #collapse list
         
         return l[1:]
