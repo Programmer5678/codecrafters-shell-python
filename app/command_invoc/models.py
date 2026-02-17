@@ -54,22 +54,23 @@ class CommandInvocSpec:
         for i in range(len(l)):
 
             if i % 2 == 0:
-
-                split_val = l[i].split()
-
-                if prev_empty:
-                    r[-1].append(split_val)
-                else:
-                    r.append(split_val)
-
-                prev_empty = False
-
-            else:
-                if l[i] == "":
+                
+                if l[i] == '':
                     prev_empty = True
+
+                else:
+                    split_val = l[i].split()
+                    r.append(split_val)
+                
+            else:
+                
+                if prev_empty:
+                    r[-1] = r[-1] + l[i]
                 
                 else:
                     r.append(l[i])
+                    
+                prev_empty = False
                
         r = collapse(r) #collapse list
         
