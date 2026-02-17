@@ -72,7 +72,6 @@ class CommandInvocSpec:
                     r.append(l[i])
                
         r = collapse(r) #collapse list
-        print(r)
         
         return r[1:]
        
