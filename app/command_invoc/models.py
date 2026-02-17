@@ -75,7 +75,7 @@ class CommandInvocSpec:
         def remove_quotes(tokens):
             
             def _remove_quotes_from_str(s):
-                return "".join(c for c in s if c != SINGLE_QUOTE)
+                return "".join(c for c in s if c != SINGLE_QUOTE and c != DOUBLE_QUOTE)
             
             return [ _remove_quotes_from_str(token) for token in tokens]
         
