@@ -38,28 +38,33 @@ class CommandInvocSpec:
             
         s = self.command_invoc_str   
         
-        
-        def splitty(st):
-            
+        def tokenize(st):
+            SINGLE_QUOTE = "'"
+
+            def add_char(result, c):
+                if not result:
+                    result.append("")
+                result[0] += c
+
+            def outer_space(c):
+                return c.isspace() and outside_quotes
+
             result = []
             outside_quotes = True
+
             for index, c in enumerate(st):
-                if c.isspace() and outside_quotes:
-                    
-                    result += splitty(st[index+1:]) 
+                if outer_space(c):
+                    result += tokenize(st[index + 1:])
                     break
-    
                 else:
-                    if not result:
-                        result.append("")
-                    result[0] += c
-                        
-                if c == r"'":
+                    add_char(result, c)
+
+                if c == SINGLE_QUOTE:
                     outside_quotes = not outside_quotes
-                    
+
             return result
                     
-        r = splitty(s)
+        r = tokenize(s)
         r2 = [ "".join(c for c in ss if c != r"'") for ss in r ]
         
         return r2[1:]
