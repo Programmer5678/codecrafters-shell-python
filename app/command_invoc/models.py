@@ -34,9 +34,6 @@ class CommandInvocSpec:
         return self.command_invoc_str.split()[0]
 
     def args(self):
-            
-            
-        s = self.command_invoc_str   
         
         def tokenize(st):
             SINGLE_QUOTE = "'"
@@ -63,11 +60,13 @@ class CommandInvocSpec:
                     outside_quotes = not outside_quotes
 
             return result
-                    
-        r = tokenize(s)
-        r2 = [ "".join(c for c in ss if c != r"'") for ss in r ]
         
-        return r2[1:]
+        def remove_quotes(r):
+            return ["".join(c for c in ss if c != "'") for ss in r]
+        
+        all_tokens = remove_quotes( tokenize( self.command_invoc_str   ) )
+        
+        return all_tokens[1:]
        
                 
         
