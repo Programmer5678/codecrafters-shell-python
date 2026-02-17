@@ -36,31 +36,33 @@ class CommandInvocSpec:
     def args(self):
             
             
-            s = self.command_invoc_str   
-            
-            
-            def splitty(st):
-                
-                first_word = ""
-                outside_quotes = True
-                for index, c in enumerate(st):
-                    if c.isspace() and outside_quotes:
-                        
-                        l = [first_word] if first_word else []  
-                        return l + splitty(st[index+1:]) 
+        s = self.command_invoc_str   
         
-                    else:
-                        first_word+=c
-                            
-                    if c == r"'":
-                        outside_quotes = not outside_quotes
-                        
-                return [first_word] if first_word else []
-                        
-            r = splitty(s)
-            r2 = [ "".join(c for c in ss if c != r"'") for ss in r ]
+        
+        def splitty(st):
             
-            return r2[1:]
+            result = []
+            outside_quotes = True
+            for index, c in enumerate(st):
+                if c.isspace() and outside_quotes:
+                    
+                    result += splitty(st[index+1:]) 
+                    break
+    
+                else:
+                    if not result:
+                        result.append("")
+                    result[0] += c
+                        
+                if c == r"'":
+                    outside_quotes = not outside_quotes
+                    
+            return result
+                    
+        r = splitty(s)
+        r2 = [ "".join(c for c in ss if c != r"'") for ss in r ]
+        
+        return r2[1:]
        
                 
         
