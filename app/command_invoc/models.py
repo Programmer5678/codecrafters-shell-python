@@ -39,6 +39,8 @@ class CommandInvocSpec:
         
         def tokenize(st):
             
+            print(st)
+            
             def add_char(result, c):
                 if not result:
                     result.append("")
@@ -52,6 +54,11 @@ class CommandInvocSpec:
             outside_double_quotes = True
 
             for index, c in enumerate(st):
+                # Debug print
+                # print(f"Index: {index}, Char: {repr(c)}, "
+                #     f"outside_single_quotes: {outside_single_quotes}, "
+                #     f"outside_double_quotes: {outside_double_quotes}")
+
                 if outer_space(c):
                     result += tokenize(st[index + 1:])
                     break
@@ -60,16 +67,16 @@ class CommandInvocSpec:
 
                 if c == SINGLE_QUOTE and not outside_single_quotes:
                     outside_single_quotes = True
-                    
+
                 if c == DOUBLE_QUOTE and not outside_double_quotes:
                     outside_double_quotes = True
-                    
+
                 if outside_double_quotes and outside_single_quotes:
                     if c == SINGLE_QUOTE:
                         outside_single_quotes = False
                     if c == DOUBLE_QUOTE:
                         outside_double_quotes = False
-
+                        
             return result
         
         def remove_quotes(tokens):
