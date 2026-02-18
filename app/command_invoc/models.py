@@ -115,12 +115,11 @@ def _tokenize(st):
             elif is_opening_double_quote(c, prev_backslash):
                 open_double_quote()
 
-            elif c == BACKSLASH:
+            elif c == BACKSLASH and not prev_backslash:
                 prev_backslash = True
                 continue
             else:  
                 add_char(result, c)
-                
             
             if prev_backslash:
                 prev_backslash = False
