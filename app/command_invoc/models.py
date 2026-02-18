@@ -21,6 +21,11 @@ class PipelineResult:
         return self._child_wait
 
 
+
+
+
+
+
 class CommandInvocSpec:
 
     def __init__( self, raw ):
@@ -34,54 +39,87 @@ class CommandInvocSpec:
 
     def args(self):
         
-        SINGLE_QUOTE = "'"
-        DOUBLE_QUOTE = '"'
-        
-        def tokenize(st):
-            
-            # print(st)
-            
-            def add_char(result, c):
-                if not result:
-                    result.append("")
-                result[0] += c
-
-            def outer_space(c):
-                return c.isspace() and ( outside_single_quotes and outside_double_quotes )
-
-            result = []
-            outside_single_quotes = True
-            outside_double_quotes = True
-
-            for index, c in enumerate(st):
-
-                if outer_space(c):
-                    result += tokenize(st[index + 1:])
-                    break
-
-                elif c == SINGLE_QUOTE and not outside_single_quotes:
-                    outside_single_quotes = True
-
-                elif c == DOUBLE_QUOTE and not outside_double_quotes:
-                    outside_double_quotes = True
-
-                elif outside_double_quotes and outside_single_quotes and c == SINGLE_QUOTE:
-                    outside_single_quotes = False
-                        
-                elif outside_double_quotes and outside_single_quotes and c == DOUBLE_QUOTE:
-                        outside_double_quotes = False
-                        
-                else:
-                    add_char(result, c)
-                        
-            return result
-        
-        
-        all_tokens =  tokenize( self.raw   ) 
+        all_tokens =  _tokenize( self.raw   ) 
         
         return all_tokens[1:]
        
-                
+       
+def _tokenize(st):
+        
+        SINGLE_QUOTE = "'"
+        DOUBLE_QUOTE = '"'
+
+        def add_char(result, c):
+            if not result:
+                result.append("")
+            result[0] += c
+
+        def outer_space(c):
+            return c.isspace() and outside_single_quotes and outside_double_quotes
+
+        # predicates
+        def is_closing_single_quote(c):
+            return c == SINGLE_QUOTE and not outside_single_quotes
+
+        def is_closing_double_quote(c):
+            return c == DOUBLE_QUOTE and not outside_double_quotes
+
+        def is_opening_single_quote(c):
+            return c == SINGLE_QUOTE and outside_single_quotes and outside_double_quotes
+
+        def is_opening_double_quote(c):
+            return c == DOUBLE_QUOTE and outside_single_quotes and outside_double_quotes
+
+        # actions
+        def open_single_quote():
+            nonlocal outside_single_quotes
+            outside_single_quotes = False
+
+        def close_single_quote():
+            nonlocal outside_single_quotes
+            outside_single_quotes = True
+
+        def open_double_quote():
+            nonlocal outside_double_quotes
+            outside_double_quotes = False
+
+        def close_double_quote():
+            nonlocal outside_double_quotes
+            outside_double_quotes = True
+        
+        result = []
+        outside_single_quotes = True
+        outside_double_quotes = True
+
+        for index, c in enumerate(st):
+            
+            def tokenize_remaining():
+                return _tokenize(st[index + 1:])
+
+            if outer_space(c):
+                result += tokenize_remaining()
+                break
+
+            elif is_closing_single_quote(c):
+                close_single_quote()
+
+            elif is_closing_double_quote(c):
+                close_double_quote()
+
+            elif is_opening_single_quote(c):
+                open_single_quote()
+
+            elif is_opening_double_quote(c):
+                open_double_quote()
+
+            else:
+                add_char(result, c)
+
+        return result
+            
+        
+        
+        
         
         
         
