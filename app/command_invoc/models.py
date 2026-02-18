@@ -58,31 +58,26 @@ class CommandInvocSpec:
                 if outer_space(c):
                     result += tokenize(st[index + 1:])
                     break
-                else:
-                    add_char(result, c)
 
-                if c == SINGLE_QUOTE and not outside_single_quotes:
+                elif c == SINGLE_QUOTE and not outside_single_quotes:
                     outside_single_quotes = True
 
                 elif c == DOUBLE_QUOTE and not outside_double_quotes:
                     outside_double_quotes = True
 
-                elif outside_double_quotes and outside_single_quotes:
-                    if c == SINGLE_QUOTE:
-                        outside_single_quotes = False
-                    if c == DOUBLE_QUOTE:
+                elif outside_double_quotes and outside_single_quotes and c == SINGLE_QUOTE:
+                    outside_single_quotes = False
+                        
+                elif outside_double_quotes and outside_single_quotes and c == DOUBLE_QUOTE:
                         outside_double_quotes = False
+                        
+                else:
+                    add_char(result, c)
                         
             return result
         
-        def remove_quotes(tokens):
-            
-            def _remove_quotes_from_str(s):
-                return "".join(c for c in s if c != SINGLE_QUOTE and c != DOUBLE_QUOTE)
-            
-            return [ _remove_quotes_from_str(token) for token in tokens]
         
-        all_tokens = remove_quotes( tokenize( self.raw   ) )
+        all_tokens =  tokenize( self.raw   ) 
         
         return all_tokens[1:]
        
