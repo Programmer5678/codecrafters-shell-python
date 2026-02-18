@@ -48,14 +48,15 @@ def _tokenize(st):
         
         SINGLE_QUOTE = "'"
         DOUBLE_QUOTE = '"'
+        BACKSLASH = "\\"
 
         def add_char(result, c):
             if not result:
                 result.append("")
             result[0] += c
 
-        def outer_space(c):
-            return c.isspace() and outside_single_quotes and outside_double_quotes
+        def outer_space(c, prev_backslash):
+            return c.isspace() and outside_single_quotes and outside_double_quotes and not prev_backslash
 
         # predicates
         def is_closing_single_quote(c):
@@ -64,11 +65,11 @@ def _tokenize(st):
         def is_closing_double_quote(c):
             return c == DOUBLE_QUOTE and not outside_double_quotes
 
-        def is_opening_single_quote(c):
-            return c == SINGLE_QUOTE and outside_single_quotes and outside_double_quotes
+        def is_opening_single_quote(c, prev_backslash):
+            return c == SINGLE_QUOTE and outside_single_quotes and outside_double_quotes and not prev_backslash
 
-        def is_opening_double_quote(c):
-            return c == DOUBLE_QUOTE and outside_single_quotes and outside_double_quotes
+        def is_opening_double_quote(c, prev_backslash):
+            return c == DOUBLE_QUOTE and outside_single_quotes and outside_double_quotes and not prev_backslash
 
         # actions
         def open_single_quote():
@@ -90,13 +91,15 @@ def _tokenize(st):
         result = []
         outside_single_quotes = True
         outside_double_quotes = True
+        
+        prev_backslash = False
 
         for index, c in enumerate(st):
             
             def tokenize_remaining():
                 return _tokenize(st[index + 1:])
 
-            if outer_space(c):
+            if outer_space(c, prev_backslash):
                 result += tokenize_remaining()
                 break
 
@@ -106,14 +109,22 @@ def _tokenize(st):
             elif is_closing_double_quote(c):
                 close_double_quote()
 
-            elif is_opening_single_quote(c):
+            elif is_opening_single_quote(c, prev_backslash): 
                 open_single_quote()
 
-            elif is_opening_double_quote(c):
+            elif is_opening_double_quote(c, prev_backslash):
                 open_double_quote()
 
             else:
                 add_char(result, c)
+                if c == BACKSLASH:
+                    prev_backslash = True
+                continue
+            
+            
+            if prev_backslash:
+                prev_backslash = False
+                
 
         return result
             
