@@ -42,7 +42,7 @@ class CommandInvocSpec:
 
     def args(self):
         
-        all_tokens =  Tokenizer.run( self.raw   ) 
+        all_tokens =  Tokenizer().run( self.raw   ) 
         
         return all_tokens[1:]
     
