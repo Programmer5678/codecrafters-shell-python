@@ -35,7 +35,10 @@ class CommandInvocSpec:
         return self.raw
 
     def command(self):
-        return self.raw.split()[0]
+        
+        all_tokens =  _tokenize( self.raw   ) 
+        
+        return all_tokens[0]
 
     def args(self):
         
