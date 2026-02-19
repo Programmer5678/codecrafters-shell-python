@@ -103,15 +103,18 @@ def _tokenize(st):
             
             def is_start_escape_seq(cur, in_escape_seq, next_chr):
                 
-                if cur == BACKSLASH and not in_escape_seq:
-                    if outside_single_quotes and outside_double_quotes:
-                        return True
-                    elif not outside_single_quotes:
-                        return False
-                    elif not outside_double_quotes:
-                        return next_chr in [DOUBLE_QUOTE, BACKSLASH, '$', '`']
+                if cur != BACKSLASH:
+                    return False
+                elif in_escape_seq:
+                    return False                
+                elif outside_single_quotes and outside_double_quotes:
+                    return True
+                elif not outside_single_quotes:
+                    return False
+                elif not outside_double_quotes:
+                    return next_chr in [DOUBLE_QUOTE, BACKSLASH, '$', '`']
+                
                     
-                return False
             
             def start_escape_seq():
                 nonlocal in_escape_seq
