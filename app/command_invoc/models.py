@@ -55,8 +55,8 @@ def _tokenize(st):
                 result.append("")
             result[0] += c
 
-        def outer_space(c, prev_backslash):
-            return c.isspace() and outside_single_quotes and outside_double_quotes and not prev_backslash
+        def outer_space(c, in_escape_seq):
+            return c.isspace() and outside_single_quotes and outside_double_quotes and not in_escape_seq
 
         # predicates
         def is_closing_single_quote(c):
@@ -65,11 +65,11 @@ def _tokenize(st):
         def is_closing_double_quote(c):
             return c == DOUBLE_QUOTE and not outside_double_quotes
 
-        def is_opening_single_quote(c, prev_backslash):
-            return c == SINGLE_QUOTE and outside_single_quotes and outside_double_quotes and not prev_backslash
+        def is_opening_single_quote(c, in_escape_seq):
+            return c == SINGLE_QUOTE and outside_single_quotes and outside_double_quotes and not in_escape_seq
 
-        def is_opening_double_quote(c, prev_backslash):
-            return c == DOUBLE_QUOTE and outside_single_quotes and outside_double_quotes and not prev_backslash
+        def is_opening_double_quote(c, in_escape_seq):
+            return c == DOUBLE_QUOTE and outside_single_quotes and outside_double_quotes and not in_escape_seq
 
         # actions
         def open_single_quote():
@@ -92,14 +92,16 @@ def _tokenize(st):
         outside_single_quotes = True
         outside_double_quotes = True
         
-        prev_backslash = False
+        in_escape_seq = False
 
         for index, c in enumerate(st):
+            
+            started_escape_seq = False
             
             def tokenize_remaining():
                 return _tokenize(st[index + 1:])
 
-            if outer_space(c, prev_backslash):
+            if outer_space(c, in_escape_seq):
                 result += tokenize_remaining()
                 break
 
@@ -109,20 +111,21 @@ def _tokenize(st):
             elif is_closing_double_quote(c):
                 close_double_quote()
 
-            elif is_opening_single_quote(c, prev_backslash): 
+            elif is_opening_single_quote(c, in_escape_seq): 
                 open_single_quote()
 
-            elif is_opening_double_quote(c, prev_backslash):
+            elif is_opening_double_quote(c, in_escape_seq):
                 open_double_quote()
 
-            elif c == BACKSLASH and not prev_backslash:
-                prev_backslash = True
+            elif c == BACKSLASH and not in_escape_seq:
+                in_escape_seq = True
+                started_escape_seq = True
                 continue
             else:  
                 add_char(result, c)
             
-            if prev_backslash:
-                prev_backslash = False
+            if in_escape_seq and not started_escape_seq:
+                in_escape_seq = False
                 
 
         return result
