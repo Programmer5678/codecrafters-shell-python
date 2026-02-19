@@ -130,7 +130,7 @@ class Tokenizer:
             if self.outer_space(c):
                 if index + 1 < len(st):
                     # recursively tokenize remaining string
-                    remaining_tokens = Tokenizer().run(st[index + 1:])
+                    remaining_tokens = self.run(st[index + 1:])
                     self.result += remaining_tokens
                 break
 
