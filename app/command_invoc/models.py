@@ -120,7 +120,7 @@ def _tokenize(st):
             elif c == BACKSLASH and not in_escape_seq:
                 in_escape_seq = True
                 started_escape_seq = True
-                continue
+                
             else:  
                 add_char(result, c)
             
