@@ -90,13 +90,15 @@ def _tokenize(st):
             
         def escape_char(c, prev_backslash):
             return c == BACKSLASH and not prev_backslash
-        
-        def escape_sequence_finished(c, prev_backslash):
-            return prev_backslash and not escape_char(c, prev_backslash)
+
             
         def reset_escape_sequence():
             nonlocal prev_backslash
             prev_backslash = False
+        
+        def start_escape_sequence():
+            nonlocal prev_backslash
+            prev_backslash = True
         
         result = []
         outside_single_quotes = True
@@ -105,10 +107,10 @@ def _tokenize(st):
         prev_backslash = False
 
         for index, c in enumerate(st):
-            
+
             def tokenize_remaining():
                 return _tokenize(st[index + 1:])
-            
+
             if outer_space(c, prev_backslash):
                 result += tokenize_remaining()
                 break
@@ -119,23 +121,23 @@ def _tokenize(st):
             elif is_closing_double_quote(c):
                 close_double_quote()
 
-            elif is_opening_single_quote(c, prev_backslash): 
+            elif is_opening_single_quote(c, prev_backslash):
                 open_single_quote()
 
             elif is_opening_double_quote(c, prev_backslash):
                 open_double_quote()
 
             elif escape_char(c, prev_backslash):
-                prev_backslash = True
-            else:  
-                add_char(result, c)
-            
-            if escape_sequence_finished(c, prev_backslash):
-                reset_escape_sequence()
-                
+                start_escape_sequence()
+                start_escape = True
 
-        return result
-            
+            else:
+                add_char(result, c)
+
+            if prev_backslash and not start_escape:
+                reset_escape_sequence()
+                return result
+                    
         
         
         
