@@ -100,6 +100,22 @@ def _tokenize(st):
             
             def tokenize_remaining():
                 return _tokenize(st[index + 1:])
+            
+            def is_start_escape_seq(c, in_escape_seq):
+                return c == BACKSLASH and not in_escape_seq
+            
+            def start_escape_seq():
+                nonlocal in_escape_seq
+                nonlocal started_escape_seq
+                in_escape_seq = True
+                started_escape_seq = True
+            
+            def is_end_escape_seq(in_escape_seq, started_escape_seq):
+                in_escape_seq and not started_escape_seq # If we are in escape sequence that we didnt just start, end it
+            
+            def end_escape_seq():
+                nonlocal in_escape_seq
+                in_escape_seq = False
 
             if outer_space(c, in_escape_seq):
                 result += tokenize_remaining()
@@ -117,15 +133,14 @@ def _tokenize(st):
             elif is_opening_double_quote(c, in_escape_seq):
                 open_double_quote()
 
-            elif c == BACKSLASH and not in_escape_seq:
-                in_escape_seq = True
-                started_escape_seq = True
+            elif is_start_escape_seq(c, in_escape_seq):
+                start_escape_seq()
                 
             else:  
                 add_char(result, c)
             
-            if in_escape_seq and not started_escape_seq:
-                in_escape_seq = False
+            if is_end_escape_seq(in_escape_seq, started_escape_seq):
+                end_escape_seq()
                 
 
         return result
