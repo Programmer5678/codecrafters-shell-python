@@ -50,6 +50,14 @@ class CommandInvocSpec:
 
 
 
+# class TokenizerIter:
+    
+#     def __init__(self, tokenizer, c, next_chr, started_escape_seq, remaining):
+        
+        
+        
+
+
 class Tokenizer:
     
     def __init__(self):
@@ -108,30 +116,31 @@ class Tokenizer:
 
     # -------------------- Main tokenizer --------------------
     def run(self, st):
-        result = []
+        result = [""]
         
         def add_char(result, c):
-            if not result:
-                result.append("")
-            result[0] += c
+            result[-1] += c
 
         for index, c in enumerate(st):
             next_chr = st[index + 1] if index + 1 < len(st) else None
             started_escape_seq = False
-
+            
+            
             # inner function only for escape start
             def _start_escape_seq():
                 self.in_escape_seq = True
                 nonlocal started_escape_seq
                 started_escape_seq = True
 
-            # recursive tokenize if space outside quotes
-            def _tokenize_remaining():
-                return self.run(st[index + 1:])
 
             if self._outer_space(c):
-                result += _tokenize_remaining()
-                break
+                
+                if result[-1] == "":
+                    result.pop()
+                
+                result.append("")
+                continue
+
 
             elif self._is_closing_single_quote(c):
                 self._close_single_quote()
@@ -153,6 +162,10 @@ class Tokenizer:
 
             if self._is_end_escape_seq(started_escape_seq):
                 self._end_escape_seq()
+                
+        
+        if result[-1] == "":
+            result.pop()
 
         return result
 
