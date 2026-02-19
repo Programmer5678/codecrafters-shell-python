@@ -111,7 +111,7 @@ def _tokenize(st):
                 started_escape_seq = True
             
             def is_end_escape_seq(in_escape_seq, started_escape_seq):
-                in_escape_seq and not started_escape_seq # If we are in escape sequence that we didnt just start, end it
+                return in_escape_seq and not started_escape_seq # If we are in escape sequence that we didnt just start, end it
             
             def end_escape_seq():
                 nonlocal in_escape_seq
