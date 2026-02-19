@@ -50,7 +50,11 @@ class CommandInvocSpec:
 class Tokenizer:
     
     def __init__(self):
-        pass
+# -------------------- initialize state --------------------
+        
+        self.inside_single_quotes = False
+        self.inside_double_quotes = False
+        self.in_escape_seq = False
         
     def run(self, st):
 
@@ -59,10 +63,11 @@ class Tokenizer:
         BACKSLASH = "\\"
 
         def add_char(c):
-            if not self.result:
-                self.result.append("")
-            self.result[0] += c
+            if not result:
+                result.append("")
+            result[0] += c
 
+            
         def outer_space(c):
             return c.isspace() and not self.inside_single_quotes and not self.inside_double_quotes and not self.in_escape_seq
 
@@ -105,32 +110,29 @@ class Tokenizer:
             else:
                 return True
 
-        def start_escape_seq():
-            self.in_escape_seq = True
-            nonlocal started_escape_seq
-            started_escape_seq = True
-
         def is_end_escape_seq(started_escape_seq):
             return self.in_escape_seq and not started_escape_seq
 
         def end_escape_seq():
             self.in_escape_seq = False
 
-        # -------------------- initialize state --------------------
-        self.result = []
-        self.inside_single_quotes = False
-        self.inside_double_quotes = False
-        self.in_escape_seq = False
+        # result = []
+        result = []
 
         for index, c in enumerate(st):
             next_chr = st[index + 1] if index + 1 < len(st) else None
             started_escape_seq = False
 
+            def start_escape_seq():
+                self.in_escape_seq = True
+                nonlocal started_escape_seq
+                started_escape_seq = True
+
             def tokenize_remaining():
                 return self.run(st[index + 1:])
 
             if outer_space(c):
-                self.result += tokenize_remaining()
+                result += tokenize_remaining()
                 break
 
             elif is_closing_single_quote(c):
@@ -154,7 +156,7 @@ class Tokenizer:
             if is_end_escape_seq(started_escape_seq):
                 end_escape_seq()
 
-        return self.result
+        return result
 
 
 
