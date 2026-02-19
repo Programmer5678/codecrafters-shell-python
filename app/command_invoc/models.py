@@ -36,131 +36,132 @@ class CommandInvocSpec:
 
     def command(self):
         
-        all_tokens =  _tokenize( self.raw   ) 
+        all_tokens =  Tokenizer().run( self.raw   ) 
         
         return all_tokens[0]
 
     def args(self):
         
-        all_tokens =  _tokenize( self.raw   ) 
+        all_tokens =  Tokenizer.run( self.raw   ) 
         
         return all_tokens[1:]
-       
-       
-def _tokenize(st):
-
+    
+class Tokenizer:
     SINGLE_QUOTE = "'"
     DOUBLE_QUOTE = '"'
     BACKSLASH = "\\"
 
-    def add_char(result, c):
-        if not result:
-            result.append("")
-        result[0] += c
+    def __init__(self):
+        # state variables
+        self.result = []
+        self.inside_single_quotes = False
+        self.inside_double_quotes = False
+        self.in_escape_seq = False
 
-    def outer_space(c, in_escape_seq):
-        return c.isspace() and not inside_single_quotes and not inside_double_quotes and not in_escape_seq
+    # -------------------- Helpers --------------------
+    def add_char(self, c):
+        if not self.result:
+            self.result.append("")
+        self.result[0] += c
+
+    def outer_space(self, c):
+        return c.isspace() and not self.inside_single_quotes and not self.inside_double_quotes and not self.in_escape_seq
 
     # predicates
-    def is_closing_single_quote(c):
-        return c == SINGLE_QUOTE and inside_single_quotes
+    def is_closing_single_quote(self, c):
+        return c == self.SINGLE_QUOTE and self.inside_single_quotes
 
-    def is_closing_double_quote(c, in_escape_seq):
-        return c == DOUBLE_QUOTE and inside_double_quotes and not in_escape_seq
+    def is_closing_double_quote(self, c):
+        return c == self.DOUBLE_QUOTE and self.inside_double_quotes and not self.in_escape_seq
 
-    def is_opening_single_quote(c, in_escape_seq):
-        return c == SINGLE_QUOTE and not inside_single_quotes and not inside_double_quotes and not in_escape_seq
+    def is_opening_single_quote(self, c):
+        return c == self.SINGLE_QUOTE and not self.inside_single_quotes and not self.inside_double_quotes and not self.in_escape_seq
 
-    def is_opening_double_quote(c, in_escape_seq):
-        return c == DOUBLE_QUOTE and not inside_single_quotes and not inside_double_quotes and not in_escape_seq
+    def is_opening_double_quote(self, c):
+        return c == self.DOUBLE_QUOTE and not self.inside_single_quotes and not self.inside_double_quotes and not self.in_escape_seq
 
     # actions
-    def open_single_quote():
-        nonlocal inside_single_quotes
-        inside_single_quotes = True
+    def open_single_quote(self):
+        self.inside_single_quotes = True
 
-    def close_single_quote():
-        nonlocal inside_single_quotes
-        inside_single_quotes = False
+    def close_single_quote(self):
+        self.inside_single_quotes = False
 
-    def open_double_quote():
-        nonlocal inside_double_quotes
-        inside_double_quotes = True
+    def open_double_quote(self):
+        self.inside_double_quotes = True
 
-    def close_double_quote():
-        nonlocal inside_double_quotes
-        inside_double_quotes = False
+    def close_double_quote(self):
+        self.inside_double_quotes = False
 
-    result = []
-    inside_single_quotes = False
-    inside_double_quotes = False
-    in_escape_seq = False
+    def is_start_escape_seq(self, cur, next_chr):
+        if cur != self.BACKSLASH:
+            return False
+        if self.in_escape_seq:
+            return False
+        if self.inside_single_quotes:
+            return False
+        if self.inside_double_quotes:
+            allowed = [self.DOUBLE_QUOTE, self.BACKSLASH, '$', '`']
+            return next_chr in allowed
+        # outside quotes → escape allowed
+        return True
 
-    for index, c in enumerate(st):
+    def start_escape_seq(self):
+        self.in_escape_seq = True
 
-        def tokenize_remaining():
-            return _tokenize(st[index + 1:])
+    def is_end_escape_seq(self, started_escape_seq):
+        return self.in_escape_seq and not started_escape_seq
 
-        def is_start_escape_seq(cur, in_escape_seq, next_chr):
-            # BACKSLASH , not in escape sequence currently 
-            # --> single quotes literal, double quotes most chars are literal, neither all are literal 
-            
-            if cur != BACKSLASH:
-                return False
-            elif in_escape_seq:
-                return False
-            elif inside_single_quotes:
-                return False
-            elif inside_double_quotes:
-                escaped = [DOUBLE_QUOTE, BACKSLASH, '$', '`']
-                return next_chr in escaped
+    def end_escape_seq(self):
+        self.in_escape_seq = False
+
+    # -------------------- Main tokenizer --------------------
+    def run(self, st):
+        self.result = []
+        self.inside_single_quotes = False
+        self.inside_double_quotes = False
+        self.in_escape_seq = False
+
+        for index, c in enumerate(st):
+            next_chr = st[index + 1] if index + 1 < len(st) else None
+            started_escape_seq = False
+
+            # spaces outside quotes split tokens
+            if self.outer_space(c):
+                if index + 1 < len(st):
+                    # recursively tokenize remaining string
+                    remaining_tokens = Tokenizer().run(st[index + 1:])
+                    self.result += remaining_tokens
+                break
+
+            elif self.is_closing_single_quote(c):
+                self.close_single_quote()
+
+            elif self.is_closing_double_quote(c):
+                self.close_double_quote()
+
+            elif self.is_opening_single_quote(c):
+                self.open_single_quote()
+
+            elif self.is_opening_double_quote(c):
+                self.open_double_quote()
+
+            elif self.is_start_escape_seq(c, next_chr):
+                self.start_escape_seq()
+                started_escape_seq = True
+                # escape: skip adding backslash itself, next char will be added next iteration
+                continue
+
             else:
-                return True
-            
+                self.add_char(c)
 
-        def start_escape_seq():
-            nonlocal in_escape_seq
-            nonlocal started_escape_seq
-            in_escape_seq = True
-            started_escape_seq = True
+            if self.is_end_escape_seq(started_escape_seq):
+                self.end_escape_seq()
 
-        def is_end_escape_seq(in_escape_seq, started_escape_seq):
-            return in_escape_seq and not started_escape_seq
+        return self.result
 
-        def end_escape_seq():
-            nonlocal in_escape_seq
-            in_escape_seq = False
-
-        started_escape_seq = False
-        next_chr = st[index + 1] if index + 1 < len(st) else None
-
-        if outer_space(c, in_escape_seq):
-            result += tokenize_remaining()
-            break
-
-        elif is_closing_single_quote(c):
-            close_single_quote()
-
-        elif is_closing_double_quote(c, in_escape_seq):
-            close_double_quote()
-
-        elif is_opening_single_quote(c, in_escape_seq):
-            open_single_quote()
-
-        elif is_opening_double_quote(c, in_escape_seq):
-            open_double_quote()
-
-        elif is_start_escape_seq(c, in_escape_seq, next_chr):
-            start_escape_seq()
-
-        else:
-            add_char(result, c)
-
-        if is_end_escape_seq(in_escape_seq, started_escape_seq):
-            end_escape_seq()
-
-    return result
-
+       
+ 
             
         
         
