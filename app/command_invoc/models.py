@@ -102,7 +102,7 @@ def _tokenize(st):
                 return _tokenize(st[index + 1:])
             
             def is_start_escape_seq(c, in_escape_seq):
-                return c == BACKSLASH and not in_escape_seq
+                return c == BACKSLASH and not in_escape_seq and outside_single_quotes and outside_double_quotes
             
             def start_escape_seq():
                 nonlocal in_escape_seq
