@@ -99,16 +99,21 @@ def _tokenize(st):
             return _tokenize(st[index + 1:])
 
         def is_start_escape_seq(cur, in_escape_seq, next_chr):
+            # BACKSLASH , not in escape sequence currently 
+            # --> single quotes literal, double quotes most chars are literal, neither all are literal 
+            
             if cur != BACKSLASH:
                 return False
             elif in_escape_seq:
                 return False
-            elif not inside_single_quotes and not inside_double_quotes:
-                return True
             elif inside_single_quotes:
                 return False
             elif inside_double_quotes:
-                return next_chr in [DOUBLE_QUOTE, BACKSLASH, '$', '`']
+                escaped = [DOUBLE_QUOTE, BACKSLASH, '$', '`']
+                return next_chr in escaped
+            else:
+                return True
+            
 
         def start_escape_seq():
             nonlocal in_escape_seq
