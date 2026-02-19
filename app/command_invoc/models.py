@@ -119,7 +119,6 @@ def _tokenize(st):
 
             if outer_space(c, in_escape_seq):
                 result += tokenize_remaining()
-                break
 
             elif is_closing_single_quote(c):
                 close_single_quote()
