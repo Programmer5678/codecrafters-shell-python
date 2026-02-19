@@ -62,8 +62,8 @@ def _tokenize(st):
         def is_closing_single_quote(c):
             return c == SINGLE_QUOTE and not outside_single_quotes
 
-        def is_closing_double_quote(c):
-            return c == DOUBLE_QUOTE and not outside_double_quotes
+        def is_closing_double_quote(c, in_escape_seq):
+            return c == DOUBLE_QUOTE and not outside_double_quotes and not in_escape_seq
 
         def is_opening_single_quote(c, in_escape_seq):
             return c == SINGLE_QUOTE and outside_single_quotes and outside_double_quotes and not in_escape_seq
@@ -136,7 +136,7 @@ def _tokenize(st):
             elif is_closing_single_quote(c):
                 close_single_quote()
 
-            elif is_closing_double_quote(c):
+            elif is_closing_double_quote(c, in_escape_seq):
                 close_double_quote()
 
             elif is_opening_single_quote(c, in_escape_seq): 
