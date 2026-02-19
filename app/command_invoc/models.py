@@ -95,14 +95,23 @@ def _tokenize(st):
         in_escape_seq = False
 
         for index, c in enumerate(st):
+
             
-            started_escape_seq = False
             
             def tokenize_remaining():
                 return _tokenize(st[index + 1:])
             
-            def is_start_escape_seq(c, in_escape_seq):
-                return c == BACKSLASH and not in_escape_seq and outside_single_quotes and outside_double_quotes
+            def is_start_escape_seq(cur, in_escape_seq, next_chr):
+                
+                if cur == BACKSLASH and not in_escape_seq:
+                    if outside_single_quotes and outside_double_quotes:
+                        return True
+                    elif not outside_single_quotes:
+                        return False
+                    elif not outside_double_quotes:
+                        return next_chr in [DOUBLE_QUOTE, BACKSLASH, '$', '`']
+                    
+                return False
             
             def start_escape_seq():
                 nonlocal in_escape_seq
@@ -116,6 +125,9 @@ def _tokenize(st):
             def end_escape_seq():
                 nonlocal in_escape_seq
                 in_escape_seq = False
+                
+            started_escape_seq = False
+            next_chr = st[index] if index < len(st) else None
 
             if outer_space(c, in_escape_seq):
                 result += tokenize_remaining()
@@ -133,7 +145,7 @@ def _tokenize(st):
             elif is_opening_double_quote(c, in_escape_seq):
                 open_double_quote()
 
-            elif is_start_escape_seq(c, in_escape_seq):
+            elif is_start_escape_seq(c, in_escape_seq, next_chr):
                 start_escape_seq()
                 
             else:  
