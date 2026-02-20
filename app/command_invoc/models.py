@@ -50,6 +50,11 @@ class CommandInvocSpec:
 
 
 
+
+
+
+
+
         
 class Tokens:
     
@@ -71,6 +76,13 @@ class Tokens:
         self._new_word = True
         
         
+class MunchoLoco:
+    
+    def __init__(self):
+        self.inside_single_quotes = False
+        self.inside_double_quotes = False
+        self.in_escape_seq = False
+        self.tokens = Tokens()   
         
 
 class Tokenizer:
@@ -129,47 +141,59 @@ class Tokenizer:
 
     def _end_escape_seq(self):
         self.in_escape_seq = False
+        
+        
+        
+        
+    def transform(self, c, next_chr):
+        result = copy.deepcopy(self)
+        started_escape_seq = False
+        
+        # inner function only for escape start
+        def _start_escape_seq():
+            result.in_escape_seq = True
+            nonlocal started_escape_seq
+            started_escape_seq = True
+
+
+        if result._outer_space(c):
+            result.tokens.new_word()
+
+        elif result._is_closing_single_quote(c):
+            result._close_single_quote()
+
+        elif result._is_closing_double_quote(c):
+            result._close_double_quote()
+
+        elif result._is_opening_single_quote(c):
+            result._open_single_quote()
+
+        elif result._is_opening_double_quote(c):
+            result._open_double_quote()
+
+        elif result._is_start_escape_seq(c, next_chr):
+            _start_escape_seq()
+
+        else:
+            result.tokens.add_char(c)
+
+        if result._is_end_escape_seq(started_escape_seq):
+            result._end_escape_seq()
+        
+        return result
 
     # -------------------- Main tokenizer --------------------
     def run(self, st):
 
         for index, c in enumerate(st):
             next_chr = st[index + 1] if index + 1 < len(st) else None
-            started_escape_seq = False
             
+            result = self.transform(c, next_chr)
             
-            # inner function only for escape start
-            def _start_escape_seq():
-                self.in_escape_seq = True
-                nonlocal started_escape_seq
-                started_escape_seq = True
-
-
-            if self._outer_space(c):
-                
-                self.tokens.new_word()
-
-
-            elif self._is_closing_single_quote(c):
-                self._close_single_quote()
-
-            elif self._is_closing_double_quote(c):
-                self._close_double_quote()
-
-            elif self._is_opening_single_quote(c):
-                self._open_single_quote()
-
-            elif self._is_opening_double_quote(c):
-                self._open_double_quote()
-
-            elif self._is_start_escape_seq(c, next_chr):
-                _start_escape_seq()
-
-            else:
-                self.tokens.add_char(c)
-
-            if self._is_end_escape_seq(started_escape_seq):
-                self._end_escape_seq()
+            self.inside_single_quotes = result.inside_single_quotes
+            self.inside_double_quotes = result.inside_double_quotes
+            self.in_escape_seq = result.in_escape_seq
+            self.tokens = result.tokens 
 
         return list(self.tokens)
 
