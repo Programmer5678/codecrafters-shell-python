@@ -1,3 +1,4 @@
+import copy
 import os 
 import subprocess
 
@@ -110,14 +111,16 @@ class CommandInvocIter:
         
     def next_state(self, command_invoc):
         
-        pipeline_res = command_invoc.run(self.next_stdin)
-        self.next_stdin = pipeline_res.next_stdin()
-        self.proc_waiter.add_waiter(  pipeline_res.wait_child_end() ) 
+        result = copy.deepcopy(self)
+        
+        pipeline_res = command_invoc.run(result.next_stdin)
+        result.next_stdin = pipeline_res.next_stdin()
+        result.proc_waiter.add_waiter(  pipeline_res.wait_child_end() ) 
             
         if command_invoc.end_pipe():
-            self.end_cwd = command_invoc.shell_context().cwd() 
+            result.end_cwd = command_invoc.shell_context().cwd() 
             
-        return self
+        return result
             
         
          
@@ -134,23 +137,14 @@ def main():
         
         shell_context.add_line_history(line)
         command_invocs = invocs(line, shell_context)
-        
-
-        
-        
-        apply_line_effect = lambda : None #OUTER - we need this after iterating through command_invocs
+                
         st = CommandInvocIter()                            
-        # loop throught command lines
         for command_invoc in command_invocs:
-            
             st = st.next_state(command_invoc)
                             
-            if st.end_cwd:
-                apply_line_effect = lambda : shell_context.setcwd( st.end_cwd )
-                proc_waiter = st.proc_waiter
-                
-        proc_waiter.wait_for_all()
-        apply_line_effect()                                
+        st.proc_waiter.wait_for_all()
+        if st.end_cwd:
+            shell_context.setcwd( st.end_cwd )                             
             
                 
 if __name__ == "__main__":
