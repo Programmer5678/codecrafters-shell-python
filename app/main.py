@@ -118,7 +118,7 @@ def main():
                             
             if isinstance( command_invoc, NotFoundCommandInvoc ):
                 
-                command_invoc.run(None)
+                command_invoc.run(prev_stdout)
                 
             else:
                 pr = command_invoc.run(prev_stdout)
