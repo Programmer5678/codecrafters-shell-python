@@ -36,13 +36,13 @@ class CommandInvocSpec:
 
     def command(self):
         
-        all_tokens =  Tokenizer().run( self.raw   ) 
+        all_tokens =  run( self.raw   ) 
         
         return all_tokens[0]
 
     def args(self):
         
-        all_tokens =  Tokenizer().run( self.raw   ) 
+        all_tokens =  run( self.raw   ) 
         
         return all_tokens[1:]
        
@@ -182,20 +182,17 @@ class Tokenizer:
         
         return result
 
-    # -------------------- Main tokenizer --------------------
-    def run(self, st):
+# -------------------- Main tokenizer --------------------
+def run(st):
+    
+    cur_obj = Tokenizer()
 
-        for index, c in enumerate(st):
-            next_chr = st[index + 1] if index + 1 < len(st) else None
-            
-            result = self.transform(c, next_chr)
-            
-            self.inside_single_quotes = result.inside_single_quotes
-            self.inside_double_quotes = result.inside_double_quotes
-            self.in_escape_seq = result.in_escape_seq
-            self.tokens = result.tokens 
+    for index, c in enumerate(st):
+        next_chr = st[index + 1] if index + 1 < len(st) else None
+        cur_obj = cur_obj.transform(c, next_chr)
 
-        return list(self.tokens)
+
+    return list(cur_obj.tokens)
 
 
 
