@@ -111,7 +111,7 @@ def main():
         STDIN = 0
         prev_stdout = STDIN        
         proc_waiter = ProcWaiter()
-        apply_effect = lambda : None
+        apply_line_effect = lambda : None
                                     
         # loop throught command lines
         for command_invoc in command_invocs:
@@ -122,10 +122,11 @@ def main():
                 
                
             if command_invoc.end_pipe():
-                apply_effect = lambda : shell_context.setcwd( command_invoc.shell_context().cwd() ) # set cwd
+                set_shell_cwd = lambda : shell_context.setcwd( command_invoc.shell_context().cwd() )
+                apply_line_effect = set_shell_cwd 
     
         proc_waiter.wait_for_all()
-        apply_effect()                                
+        apply_line_effect()                                
             
                 
 if __name__ == "__main__":
