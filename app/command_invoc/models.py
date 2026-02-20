@@ -56,7 +56,22 @@ class CommandInvocSpec:
         
         
         
-
+class Coco:
+    
+    def __init__(self):
+        self._l = [""]
+    
+    def add_char(self, c):
+        self._l[-1] += c
+        
+    def new_word(self):
+        if self._l[-1] == "":
+            self._l.pop()
+            
+        self._l.append("")
+        
+        
+        
 
 class Tokenizer:
     
@@ -116,10 +131,10 @@ class Tokenizer:
 
     # -------------------- Main tokenizer --------------------
     def run(self, st):
-        result = [""]
+        result = Coco()
         
         def add_char(result, c):
-            result[-1] += c
+            result.add_char(c)
 
         for index, c in enumerate(st):
             next_chr = st[index + 1] if index + 1 < len(st) else None
@@ -135,10 +150,7 @@ class Tokenizer:
 
             if self._outer_space(c):
                 
-                if result[-1] == "":
-                    result.pop()
-                
-                result.append("")
+                result.new_word()
 
 
             elif self._is_closing_single_quote(c):
@@ -162,7 +174,7 @@ class Tokenizer:
             if self._is_end_escape_seq(started_escape_seq):
                 self._end_escape_seq()
                 
-        
+        result = result._l
         if result[-1] == "":
             result.pop()
 
