@@ -116,14 +116,9 @@ def main():
         # loop throught command lines
         for command_invoc in command_invocs:
                             
-            if isinstance( command_invoc, NotFoundCommandInvoc ):
-                
-                command_invoc.run(prev_stdout)
-                
-            else:
-                pr = command_invoc.run(prev_stdout)
-                prev_stdout = pr.next_stdin()
-                proc_waiter.add_waiter(  pr.child_wait() ) 
+            pr = command_invoc.run(prev_stdout)
+            prev_stdout = pr.next_stdin()
+            proc_waiter.add_waiter(  pr.child_wait() ) 
                 
                
             if command_invoc.end_pipe():
