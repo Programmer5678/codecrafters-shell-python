@@ -72,8 +72,29 @@ class ProcWaiter:
             waiter()
             
             
-# class CommandInvocIter:
-#     def __init__()
+def invocs(line, shell_context):
+    
+    raw_invocs = line.split("|")
+    result = []
+    
+    for index, raw_invoc in enumerate( raw_invocs ):
+        
+        
+        def create_invoc(raw_invoc, in_pipe, end_pipe, shell_context):
+            return CommandInvoc.resolve_subclass(
+                                        CommandInvocArgs(
+                                            CommandInvocSpec( raw_invoc ), 
+                                            in_pipe,
+                                            end_pipe,
+                                            shell_context
+                                        )
+                        )
+            
+        in_pipe = len( raw_invocs) > 1
+        end_pipe = index == len( raw_invocs ) - 1
+        result.append(create_invoc(raw_invoc, in_pipe, end_pipe, shell_context))
+        
+    return result
             
             
 def main():
@@ -84,33 +105,7 @@ def main():
                 
         line = input_next_line()
         shell_context.set_history( shell_context.history() + [line ]  ) 
-
-        raw_invocs = line.split("|")
-        
-        
-        command_invocs = []
-        
-        for index, raw_invoc in enumerate( line.split("|") ):
-            
-            
-            def create_invoc(raw_invoc, in_pipe, end_pipe, shell_context):
-                return CommandInvoc.resolve_subclass(
-                                            CommandInvocArgs(
-                                                CommandInvocSpec( raw_invoc ), 
-                                                in_pipe,
-                                                end_pipe,
-                                                shell_context
-                                            )
-                            )
-                
-            in_pipe = len( line.split("|") ) > 1
-            end_pipe = index == len( line.split( "|" ) ) - 1
-            
-            command_invocs.append(create_invoc(raw_invoc, in_pipe, end_pipe, shell_context))
-            
-            
-        
-        
+        command_invocs = invocs(line, shell_context)
         
         STDIN = 0
         prev_stdout = STDIN        
