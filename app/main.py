@@ -11,13 +11,15 @@ from app.command_invoc.models import CommandInvocSpec
 from app.command_invoc.subtypes.buitlin.builtin import BuiltinCommandInvoc
 from app.command_invoc.subtypes.exec import ExecCommandInvoc
 from app.command_invoc.subtypes.notfound import NotFoundCommandInvoc
-
+from app.command_invoc.subtypes.buitlin.builtin import BuiltinCommandInvoc
 from app.command_invoc.subtypes.buitlin.subtypes.cd import CdCommand
 from app.command_invoc.subtypes.buitlin.subtypes.echo import EchoCommand
 from app.command_invoc.subtypes.buitlin.subtypes.exit import ExitCommand
 from app.command_invoc.subtypes.buitlin.subtypes.history import HistoryCommand
 from app.command_invoc.subtypes.buitlin.subtypes.pwd import PwdCommand
 from app.command_invoc.subtypes.buitlin.subtypes.type import TypeCommand
+
+from app.interactive_shell import setup_interactive_shell
 
 
 class ShellContext:
@@ -57,24 +59,7 @@ def input_next_line():
 
 
     
-def completer(text: str, state: int) -> str:
-    
-    def not_first_match():
-        return state > 0
-    
-    def multiple_matches_exist():
-        return len(matching_commands) > 1
-    
-    if not_first_match():
-        return None
-    
-    matching_commands = [ com for com in BuiltinCommandInvoc.commands().keys() if com.startswith(text) ]  
 
-    if multiple_matches_exist():
-        return None
-    
-    matching_com = matching_commands[0]
-    return matching_com
 
 
 
@@ -89,12 +74,11 @@ class ProcWaiter:
         
         for waiter in self._waiter_funcs:
             waiter()
-
+            
+            
+            
 def main():
-    
-    readline.parse_and_bind("tab: complete")
-    readline.set_completer(completer)
-    readline.set_auto_history(False)
+    setup_interactive_shell()
     shell_context = ShellContext( os.getcwd(), [] )
     
     while True:
@@ -103,7 +87,7 @@ def main():
         
         shell_context.set_history( shell_context.history() + ["|".join([str(cl) for cl in command_lines]) ]  )            
         
-        command_invocs = [ CommandInvoc.resolve(
+        command_invocs = [ CommandInvoc.resolve_subclass(
                                             CommandInvocArgs(
                                             command_invoc_spec, 
                                                 len(command_lines) > 1,# in pipe
