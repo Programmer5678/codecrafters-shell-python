@@ -109,16 +109,16 @@ def main():
         command_invocs = invocs(line, shell_context)
         
         STDIN = 0
-        prev_stdout = STDIN        
+        next_stdin = STDIN        
         proc_waiter = ProcWaiter()
         apply_line_effect = lambda : None
                                     
         # loop throught command lines
         for command_invoc in command_invocs:
                             
-            pr = command_invoc.run(prev_stdout)
-            prev_stdout = pr.next_stdin()
-            proc_waiter.add_waiter(  pr.wait_child_end() ) 
+            pipeline_res = command_invoc.run(next_stdin)
+            next_stdin = pipeline_res.next_stdin()
+            proc_waiter.add_waiter(  pipeline_res.wait_child_end() ) 
                 
                
             if command_invoc.end_pipe():
