@@ -80,6 +80,7 @@ class Tokenizer:
         self.inside_single_quotes = False
         self.inside_double_quotes = False
         self.in_escape_seq = False
+        self.tokens = Tokens()
 
 
     def _outer_space(self, c):
@@ -131,10 +132,6 @@ class Tokenizer:
 
     # -------------------- Main tokenizer --------------------
     def run(self, st):
-        tokens = Tokens()
-        
-        def add_char(tokens, c):
-            tokens.add_char(c)
 
         for index, c in enumerate(st):
             next_chr = st[index + 1] if index + 1 < len(st) else None
@@ -150,7 +147,7 @@ class Tokenizer:
 
             if self._outer_space(c):
                 
-                tokens.new_word()
+                self.tokens.new_word()
 
 
             elif self._is_closing_single_quote(c):
@@ -169,12 +166,12 @@ class Tokenizer:
                 _start_escape_seq()
 
             else:
-                add_char(tokens, c)
+                self.tokens.add_char(c)
 
             if self._is_end_escape_seq(started_escape_seq):
                 self._end_escape_seq()
 
-        return list(tokens)
+        return list(self.tokens)
 
 
 
