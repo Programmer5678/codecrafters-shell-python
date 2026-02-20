@@ -58,6 +58,9 @@ class TokenizerIter:
         self.next_chr = next_chr
         self.started_escape_seq = started_escape_seq
         
+    # def __next__(self):
+        
+        
         
         
         
@@ -149,7 +152,7 @@ class Tokenizer:
                     result.pop()
                 
                 result.append("")
-                continue
+                
 
 
             elif self._is_closing_single_quote(ti.c):
