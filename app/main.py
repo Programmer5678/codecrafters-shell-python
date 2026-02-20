@@ -36,10 +36,9 @@ class ShellContext:
     
     def setcwd(self, cwd):
         self._cwd = cwd
-            
-    def set_history(self, history):
-        self._history = history
 
+    def add_line_history(self, line):
+        self._history.append(line)
 
 def input_next_line():
         
@@ -106,7 +105,7 @@ def main():
     
     for line in input_lines():
         
-        shell_context.set_history( shell_context.history() + [line ]  ) 
+        shell_context.add_line_history(line)
         command_invocs = invocs(line, shell_context)
         
         STDIN = 0
@@ -118,9 +117,6 @@ def main():
         for command_invoc in command_invocs:
                             
             if isinstance( command_invoc, NotFoundCommandInvoc ):
-                
-                if len(command_invocs) != 1:
-                    raise Exception("No pipes here yet!")
                 
                 command_invoc.run(None)
                 
