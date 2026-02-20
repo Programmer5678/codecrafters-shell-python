@@ -59,16 +59,21 @@ class CommandInvocSpec:
 class Coco:
     
     def __init__(self):
-        self._l = [""]
+        self._l = []
+        self._new_word = True
+        
+    def __iter__(self):
+        return self._l.__iter__()
     
     def add_char(self, c):
+        if self._new_word:
+            self._new_word = False
+            self._l.append("")
+
         self._l[-1] += c
-        
-    def new_word(self):
-        if self._l[-1] == "":
-            self._l.pop()
             
-        self._l.append("")
+    def new_word(self):
+        self._new_word = True
         
         
         
@@ -174,9 +179,9 @@ class Tokenizer:
             if self._is_end_escape_seq(started_escape_seq):
                 self._end_escape_seq()
                 
-        result = result._l
-        if result[-1] == "":
-            result.pop()
+        result = list(result)
+        # if result[-1] == "":
+        #     result.pop()
 
         return result
 
