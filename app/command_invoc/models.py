@@ -50,9 +50,14 @@ class CommandInvocSpec:
 
 
 
-# class TokenizerIter:
+class TokenizerIter:
     
-#     def __init__(self, tokenizer, c, next_chr, started_escape_seq, remaining):
+    def __init__(self, tokenizer, c, next_chr, started_escape_seq):
+        self.tokenizer = tokenizer
+        self.c = c
+        self.next_chr = next_chr
+        self.started_escape_seq = started_escape_seq
+        
         
         
         
@@ -122,18 +127,23 @@ class Tokenizer:
             result[-1] += c
 
         for index, c in enumerate(st):
+            
+            
+            
             next_chr = st[index + 1] if index + 1 < len(st) else None
             started_escape_seq = False
+            
+            ti = TokenizerIter(self, c, next_chr, started_escape_seq)
             
             
             # inner function only for escape start
             def _start_escape_seq():
                 self.in_escape_seq = True
-                nonlocal started_escape_seq
-                started_escape_seq = True
+                nonlocal ti
+                ti.started_escape_seq = True
 
 
-            if self._outer_space(c):
+            if self._outer_space(ti.c):
                 
                 if result[-1] == "":
                     result.pop()
@@ -142,25 +152,25 @@ class Tokenizer:
                 continue
 
 
-            elif self._is_closing_single_quote(c):
+            elif self._is_closing_single_quote(ti.c):
                 self._close_single_quote()
 
-            elif self._is_closing_double_quote(c):
+            elif self._is_closing_double_quote(ti.c):
                 self._close_double_quote()
 
-            elif self._is_opening_single_quote(c):
+            elif self._is_opening_single_quote(ti.c):
                 self._open_single_quote()
 
-            elif self._is_opening_double_quote(c):
+            elif self._is_opening_double_quote(ti.c):
                 self._open_double_quote()
 
-            elif self._is_start_escape_seq(c, next_chr):
+            elif self._is_start_escape_seq(ti.c, ti.next_chr):
                 _start_escape_seq()
 
             else:
-                add_char(result, c)
+                add_char(result, ti.c)
 
-            if self._is_end_escape_seq(started_escape_seq):
+            if self._is_end_escape_seq(ti.started_escape_seq):
                 self._end_escape_seq()
                 
         
