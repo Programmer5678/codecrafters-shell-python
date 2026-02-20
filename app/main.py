@@ -72,6 +72,9 @@ class ProcWaiter:
             waiter()
             
             
+# class CommandInvocIter:
+#     def __init__()
+            
             
 def main():
     setup_interactive_shell()
@@ -82,17 +85,28 @@ def main():
         line = input_next_line()
         shell_context.set_history( shell_context.history() + [line ]  ) 
 
+        raw_invocs = line.split("|")
         
         
-        command_invocs = [ CommandInvoc.resolve_subclass(
+        command_invocs = []
+        
+        for index, raw_invoc in enumerate( line.split("|") ):
+            in_pipe = len( line.split("|") ) > 1
+            end_pipe = index == len( line.split( "|" ) ) - 1
+            
+            invoc = CommandInvoc.resolve_subclass(
                                             CommandInvocArgs(
-                                            CommandInvocSpec( raw_invoc ), 
-                                                len( line.split("|") ) > 1,# in pipe
-                                                  (index == len( line.split( "|" ) ) - 1),
-                                                  shell_context
+                                                CommandInvocSpec( raw_invoc ), 
+                                                in_pipe,
+                                                end_pipe,
+                                                shell_context
                                             )
                             )
-                          for index, raw_invoc in enumerate(line.split("|")) ]
+            
+            command_invocs.append(invoc)
+            
+            
+        
         
         
         STDIN = 0
