@@ -24,9 +24,9 @@ from app.interactive_shell import setup_interactive_shell
 
 class ShellContext:
     
-    def __init__(self, cwd, history):
+    def __init__(self, cwd):
         self._cwd = cwd
-        self._history = history
+        self._history = []
         
     def cwd(self):
         return self._cwd
@@ -100,8 +100,9 @@ def invocs(line, shell_context):
             
             
 def main():
+    
     setup_interactive_shell()
-    shell_context = ShellContext( os.getcwd(), [] )
+    shell_context = ShellContext( os.getcwd() )
     
     for line in input_lines():
         
