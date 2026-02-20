@@ -2,7 +2,7 @@ from dataclasses import dataclass
 import itertools
 import os
 from typing import Any
-from app.command_invoc.tokenize import tokenize
+from app.command_invoc.tokenize.tokenize import tokenize
 from app.search_files import find_in_path
 import copy
 from abc import ABC, abstractmethod
