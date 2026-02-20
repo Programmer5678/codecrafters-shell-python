@@ -22,7 +22,7 @@ class BuiltinCommandInvoc(CommandInvoc):
             result = self._run_in_new_proc(stdin)
         else:
             self.run_core(STDOUT)
-            result = PipelineResult(None, lambda: None)
+            result = PipelineResult.no_pipeline()
 
         return result
 

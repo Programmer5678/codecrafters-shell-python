@@ -15,6 +15,10 @@ class PipelineResult:
         self._next_stdin = next_stdin
         self._child_wait = child_wait
         
+    @classmethod
+    def no_pipeline(cls):
+        return cls(None, lambda : None) 
+        
     def next_stdin(self):
         return self._next_stdin
     
@@ -120,11 +124,6 @@ class CommandInvoc(ABC):
         self._parent_close_fds(stdout, stdin)
         return PipelineResult(next_stdin, lambda: os.waitpid(child_pid, 0)) 
     
-    def _run_in_new_proc(self, stdin):
-        next_stdin, stdout = self._proc_filedescriptors()
-        child_pid = self._run_in_child(stdin, stdout)
-        self._parent_close_fds(stdout, stdin)
-        return PipelineResult(next_stdin, lambda: os.waitpid(child_pid, 0))
 
     @classmethod
     def resolve_subclass(cls, args: CommandInvocArgs ):

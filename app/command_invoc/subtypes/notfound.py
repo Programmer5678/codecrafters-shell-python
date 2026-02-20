@@ -13,3 +13,5 @@ class NotFoundCommandInvoc (CommandInvoc):
         return err_not_found(
             self.spec().command()
         )
+        
+         
