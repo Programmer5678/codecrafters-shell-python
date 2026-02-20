@@ -139,7 +139,6 @@ class Tokenizer:
                     result.pop()
                 
                 result.append("")
-                continue
 
 
             elif self._is_closing_single_quote(c):
