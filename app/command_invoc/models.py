@@ -36,13 +36,13 @@ class CommandInvocSpec:
 
     def command(self):
         
-        all_tokens =  run( self.raw   ) 
+        all_tokens =  tokenize( self.raw   ) 
         
         return all_tokens[0]
 
     def args(self):
         
-        all_tokens =  run( self.raw   ) 
+        all_tokens =  tokenize( self.raw   ) 
         
         return all_tokens[1:]
        
@@ -76,16 +76,9 @@ class Tokens:
         self._new_word = True
         
         
-class MunchoLoco:
-    
-    def __init__(self):
-        self.inside_single_quotes = False
-        self.inside_double_quotes = False
-        self.in_escape_seq = False
-        self.tokens = Tokens()   
-        
 
-class Tokenizer:
+
+class TokenizeState:
     
     def __init__(self):
         # -------------------- initialize state --------------------
@@ -143,9 +136,7 @@ class Tokenizer:
         self.in_escape_seq = False
         
         
-        
-        
-    def transform(self, c, next_chr):
+    def next_state(self, chr, next_chr):
         result = copy.deepcopy(self)
         started_escape_seq = False
         
@@ -156,26 +147,26 @@ class Tokenizer:
             started_escape_seq = True
 
 
-        if result._outer_space(c):
+        if result._outer_space(chr):
             result.tokens.new_word()
 
-        elif result._is_closing_single_quote(c):
+        elif result._is_closing_single_quote(chr):
             result._close_single_quote()
 
-        elif result._is_closing_double_quote(c):
+        elif result._is_closing_double_quote(chr):
             result._close_double_quote()
 
-        elif result._is_opening_single_quote(c):
+        elif result._is_opening_single_quote(chr):
             result._open_single_quote()
 
-        elif result._is_opening_double_quote(c):
+        elif result._is_opening_double_quote(chr):
             result._open_double_quote()
 
-        elif result._is_start_escape_seq(c, next_chr):
+        elif result._is_start_escape_seq(chr, next_chr):
             _start_escape_seq()
 
         else:
-            result.tokens.add_char(c)
+            result.tokens.add_char(chr)
 
         if result._is_end_escape_seq(started_escape_seq):
             result._end_escape_seq()
@@ -183,16 +174,18 @@ class Tokenizer:
         return result
 
 # -------------------- Main tokenizer --------------------
-def run(st):
+def tokenize(st):
     
-    cur_obj = Tokenizer()
+    tokenize_state = TokenizeState()
 
-    for index, c in enumerate(st):
+    for index in range(len(st)):
+        chr = st[index]
         next_chr = st[index + 1] if index + 1 < len(st) else None
-        cur_obj = cur_obj.transform(c, next_chr)
+        
+        tokenize_state = tokenize_state.next_state(chr, next_chr)
 
 
-    return list(cur_obj.tokens)
+    return list(tokenize_state.tokens)
 
 
 
