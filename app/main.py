@@ -80,14 +80,12 @@ def main():
     while True:
                 
         line = input_next_line()
+        shell_context.set_history( shell_context.history() + [line ]  ) 
+
+        
         com_lines = line.split("|")
         command_lines = [ CommandInvocSpec( com_line ) for  com_line in com_lines ]
 
-        
-        shell_context.set_history( shell_context.history() + ["|".join([str(cl) for cl in command_lines]) ]  ) 
-        
-                   
-        
         command_invocs = [ CommandInvoc.resolve_subclass(
                                             CommandInvocArgs(
                                             command_invoc_spec, 
