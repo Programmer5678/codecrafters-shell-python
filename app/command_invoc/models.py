@@ -50,27 +50,22 @@ class CommandInvocSpec:
 
 
 
-# class TokenizerIter:
-    
-#     def __init__(self, tokenizer, c, next_chr, started_escape_seq, remaining):
         
-        
-        
-class Coco:
+class Tokens:
     
     def __init__(self):
-        self._l = []
+        self._data = []
         self._new_word = True
         
     def __iter__(self):
-        return self._l.__iter__()
+        return self._data.__iter__()
     
     def add_char(self, c):
         if self._new_word:
             self._new_word = False
-            self._l.append("")
+            self._data.append("")
 
-        self._l[-1] += c
+        self._data[-1] += c
             
     def new_word(self):
         self._new_word = True
@@ -136,10 +131,10 @@ class Tokenizer:
 
     # -------------------- Main tokenizer --------------------
     def run(self, st):
-        result = Coco()
+        tokens = Tokens()
         
-        def add_char(result, c):
-            result.add_char(c)
+        def add_char(tokens, c):
+            tokens.add_char(c)
 
         for index, c in enumerate(st):
             next_chr = st[index + 1] if index + 1 < len(st) else None
@@ -155,7 +150,7 @@ class Tokenizer:
 
             if self._outer_space(c):
                 
-                result.new_word()
+                tokens.new_word()
 
 
             elif self._is_closing_single_quote(c):
@@ -174,16 +169,12 @@ class Tokenizer:
                 _start_escape_seq()
 
             else:
-                add_char(result, c)
+                add_char(tokens, c)
 
             if self._is_end_escape_seq(started_escape_seq):
                 self._end_escape_seq()
-                
-        result = list(result)
-        # if result[-1] == "":
-        #     result.pop()
 
-        return result
+        return list(tokens)
 
 
 
