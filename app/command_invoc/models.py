@@ -22,7 +22,7 @@ class PipelineResult:
     def next_stdin(self):
         return self._next_stdin
     
-    def child_wait(self):
+    def wait_child_end(self):
         return self._child_wait
 
 

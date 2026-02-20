@@ -118,11 +118,10 @@ def main():
                             
             pr = command_invoc.run(prev_stdout)
             prev_stdout = pr.next_stdin()
-            proc_waiter.add_waiter(  pr.child_wait() ) 
+            proc_waiter.add_waiter(  pr.wait_child_end() ) 
                 
                
             if command_invoc.end_pipe():
-                
                 apply_effect = lambda : shell_context.setcwd( command_invoc.shell_context().cwd() ) # set cwd
     
         proc_waiter.wait_for_all()
