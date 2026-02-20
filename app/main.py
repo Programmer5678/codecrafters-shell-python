@@ -54,7 +54,9 @@ def input_next_line():
     
     return line
 
-    
+def input_lines():
+    while True:
+        yield input_next_line()
 
 
 
@@ -101,9 +103,8 @@ def main():
     setup_interactive_shell()
     shell_context = ShellContext( os.getcwd(), [] )
     
-    while True:
-                
-        line = input_next_line()
+    for line in input_lines():
+        
         shell_context.set_history( shell_context.history() + [line ]  ) 
         command_invocs = invocs(line, shell_context)
         
