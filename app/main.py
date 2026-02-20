@@ -83,18 +83,16 @@ def main():
         shell_context.set_history( shell_context.history() + [line ]  ) 
 
         
-        com_lines = line.split("|")
-        command_lines = [ CommandInvocSpec( com_line ) for  com_line in com_lines ]
-
+        
         command_invocs = [ CommandInvoc.resolve_subclass(
                                             CommandInvocArgs(
-                                            command_invoc_spec, 
-                                                len(command_lines) > 1,# in pipe
-                                                  (index == len( command_lines ) - 1),
+                                            CommandInvocSpec( raw_invoc ), 
+                                                len( line.split("|") ) > 1,# in pipe
+                                                  (index == len( line.split( "|" ) ) - 1),
                                                   shell_context
                                             )
                             )
-                          for index, command_invoc_spec in enumerate(command_lines) ]
+                          for index, raw_invoc in enumerate(line.split("|")) ]
         
         
         STDIN = 0
@@ -107,7 +105,7 @@ def main():
                             
             if isinstance( command_invoc, NotFoundCommandInvoc ):
                 
-                if len(command_lines) != 1:
+                if len(command_invocs) != 1:
                     raise Exception("No pipes here yet!")
                 
                 command_invoc.run(None)
