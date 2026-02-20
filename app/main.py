@@ -52,11 +52,7 @@ def input_next_line():
     
     readline.add_history(line)
     
-    com_lines = line.split("|")
-    
-
-    return [ CommandInvocSpec( com_line ) for  com_line in com_lines ]
-
+    return line
 
     
 
@@ -83,9 +79,14 @@ def main():
     
     while True:
                 
-        command_lines = input_next_line()
+        line = input_next_line()
+        com_lines = line.split("|")
+        command_lines = [ CommandInvocSpec( com_line ) for  com_line in com_lines ]
+
         
-        shell_context.set_history( shell_context.history() + ["|".join([str(cl) for cl in command_lines]) ]  )            
+        shell_context.set_history( shell_context.history() + ["|".join([str(cl) for cl in command_lines]) ]  ) 
+        
+                   
         
         command_invocs = [ CommandInvoc.resolve_subclass(
                                             CommandInvocArgs(
