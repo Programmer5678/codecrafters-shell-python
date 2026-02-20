@@ -91,10 +91,10 @@ def main():
         command_invocs = []
         
         for index, raw_invoc in enumerate( line.split("|") ):
-            in_pipe = len( line.split("|") ) > 1
-            end_pipe = index == len( line.split( "|" ) ) - 1
             
-            invoc = CommandInvoc.resolve_subclass(
+            
+            def create_invoc(raw_invoc, in_pipe, end_pipe, shell_context):
+                return CommandInvoc.resolve_subclass(
                                             CommandInvocArgs(
                                                 CommandInvocSpec( raw_invoc ), 
                                                 in_pipe,
@@ -102,8 +102,11 @@ def main():
                                                 shell_context
                                             )
                             )
+                
+            in_pipe = len( line.split("|") ) > 1
+            end_pipe = index == len( line.split( "|" ) ) - 1
             
-            command_invocs.append(invoc)
+            command_invocs.append(create_invoc(raw_invoc, in_pipe, end_pipe, shell_context))
             
             
         
