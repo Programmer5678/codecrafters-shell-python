@@ -102,10 +102,13 @@ class CommandInvoc(ABC):
 
     def run(self, in_fd):
         
+        next_in_fd = None
+        wait_func = lambda : None
+        
         if self.in_pipe() or self._new_proc_in_standalone() :
             
             """Set up the pipe, spawn child, and return a PipelineResult."""
-            next_in_fd = None
+            
             out_fd = STDOUT
             
             if not self.last_invoc():
@@ -123,9 +126,12 @@ class CommandInvoc(ABC):
                     self.run_core()
             
             self._parent_close_fds(out_fd, in_fd)
-            return PipelineResult(next_in_fd, lambda: os.waitpid(child_pid, 0)) 
             
+            wait_func = lambda: os.waitpid(child_pid, 0)
+                        
         else:
+            
+        
 
             out_fd = STDOUT
             if self._redirect_to:
@@ -137,9 +143,8 @@ class CommandInvoc(ABC):
             self.run_core()
             
             os.dup2(stdout, STDOUT)
-            result = PipelineResult.no_pipeline()
 
-        return result
+        return PipelineResult(next_in_fd, wait_func)
     
     
         
