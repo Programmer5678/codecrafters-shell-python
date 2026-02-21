@@ -73,11 +73,8 @@ class ProcWaiter:
         for waiter in self._waiter_funcs:
             waiter()
             
-            
-def invocs(line, shell_context):
-    
-    
-    
+       
+def gulag(line):
     sp0 = line.split("1>")
     sp1 = sp0[0].split(">")
     sp2 = sp0[1:]
@@ -87,6 +84,12 @@ def invocs(line, shell_context):
     redirect_to_last = None
     if len(sp) == 2:
         redirect_to_last = sp[1].strip()
+        
+    return liney , redirect_to_last
+            
+def invocs(line, shell_context):
+    
+    liney, redirect_to_last = gulag(line)
     
     raw_invocs = liney.split("|")
     result = []
