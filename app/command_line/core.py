@@ -1,4 +1,4 @@
-from app.command_invoc.models import CommandInvoc, CommandInvocArgs, CommandInvocSpec
+from app.command_invoc.models import CommandInvoc, CommandInvocArgs, CommandInvocSpec, LinePosition
 
 
 class Line:
@@ -39,8 +39,7 @@ class Line:
                 return CommandInvoc.resolve_subclass(
                                             CommandInvocArgs(
                                                 CommandInvocSpec( raw_invoc ),
-                                                in_pipe,
-                                                last_invoc,
+                                                LinePosition( last_invoc, in_pipe ),
                                                 shell_context,
                                                 redirect_to
                                             )

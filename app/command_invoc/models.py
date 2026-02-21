@@ -65,8 +65,7 @@ class CommandInvocSpec:
 @dataclass
 class CommandInvocArgs:
     spec : CommandInvocSpec
-    in_pipe : bool
-    last_invoc : bool
+    position : LinePosition
     shell_context: Any
     redirect_to: str
 
@@ -75,23 +74,38 @@ class CommandInvocArgs:
 STDIN = 0
 STDOUT = 1
 
+
+class LinePosition:
+    
+    def __init__ (self, last_invoc, in_pipe):
+        self._last_invoc = last_invoc
+        self._in_pipe = in_pipe
+        
+    def in_pipe(self):
+        return self._in_pipe
+
+    def last_invoc(self):
+        return self._last_invoc
+        
+
 class CommandInvoc(ABC):
 
     def __init__( self, args: CommandInvocArgs):
         self._spec = args.spec
-        self._last_invoc = args.last_invoc
+        
+        self.position = args.position
+        
         self._shell_context = copy.deepcopy(args.shell_context)
-        self._in_pipe = args.in_pipe
         self._redirect_to = args.redirect_to
 
     def spec(self):
         return self._spec
 
     def in_pipe(self):
-        return self._in_pipe
+        return self.position.in_pipe()
 
     def last_invoc(self):
-        return self._last_invoc
+        return self.position.last_invoc()
 
     def shell_context(self):
         return self._shell_context
@@ -119,6 +133,9 @@ class CommandInvoc(ABC):
             if self._redirect_to:
                 out_fd = os.open(self._redirect_to, os.O_RDWR | os.O_CREAT)
             
+            #File descriptors certain here !
+            
+            
             child_pid = os.fork()
             if child_pid == 0:
                 
@@ -130,12 +147,15 @@ class CommandInvoc(ABC):
             wait_func = lambda: os.waitpid(child_pid, 0)
                         
         else:
-            
         
 
             out_fd = STDOUT
             if self._redirect_to:
                 out_fd = os.open(self._redirect_to, os.O_RDWR | os.O_CREAT)
+                        
+            #File descriptors certain here !
+            
+            
                         
             stdout = os.dup(STDOUT)
             os.dup2(out_fd, STDOUT)
