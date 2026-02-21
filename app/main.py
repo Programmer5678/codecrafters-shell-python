@@ -100,34 +100,34 @@ class Line:
             
         return None
         
+    def invocs(self, shell_context):
+    
+        raw_invocs = self.invocs_part().split("|")
+        result = []
+        
+        for index, raw_invoc in enumerate( raw_invocs ):
+            
+            
+            def create_invoc(raw_invoc, in_pipe, last_invoc, shell_context, redirect_to):
+                return CommandInvoc.resolve_subclass(
+                                            CommandInvocArgs(
+                                                CommandInvocSpec( raw_invoc ), 
+                                                in_pipe,
+                                                last_invoc,
+                                                shell_context,
+                                                redirect_to
+                                            )
+                            )
+                
+            in_pipe = len( raw_invocs) > 1
+            last_invoc = (index == len( raw_invocs ) - 1)
+            redirect_to = self.redirect_part() if last_invoc else None # If not last invoc, we dont redirect the stdout anywhere
+            result.append(create_invoc(raw_invoc, in_pipe, last_invoc, shell_context, redirect_to))
+            
+        return result
        
             
-def invocs(line_obj, shell_context):
-    
-    
-    raw_invocs = line_obj.invocs_part().split("|")
-    result = []
-    
-    for index, raw_invoc in enumerate( raw_invocs ):
-        
-        
-        def create_invoc(raw_invoc, in_pipe, last_invoc, shell_context, redirect_to):
-            return CommandInvoc.resolve_subclass(
-                                        CommandInvocArgs(
-                                            CommandInvocSpec( raw_invoc ), 
-                                            in_pipe,
-                                            last_invoc,
-                                            shell_context,
-                                            redirect_to
-                                        )
-                        )
-            
-        in_pipe = len( raw_invocs) > 1
-        last_invoc = (index == len( raw_invocs ) - 1)
-        redirect_to = line_obj.redirect_part() if last_invoc else None # If not last invoc, we dont redirect the stdout anywhere
-        result.append(create_invoc(raw_invoc, in_pipe, last_invoc, shell_context, redirect_to))
-        
-    return result
+
             
             
 class CommandInvocIter:
@@ -169,7 +169,7 @@ def main():
         line_obj = Line(line)
         
         shell_context.add_line_history(line)
-        command_invocs = invocs(line_obj, shell_context)
+        command_invocs = line_obj.invocs(shell_context)
                 
         state = CommandInvocIter()                            
         for command_invoc in command_invocs:
