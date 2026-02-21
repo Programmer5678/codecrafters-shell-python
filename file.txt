@@ -90,21 +90,21 @@ def invocs(line, shell_context):
     for index, raw_invoc in enumerate( raw_invocs ):
         
         
-        def create_invoc(raw_invoc, in_pipe, end_pipe, shell_context, redirect_to):
+        def create_invoc(raw_invoc, in_pipe, last_invoc, shell_context, redirect_to):
             return CommandInvoc.resolve_subclass(
                                         CommandInvocArgs(
                                             CommandInvocSpec( raw_invoc ), 
                                             in_pipe,
-                                            end_pipe,
+                                            last_invoc,
                                             shell_context,
                                             redirect_to
                                         )
                         )
             
         in_pipe = len( raw_invocs) > 1
-        end_pipe = (index == len( raw_invocs ) - 1)
-        redirect_to = redirect_to_last if end_pipe else None
-        result.append(create_invoc(raw_invoc, in_pipe, end_pipe, shell_context, redirect_to))
+        last_invoc = (index == len( raw_invocs ) - 1)
+        redirect_to = redirect_to_last if last_invoc else None
+        result.append(create_invoc(raw_invoc, in_pipe, last_invoc, shell_context, redirect_to))
         
     return result
             
@@ -127,7 +127,7 @@ class CommandInvocIter:
         result.next_stdin = pipeline_res.next_stdin()
         result.proc_waiter.add_waiter(  pipeline_res.wait_child_end() ) 
             
-        if command_invoc.end_pipe():
+        if command_invoc.last_invoc():
             result.end_cwd = command_invoc.shell_context().cwd() 
             
         return result

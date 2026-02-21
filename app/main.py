@@ -73,45 +73,59 @@ class ProcWaiter:
         for waiter in self._waiter_funcs:
             waiter()
             
-       
-def gulag(line):
-    sp0 = line.split("1>")
-    sp1 = sp0[0].split(">")
-    sp2 = sp0[1:]
-    sp = sp1 + sp2
+     
+class Line:
     
-    liney = sp[0]
-    redirect_to_last = None
-    if len(sp) == 2:
-        redirect_to_last = sp[1].strip()
+    def __init__(self, raw):
+        self.raw = raw
         
-    return liney , redirect_to_last
+    def split_redirect(self):
+        def split_on(st, split_a, split_b):
+            st_first_split = st.split(split_a)
+            resplit_start = st_first_split[0].split(split_b)
+            return resplit_start + st_first_split[1:]
             
-def invocs(line, shell_context):
+        
+        return split_on(self.raw, "1>", ">")
     
-    liney, redirect_to_last = gulag(line)
+    def invocs_part(self):
+        return self.split_redirect()[0]
     
-    raw_invocs = liney.split("|")
+    def redirect_part(self):
+        
+        split_red = self.split_redirect()
+        
+        if len(split_red) == 2:
+            return split_red[1].strip()
+            
+        return None
+        
+       
+            
+def invocs(line_obj, shell_context):
+    
+    
+    raw_invocs = line_obj.invocs_part().split("|")
     result = []
     
     for index, raw_invoc in enumerate( raw_invocs ):
         
         
-        def create_invoc(raw_invoc, in_pipe, end_pipe, shell_context, redirect_to):
+        def create_invoc(raw_invoc, in_pipe, last_invoc, shell_context, redirect_to):
             return CommandInvoc.resolve_subclass(
                                         CommandInvocArgs(
                                             CommandInvocSpec( raw_invoc ), 
                                             in_pipe,
-                                            end_pipe,
+                                            last_invoc,
                                             shell_context,
                                             redirect_to
                                         )
                         )
             
         in_pipe = len( raw_invocs) > 1
-        end_pipe = (index == len( raw_invocs ) - 1)
-        redirect_to = redirect_to_last if end_pipe else None
-        result.append(create_invoc(raw_invoc, in_pipe, end_pipe, shell_context, redirect_to))
+        last_invoc = (index == len( raw_invocs ) - 1)
+        redirect_to = line_obj.redirect_part() if last_invoc else None # If not last invoc, we dont redirect the stdout anywhere
+        result.append(create_invoc(raw_invoc, in_pipe, last_invoc, shell_context, redirect_to))
         
     return result
             
@@ -134,7 +148,7 @@ class CommandInvocIter:
         result.next_stdin = pipeline_res.next_stdin()
         result.proc_waiter.add_waiter(  pipeline_res.wait_child_end() ) 
             
-        if command_invoc.end_pipe():
+        if command_invoc.last_invoc():
             result.end_cwd = command_invoc.shell_context().cwd() 
             
         return result
@@ -152,9 +166,10 @@ def main():
     
     for line in input_lines():
         
+        line_obj = Line(line)
         
         shell_context.add_line_history(line)
-        command_invocs = invocs(line, shell_context)
+        command_invocs = invocs(line_obj, shell_context)
                 
         state = CommandInvocIter()                            
         for command_invoc in command_invocs:

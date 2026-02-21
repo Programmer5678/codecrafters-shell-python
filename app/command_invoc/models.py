@@ -66,7 +66,7 @@ class CommandInvocSpec:
 class CommandInvocArgs:
     spec : CommandInvocSpec
     in_pipe : bool
-    end_pipe : bool
+    last_invoc : bool
     shell_context: Any
     redirect_to: str
 
@@ -79,7 +79,7 @@ class CommandInvoc(ABC):
 
     def __init__( self, args: CommandInvocArgs):
         self._spec = args.spec
-        self._end_pipe = args.end_pipe
+        self._last_invoc = args.last_invoc
         self._shell_context = copy.deepcopy(args.shell_context)
         self._in_pipe = args.in_pipe
         self._redirect_to = args.redirect_to
@@ -90,8 +90,8 @@ class CommandInvoc(ABC):
     def in_pipe(self):
         return self._in_pipe
 
-    def end_pipe(self):
-        return self._end_pipe
+    def last_invoc(self):
+        return self._last_invoc
 
     def shell_context(self):
         return self._shell_context
@@ -113,7 +113,7 @@ class CommandInvoc(ABC):
         
         fd = os.open(self._redirect_to, os.O_RDWR | os.O_CREAT) if self._redirect_to else STDOUT
         # print("Command: ", self._spec, " redirects to ", self._redirect_to)
-        return (None, fd) if self.end_pipe() else os.pipe()
+        return (None, fd) if self.last_invoc() else os.pipe()
 
     def _parent_close_fds(self, out_fd, in_fd):
         """Close file descriptors the parent does not need."""
