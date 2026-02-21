@@ -1,3 +1,5 @@
+from contextlib import contextmanager
+
 from app.command_invoc.models import CommandInvoc, PipelineResult
 import sys
 import os
@@ -13,9 +15,10 @@ class ExecCommandInvoc(CommandInvoc):
         return True
 
 
-    def _run_in_child(self, in_fd, out_fd):
-        
-        
+    
+
+    @contextmanager
+    def child_fd_setup(self, in_fd, out_fd):
         # Duplicate FDs so the child uses them as stdin/stdout
         os.dup2(in_fd, STDIN)
         os.dup2(out_fd, STDOUT)
@@ -25,9 +28,10 @@ class ExecCommandInvoc(CommandInvoc):
             os.close(in_fd)
         if out_fd != STDOUT:
             os.close(out_fd)
+            
+        yield
 
-        self.run_core()
-        
+
         
     def run_core(self):
         # Replace child process with the target command

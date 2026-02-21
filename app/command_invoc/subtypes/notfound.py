@@ -10,7 +10,10 @@ class NotFoundCommandInvoc (CommandInvoc):
         raise Exception("Method rejected. Refactor!")
     
     def _new_proc_in_standalone(self):
-        return False
+        raise Exception("Method rejected. Refactor!")
+    
+    def run_core(self):
+        raise Exception("Method rejected. Refactor!")
     
     def run(self, stdin):
         err_not_found(

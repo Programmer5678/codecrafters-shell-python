@@ -20,21 +20,18 @@ class BuiltinCommandInvoc(CommandInvoc):
     def _new_proc_in_standalone(self):
         return False
 
-    def _run_in_child(self, in_fd, out_fd):
+    def child_fd_setup(self, in_fd, out_fd):
         """run the child logic, exiting immediately."""
 
         try:
             os.dup2(out_fd, 1)
-            self.run_core()
+            yield
         finally:
             if out_fd != STDOUT:
                 os.close(out_fd)
             os._exit(0)
         
-    @abstractmethod
-    def run_core(self):
-        pass
-        """The core of the run, without all the process and pipe management"""
+    
     
     @classmethod
     def commands(cls):

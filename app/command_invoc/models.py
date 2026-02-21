@@ -118,11 +118,16 @@ class CommandInvoc(ABC):
     def _new_proc_in_standalone(self):
         pass
     
+
+    
     @abstractmethod
-    def _run_in_child(in_fd, out_fd):
+    def run_core(self):
         pass
+        """The core of the run, without all the process and pipe management"""
     
-    
+    abstractmethod
+    def child_fd_setup(self):
+        pass
     
     def _proc_filedescriptors(self):
         """Return (next_stdin, stdout) for this process stage."""
@@ -144,7 +149,9 @@ class CommandInvoc(ABC):
         
         child_pid = os.fork()
         if child_pid == 0:
-            self._run_in_child(in_fd, out_fd)
+            
+            with self.child_fd_setup(in_fd, out_fd):
+                self.run_core()
         
         self._parent_close_fds(out_fd, in_fd)
         return PipelineResult(next_in_fd, lambda: os.waitpid(child_pid, 0)) 
