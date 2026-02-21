@@ -104,15 +104,50 @@ class CommandInvoc(ABC):
         if self.in_pipe() or self._new_proc_in_standalone() :
             result = self._run_in_new_proc(stdin)
         else:
-            fd = os.open(self._redirect_to, os.O_RDWR | os.O_CREAT) if self._redirect_to else STDOUT
+            #_proc_filedescriptors has option to create a new pipe
+            # here we dont need new pipe.
+            # so we can properly return PipelineResult 
+            # Why is it only called if starting a new proc? because persumabley 
+            #So this is just too entalged. We want to 2 step this. Because if we ahve a redirect to - this overrides anything
             
+            
+            out_fd = STDOUT
+            if self._redirect_to:
+                out_fd = os.open(self._redirect_to, os.O_RDWR | os.O_CREAT)
+                        
             stdout = os.dup(STDOUT)
-            os.dup2(fd, STDOUT)
+            os.dup2(out_fd, STDOUT)
+            
             self.run_core()
+            
             os.dup2(stdout, STDOUT)
             result = PipelineResult.no_pipeline()
 
         return result
+    
+    def _new_proc_filedescriptors(self):
+        """Return (next_stdin, stdout) for this process stage."""
+        
+        return (None, STDOUT) if self.last_invoc() else os.pipe()
+    
+    def _run_in_new_proc(self, in_fd):
+        """Set up the pipe, spawn child, and return a PipelineResult."""
+        next_in_fd, out_fd = self._new_proc_filedescriptors()
+        
+        if self._redirect_to:
+            out_fd = os.open(self._redirect_to, os.O_RDWR | os.O_CREAT)
+        
+        child_pid = os.fork()
+        if child_pid == 0:
+            
+            with self.child_fd_setup(in_fd, out_fd):
+                self.run_core()
+        
+        self._parent_close_fds(out_fd, in_fd)
+        return PipelineResult(next_in_fd, lambda: os.waitpid(child_pid, 0)) 
+    
+    
+    
     
     @abstractmethod
     def _new_proc_in_standalone(self):
@@ -129,12 +164,7 @@ class CommandInvoc(ABC):
     def child_fd_setup(self):
         pass
     
-    def _proc_filedescriptors(self):
-        """Return (next_stdin, stdout) for this process stage."""
-        
-        fd = os.open(self._redirect_to, os.O_RDWR | os.O_CREAT) if self._redirect_to else STDOUT
-        # print("Command: ", self._spec, " redirects to ", self._redirect_to)
-        return (None, fd) if self.last_invoc() else os.pipe()
+    
 
     def _parent_close_fds(self, out_fd, in_fd):
         """Close file descriptors the parent does not need."""
@@ -142,19 +172,7 @@ class CommandInvoc(ABC):
             os.close(out_fd)
         if in_fd is not None and in_fd != STDIN:
             os.close(in_fd)
-            
-    def _run_in_new_proc(self, in_fd):
-        """Set up the pipe, spawn child, and return a PipelineResult."""
-        next_in_fd, out_fd = self._proc_filedescriptors()
         
-        child_pid = os.fork()
-        if child_pid == 0:
-            
-            with self.child_fd_setup(in_fd, out_fd):
-                self.run_core()
-        
-        self._parent_close_fds(out_fd, in_fd)
-        return PipelineResult(next_in_fd, lambda: os.waitpid(child_pid, 0)) 
     
 
     @classmethod
