@@ -1,14 +1,12 @@
 import copy
 import os 
+import readline
 import subprocess
 
-import readline
 import sys
 from typing import List
 
-from app.command_invoc.models import CommandInvoc, PipelineResult
-from app.command_invoc.models import CommandInvocArgs
-from app.command_invoc.models import CommandInvocSpec
+from app.command_invoc.models import PipelineResult
 from app.command_invoc.subtypes.buitlin.builtin import BuiltinCommandInvoc
 from app.command_invoc.subtypes.exec import ExecCommandInvoc
 from app.command_invoc.subtypes.notfound import NotFoundCommandInvoc
@@ -20,6 +18,7 @@ from app.command_invoc.subtypes.buitlin.subtypes.history import HistoryCommand
 from app.command_invoc.subtypes.buitlin.subtypes.pwd import PwdCommand
 from app.command_invoc.subtypes.buitlin.subtypes.type import TypeCommand
 
+from app.command_line import input_lines, Line
 from app.interactive_shell import setup_interactive_shell
 
 
@@ -41,23 +40,6 @@ class ShellContext:
     def add_line_history(self, line):
         self._history.append(line)
 
-def input_next_line():
-        
-    def empty_line(line):
-        return line == None or len(line.split()) == 0
-    
-    line = None
-    while empty_line(line):
-        line = input("$ ")
-    
-    readline.add_history(line)
-    
-    return line
-
-def input_lines():
-    while True:
-        yield input_next_line()
-
 
 
 
@@ -74,62 +56,6 @@ class ProcWaiter:
             waiter()
             
      
-class Line:
-    
-    def __init__(self, raw):
-        self.raw = raw
-        
-    def split_redirect(self):
-        def split_on(st, split_a, split_b):
-            st_first_split = st.split(split_a)
-            resplit_start = st_first_split[0].split(split_b)
-            return resplit_start + st_first_split[1:]
-            
-        
-        return split_on(self.raw, "1>", ">")
-    
-    def invocs_part(self):
-        return self.split_redirect()[0]
-    
-    def redirect_part(self):
-        
-        split_red = self.split_redirect()
-        
-        if len(split_red) == 2:
-            return split_red[1].strip()
-            
-        return None
-        
-    def invocs(self, shell_context):
-    
-        raw_invocs = self.invocs_part().split("|")
-        result = []
-        
-        for index, raw_invoc in enumerate( raw_invocs ):
-            
-            
-            def create_invoc(raw_invoc, in_pipe, last_invoc, shell_context, redirect_to):
-                return CommandInvoc.resolve_subclass(
-                                            CommandInvocArgs(
-                                                CommandInvocSpec( raw_invoc ), 
-                                                in_pipe,
-                                                last_invoc,
-                                                shell_context,
-                                                redirect_to
-                                            )
-                            )
-                
-            in_pipe = len( raw_invocs) > 1
-            last_invoc = (index == len( raw_invocs ) - 1)
-            redirect_to = self.redirect_part() if last_invoc else None # If not last invoc, we dont redirect the stdout anywhere
-            result.append(create_invoc(raw_invoc, in_pipe, last_invoc, shell_context, redirect_to))
-            
-        return result
-       
-            
-
-            
-            
 class CommandInvocIter:
     
     def __init__(self):
@@ -153,11 +79,6 @@ class CommandInvocIter:
             
         return result
             
-        
-         
-    
-    
-    
             
 def main():
     
@@ -169,6 +90,8 @@ def main():
         line_obj = Line(line)
         
         shell_context.add_line_history(line)
+        readline.add_history(line)
+        
         command_invocs = line_obj.invocs(shell_context)
                 
         state = CommandInvocIter()                            
