@@ -78,7 +78,11 @@ def invocs(line, shell_context):
     
     
     
-    sp = line.split(">")
+    sp0 = line.split("1>")
+    sp1 = sp0[0].split(">")
+    sp2 = sp0[1:]
+    sp = sp1 + sp2
+    
     liney = sp[0]
     redirect_to_last = None
     if len(sp) == 2:
