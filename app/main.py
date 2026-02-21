@@ -74,7 +74,7 @@ class ProcWaiter:
             waiter()
             
             
-def invocs(line, shell_context):
+def invocs(line, shell_context, redirect_to):
     
     raw_invocs = line.split("|")
     result = []
@@ -82,19 +82,20 @@ def invocs(line, shell_context):
     for index, raw_invoc in enumerate( raw_invocs ):
         
         
-        def create_invoc(raw_invoc, in_pipe, end_pipe, shell_context):
+        def create_invoc(raw_invoc, in_pipe, end_pipe, shell_context, redirect_to):
             return CommandInvoc.resolve_subclass(
                                         CommandInvocArgs(
                                             CommandInvocSpec( raw_invoc ), 
                                             in_pipe,
                                             end_pipe,
-                                            shell_context
+                                            shell_context,
+                                            redirect_to
                                         )
                         )
             
         in_pipe = len( raw_invocs) > 1
-        end_pipe = index == len( raw_invocs ) - 1
-        result.append(create_invoc(raw_invoc, in_pipe, end_pipe, shell_context))
+        end_pipe = (index == len( raw_invocs ) - 1)
+        result.append(create_invoc(raw_invoc, in_pipe, end_pipe, shell_context, redirect_to))
         
     return result
             
@@ -135,16 +136,18 @@ def main():
     
     for line in input_lines():
         
+        redirect_to = "file.txt"
+        
         shell_context.add_line_history(line)
-        command_invocs = invocs(line, shell_context)
+        command_invocs = invocs(line, shell_context, redirect_to)
                 
-        st = CommandInvocIter()                            
+        state = CommandInvocIter()                            
         for command_invoc in command_invocs:
-            st = st.next_state(command_invoc)
+            state = state.next_state(command_invoc)
                             
-        st.proc_waiter.wait_for_all()
-        if st.end_cwd:
-            shell_context.setcwd( st.end_cwd )                             
+        state.proc_waiter.wait_for_all()
+        if state.end_cwd:
+            shell_context.setcwd( state.end_cwd )                             
             
                 
 if __name__ == "__main__":

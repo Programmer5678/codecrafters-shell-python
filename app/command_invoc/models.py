@@ -68,6 +68,7 @@ class CommandInvocArgs:
     in_pipe : bool
     end_pipe : bool
     shell_context: Any
+    redirect_to: str
 
 
 
@@ -81,6 +82,7 @@ class CommandInvoc(ABC):
         self._end_pipe = args.end_pipe
         self._shell_context = copy.deepcopy(args.shell_context)
         self._in_pipe = args.in_pipe
+        self._redirect_to = args.redirect_to
 
     def spec(self):
         return self._spec
@@ -108,7 +110,9 @@ class CommandInvoc(ABC):
     
     def _proc_filedescriptors(self):
         """Return (next_stdin, stdout) for this process stage."""
-        return (None, STDOUT) if self.end_pipe() else os.pipe()
+        
+        fd = os.open(self._redirect_to, os.O_RDWR)
+        return (None, fd) if self.end_pipe() else os.pipe()
 
     def _parent_close_fds(self, out_fd, in_fd):
         """Close file descriptors the parent does not need."""
