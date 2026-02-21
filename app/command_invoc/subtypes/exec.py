@@ -14,24 +14,22 @@ class ExecCommandInvoc(CommandInvoc):
 
 
     def _run_in_child(self, in_fd, out_fd):
-        """Fork and run the child logic, exiting immediately."""
-        child_pid = os.fork()
+        
+        
+        # Duplicate FDs so the child uses them as stdin/stdout
+        os.dup2(in_fd, STDIN)
+        os.dup2(out_fd, STDOUT)
 
-        if child_pid == 0:
-            # Duplicate FDs so the child uses them as stdin/stdout
-            os.dup2(in_fd, STDIN)
-            os.dup2(out_fd, STDOUT)
+        # Optional: close original FDs after dup2
+        if in_fd not in (None, STDIN):
+            os.close(in_fd)
+        if out_fd != STDOUT:
+            os.close(out_fd)
 
-            # Optional: close original FDs after dup2
-            if in_fd not in (None, STDIN):
-                os.close(in_fd)
-            if out_fd != STDOUT:
-                os.close(out_fd)
-
-            # Replace child process with the target command
-            os.execvp(
-                self.spec().command(),
-                [self.spec().command(), *self.spec().args()]
-            )
-
-        return child_pid
+        # Replace child process with the target command
+        os.execvp(
+            self.spec().command(),
+            [self.spec().command(), *self.spec().args()]
+        )
+        
+        

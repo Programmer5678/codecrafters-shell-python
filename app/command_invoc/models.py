@@ -134,12 +134,16 @@ class CommandInvoc(ABC):
         if in_fd is not None and in_fd != STDIN:
             os.close(in_fd)
             
-    def _run_in_new_proc(self, stdin):
+    def _run_in_new_proc(self, in_fd):
         """Set up the pipe, spawn child, and return a PipelineResult."""
-        next_stdin, stdout = self._proc_filedescriptors()
-        child_pid = self._run_in_child(stdin, stdout)
-        self._parent_close_fds(stdout, stdin)
-        return PipelineResult(next_stdin, lambda: os.waitpid(child_pid, 0)) 
+        next_in_fd, out_fd = self._proc_filedescriptors()
+        
+        child_pid = os.fork()
+        if child_pid == 0:
+            self._run_in_child(in_fd, out_fd)
+        
+        self._parent_close_fds(out_fd, in_fd)
+        return PipelineResult(next_in_fd, lambda: os.waitpid(child_pid, 0)) 
     
 
     @classmethod

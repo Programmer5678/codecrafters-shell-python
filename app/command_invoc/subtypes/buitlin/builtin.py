@@ -21,16 +21,14 @@ class BuiltinCommandInvoc(CommandInvoc):
         return False
 
     def _run_in_child(self, in_fd, out_fd):
-        """Fork and run the child logic, exiting immediately."""
-        child_pid = os.fork()
-        if child_pid == 0:
-            try:
-                self.run_core(out_fd)
-            finally:
-                if out_fd != STDOUT:
-                    os.close(out_fd)
-                os._exit(0)
-        return child_pid
+        """run the child logic, exiting immediately."""
+
+        try:
+            self.run_core(out_fd)
+        finally:
+            if out_fd != STDOUT:
+                os.close(out_fd)
+            os._exit(0)
         
     @abstractmethod
     def run_core(self, out):
