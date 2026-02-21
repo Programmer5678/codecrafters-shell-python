@@ -26,10 +26,15 @@ class ExecCommandInvoc(CommandInvoc):
         if out_fd != STDOUT:
             os.close(out_fd)
 
+        self.run_core()
+        
+        
+    def run_core(self):
         # Replace child process with the target command
         os.execvp(
             self.spec().command(),
             [self.spec().command(), *self.spec().args()]
         )
         
+
         

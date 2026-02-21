@@ -7,6 +7,6 @@ class PwdCommand(BuiltinCommandInvoc):
 
     expected_command="pwd"
 
-    def run_core(self, out):
-        os.write( out, (self.shell_context().cwd()+"\n").encode() )
+    def run_core(self):
+        os.write( 1, (self.shell_context().cwd()+"\n").encode() )
         

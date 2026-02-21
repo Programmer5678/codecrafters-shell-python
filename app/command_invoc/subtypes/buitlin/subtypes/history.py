@@ -8,16 +8,16 @@ class HistoryCommand(BuiltinCommandInvoc):
 
     expected_command = "history"
 
-    def run_core(self, out):
+    def run_core(self):
 
         def history_line(line_num, line_content):
             return f"\t{line_num+1} {line_content}"
 
         def print_all_lines(history_lines, out):
-            os.write( out,  ("\n".join( history_lines ) + "\n").encode()  )
+            os.write( 1,  ("\n".join( history_lines ) + "\n").encode()  )
 
         def print_last_n_lines(history_lines, nl):
-            os.write( out,  ("\n".join( history_lines[-nl:] ) + "\n").encode()   )
+            os.write( 1,  ("\n".join( history_lines[-nl:] ) + "\n").encode()   )
 
         def no_num_lines_arg():
             return len( self.spec().args() ) == 0
@@ -34,7 +34,7 @@ class HistoryCommand(BuiltinCommandInvoc):
         history_lines = [ history_line(line_num, line) for line_num, line in enumerate( self.shell_context().history() ) ]
 
         if no_num_lines_arg():
-            print_all_lines(history_lines, out)
+            print_all_lines(history_lines, 1)
 
         elif too_many_args():
             err_too_many_args()

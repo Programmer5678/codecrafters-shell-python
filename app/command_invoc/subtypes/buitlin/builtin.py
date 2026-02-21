@@ -24,14 +24,15 @@ class BuiltinCommandInvoc(CommandInvoc):
         """run the child logic, exiting immediately."""
 
         try:
-            self.run_core(out_fd)
+            os.dup2(out_fd, 1)
+            self.run_core()
         finally:
             if out_fd != STDOUT:
                 os.close(out_fd)
             os._exit(0)
         
     @abstractmethod
-    def run_core(self, out):
+    def run_core(self):
         pass
         """The core of the run, without all the process and pipe management"""
     

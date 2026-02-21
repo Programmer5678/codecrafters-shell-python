@@ -7,7 +7,7 @@ class EchoCommand(BuiltinCommandInvoc):
 
     expected_command="echo"
     
-    def run_core(self, out):
+    def run_core(self):
         
-        os.write( out, (" ".join( self.spec().args()) + "\n").encode() )
+        os.write( 1, (" ".join( self.spec().args()) + "\n").encode() )
         

@@ -105,7 +105,11 @@ class CommandInvoc(ABC):
             result = self._run_in_new_proc(stdin)
         else:
             fd = os.open(self._redirect_to, os.O_RDWR | os.O_CREAT) if self._redirect_to else STDOUT
-            self.run_core( fd )
+            
+            stdout = os.dup(STDOUT)
+            os.dup2(fd, STDOUT)
+            self.run_core()
+            os.dup2(stdout, STDOUT)
             result = PipelineResult.no_pipeline()
 
         return result

@@ -5,6 +5,6 @@ class ExitCommand(BuiltinCommandInvoc):
 
     expected_command = "exit"
         
-    def run_core(self, out):
+    def run_core(self):
         os._exit(0)
         
