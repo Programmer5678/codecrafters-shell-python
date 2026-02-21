@@ -18,7 +18,7 @@ from app.command_invoc.subtypes.buitlin.subtypes.history import HistoryCommand
 from app.command_invoc.subtypes.buitlin.subtypes.pwd import PwdCommand
 from app.command_invoc.subtypes.buitlin.subtypes.type import TypeCommand
 
-from app.command_line import input_lines, Line
+from app.command_line import input_lines
 from app.interactive_shell import setup_interactive_shell
 
 
@@ -86,16 +86,12 @@ def main():
     shell_context = ShellContext( os.getcwd() )
     
     for line in input_lines():
-        
-        line_obj = Line(line)
-        
-        shell_context.add_line_history(line)
-        readline.add_history(line)
-        
-        command_invocs = line_obj.invocs(shell_context)
+                
+        shell_context.add_line_history(line.raw )
+        readline.add_history( line.raw )
                 
         state = CommandInvocIter()                            
-        for command_invoc in command_invocs:
+        for command_invoc in line.invocs(shell_context):
             state = state.next_state(command_invoc)
                             
         state.proc_waiter.wait_for_all()

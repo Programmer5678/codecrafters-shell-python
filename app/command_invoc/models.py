@@ -100,13 +100,25 @@ class CommandInvoc(ABC):
         self._shell_context.setcwd(cwd)
 
 
-    @abstractmethod
     def run(self, stdin):
+        if self.in_pipe() or self._new_proc_in_standalone() :
+            result = self._run_in_new_proc(stdin)
+        else:
+            fd = os.open(self._redirect_to, os.O_RDWR | os.O_CREAT) if self._redirect_to else STDOUT
+            self.run_core( fd )
+            result = PipelineResult.no_pipeline()
+
+        return result
+    
+    @abstractmethod
+    def _new_proc_in_standalone(self):
         pass
     
     @abstractmethod
     def _run_in_child(in_fd, out_fd):
         pass
+    
+    
     
     def _proc_filedescriptors(self):
         """Return (next_stdin, stdout) for this process stage."""

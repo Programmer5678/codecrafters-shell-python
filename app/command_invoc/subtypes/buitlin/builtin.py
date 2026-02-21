@@ -17,17 +17,8 @@ class BuiltinCommandInvoc(CommandInvoc):
         assert( command_matches_expected()  )
         
         
-    def run(self, stdin):
-        if self.in_pipe():
-            result = self._run_in_new_proc(stdin)
-        else:
-            # print("Command: ", self._spec, " redirects to ", self._redirect_to)
-            fd = os.open(self._redirect_to, os.O_RDWR | os.O_CREAT) if self._redirect_to else STDOUT
-            self.run_core( fd )
-            result = PipelineResult.no_pipeline()
-
-        return result
-
+    def _new_proc_in_standalone(self):
+        return False
 
     def _run_in_child(self, in_fd, out_fd):
         """Fork and run the child logic, exiting immediately."""

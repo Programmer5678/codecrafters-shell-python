@@ -1,3 +1,3 @@
-from .core import input_lines, Line
+from .core import input_lines
 
-__all__ = ["input_lines", "Line"]
+__all__ = ["input_lines"]

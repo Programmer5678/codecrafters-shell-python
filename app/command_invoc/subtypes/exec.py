@@ -9,9 +9,8 @@ STDOUT = 1
 class ExecCommandInvoc(CommandInvoc):
 
 
-    def run(self, stdin):
-        """Main run function that either spawns a child process or returns a pipeline result."""
-        return self._run_in_new_proc(stdin)
+    def _new_proc_in_standalone(self):
+        return True
 
 
     def _run_in_child(self, in_fd, out_fd):

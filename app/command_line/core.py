@@ -59,11 +59,11 @@ def input_next_line():
     def empty_line(line):
         return line == None or len(line.split()) == 0
 
-    line = None
-    while empty_line(line):
-        line = input("$ ")
+    raw_line = None
+    while empty_line(raw_line):
+        raw_line = input("$ ")
 
-    return line
+    return Line(raw_line)
 
 
 def input_lines():
