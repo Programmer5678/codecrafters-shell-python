@@ -100,17 +100,33 @@ class CommandInvoc(ABC):
         self._shell_context.setcwd(cwd)
 
 
-    def run(self, stdin):
+    def run(self, in_fd):
+        
         if self.in_pipe() or self._new_proc_in_standalone() :
-            result = self._run_in_new_proc(stdin)
+            
+            """Set up the pipe, spawn child, and return a PipelineResult."""
+            next_in_fd = None
+            out_fd = STDOUT
+            
+            if not self.last_invoc():
+                p = os.pipe()
+                out_fd = p[1]
+                next_in_fd = p[0]
+            
+            if self._redirect_to:
+                out_fd = os.open(self._redirect_to, os.O_RDWR | os.O_CREAT)
+            
+            child_pid = os.fork()
+            if child_pid == 0:
+                
+                with self.child_fd_setup(in_fd, out_fd):
+                    self.run_core()
+            
+            self._parent_close_fds(out_fd, in_fd)
+            return PipelineResult(next_in_fd, lambda: os.waitpid(child_pid, 0)) 
+            
         else:
-            #_proc_filedescriptors has option to create a new pipe
-            # here we dont need new pipe.
-            # so we can properly return PipelineResult 
-            # Why is it only called if starting a new proc? because persumabley 
-            #So this is just too entalged. We want to 2 step this. Because if we ahve a redirect to - this overrides anything
-            
-            
+
             out_fd = STDOUT
             if self._redirect_to:
                 out_fd = os.open(self._redirect_to, os.O_RDWR | os.O_CREAT)
@@ -125,26 +141,8 @@ class CommandInvoc(ABC):
 
         return result
     
-    def _new_proc_filedescriptors(self):
-        """Return (next_stdin, stdout) for this process stage."""
-        
-        return (None, STDOUT) if self.last_invoc() else os.pipe()
     
-    def _run_in_new_proc(self, in_fd):
-        """Set up the pipe, spawn child, and return a PipelineResult."""
-        next_in_fd, out_fd = self._new_proc_filedescriptors()
         
-        if self._redirect_to:
-            out_fd = os.open(self._redirect_to, os.O_RDWR | os.O_CREAT)
-        
-        child_pid = os.fork()
-        if child_pid == 0:
-            
-            with self.child_fd_setup(in_fd, out_fd):
-                self.run_core()
-        
-        self._parent_close_fds(out_fd, in_fd)
-        return PipelineResult(next_in_fd, lambda: os.waitpid(child_pid, 0)) 
     
     
     
