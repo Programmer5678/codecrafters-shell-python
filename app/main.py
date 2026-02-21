@@ -74,9 +74,17 @@ class ProcWaiter:
             waiter()
             
             
-def invocs(line, shell_context, redirect_to):
+def invocs(line, shell_context):
     
-    raw_invocs = line.split("|")
+    
+    
+    sp = line.split(">")
+    liney = sp[0]
+    redirect_to_last = None
+    if len(sp) == 2:
+        redirect_to_last = sp[1].strip()
+    
+    raw_invocs = liney.split("|")
     result = []
     
     for index, raw_invoc in enumerate( raw_invocs ):
@@ -95,6 +103,7 @@ def invocs(line, shell_context, redirect_to):
             
         in_pipe = len( raw_invocs) > 1
         end_pipe = (index == len( raw_invocs ) - 1)
+        redirect_to = redirect_to_last if end_pipe else None
         result.append(create_invoc(raw_invoc, in_pipe, end_pipe, shell_context, redirect_to))
         
     return result
@@ -136,10 +145,9 @@ def main():
     
     for line in input_lines():
         
-        redirect_to = "file.txt"
         
         shell_context.add_line_history(line)
-        command_invocs = invocs(line, shell_context, redirect_to)
+        command_invocs = invocs(line, shell_context)
                 
         state = CommandInvocIter()                            
         for command_invoc in command_invocs:

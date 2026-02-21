@@ -21,7 +21,8 @@ class BuiltinCommandInvoc(CommandInvoc):
         if self.in_pipe():
             result = self._run_in_new_proc(stdin)
         else:
-            fd = os.open(self._redirect_to, os.O_RDWR)
+            # print("Command: ", self._spec, " redirects to ", self._redirect_to)
+            fd = os.open(self._redirect_to, os.O_RDWR) if self._redirect_to else STDOUT
             self.run_core( fd )
             result = PipelineResult.no_pipeline()
 

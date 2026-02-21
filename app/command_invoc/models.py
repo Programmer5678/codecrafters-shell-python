@@ -111,7 +111,8 @@ class CommandInvoc(ABC):
     def _proc_filedescriptors(self):
         """Return (next_stdin, stdout) for this process stage."""
         
-        fd = os.open(self._redirect_to, os.O_RDWR)
+        fd = os.open(self._redirect_to, os.O_RDWR) if self._redirect_to else STDOUT
+        # print("Command: ", self._spec, " redirects to ", self._redirect_to)
         return (None, fd) if self.end_pipe() else os.pipe()
 
     def _parent_close_fds(self, out_fd, in_fd):
