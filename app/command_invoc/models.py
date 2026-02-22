@@ -121,11 +121,12 @@ class CommandInvocSpec:
                     advance_loop()
                     
             rt_stdout = RedirectTarget( redirect_stdout , RedirectMode.APPEND if append_stdout else RedirectMode.WRITE )
-            return main, rt_stdout, redirect_stderr, append_stderr
+            rt_stderr = RedirectTarget( redirect_stderr , RedirectMode.APPEND if append_stderr else RedirectMode.WRITE )
+            return main, rt_stdout, rt_stderr
             
         self.raw = raw
         self._tokens = tokenize(self.raw)
-        self._main_part , self._rt_stdout, self._redirect_stderr, self._append_stderr = partition_redirects(self._tokens) 
+        self._main_part , self._rt_stdout, self.rt_stderr = partition_redirects(self._tokens) 
                     
 
     def __repr__(self):
@@ -143,13 +144,13 @@ class CommandInvocSpec:
         return self._rt_stdout.file
     
     def redirect_stderr(self):
-        return self._redirect_stderr
+        return self.rt_stderr.file
     
     def append_stdout(self):
         return self._rt_stdout.mode == RedirectMode.APPEND
 
     def append_stderr(self):
-        return self._append_stderr
+        return self.rt_stderr.mode == RedirectMode.APPEND
 
        
     
