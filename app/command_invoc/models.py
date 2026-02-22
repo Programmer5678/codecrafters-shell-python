@@ -121,7 +121,7 @@ class CommandInvoc(ABC):
         next_in_fd , out_fd = self._file_descriptors()
         
             
-        if self._in_new_proc(): #If need 
+        if self._in_new_proc(): 
             
             """Set up the pipe, spawn child, and return a PipelineResult."""
             
