@@ -32,6 +32,26 @@ class PipelineResult:
 
 
 
+class RedirectTarget:
+    
+    def __init__(self, to_redirect : bool, to_append : bool, file : str):
+        self._to_redirect = to_redirect
+        self._to_append = to_append
+        self._file = file
+        
+        
+    def old_form(self):
+        if self._to_redirect:
+            return self._file
+        
+        else:
+            return None
+        
+    def to_append(self):
+        return self._to_append
+            
+        
+
 
 class CommandInvocSpec:
 
@@ -41,8 +61,8 @@ class CommandInvocSpec:
             
             main = []
             redirect_stdout = None
-            redirect_stderr = None
             append_stdout = False
+            redirect_stderr = None
             append_stderr = False
             
             index = 0
@@ -107,12 +127,14 @@ class CommandInvocSpec:
                         index += 1
                         
                     advance_loop()
+                    
+            rt = RedirectTarget( True if redirect_stdout else False , append_stdout, redirect_stdout)
                                     
-            return main, redirect_stdout, redirect_stderr, append_stdout, append_stderr
+            return main, rt.old_form(), rt.to_append(), redirect_stderr, append_stderr
             
         self.raw = raw
         self._tokens = tokenize(self.raw)
-        self._main_part , self._redirect_stdout, self._redirect_stderr, self._append_stdout, self._append_stderr = partition_redirects(self._tokens) 
+        self._main_part , self._redirect_stdout, self._append_stdout, self._redirect_stderr, self._append_stderr = partition_redirects(self._tokens) 
         
         # if self._append_stderr:
         #     print("APPEND ", self._append_stderr)
