@@ -43,13 +43,28 @@ class CommandInvocSpec:
             index = 0
             while index < len( tokens ):
                 cur = tokens[index]
-                if cur == "1>" or cur == ">":
-                    redirect_stdout = tokens[index + 1]
-                    index += 2
+                
+                def is_stdout_redirect(c):
+                    return c == "1>" or c == ">"
+                
+                if is_stdout_redirect(cur):
+                    next_token = tokens[index + 1]
+                    redirect_stdout = next_token
+                    
+                    def skip_redirect_loop():
+                        nonlocal index
+                        index += 2
+                    
+                    skip_redirect_loop()
                     
                 else:
                     main.append( cur )
-                    index += 1
+                    
+                    def advance_loop():
+                        nonlocal index
+                        index += 1
+                        
+                    advance_loop()
                                     
             return main, redirect_stdout
             
