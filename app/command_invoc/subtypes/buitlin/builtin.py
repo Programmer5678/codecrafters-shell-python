@@ -47,7 +47,7 @@ class BuiltinCommandInvoc(CommandInvoc):
 
 
     @classmethod
-    def resolve_subclass(cls, args: CommandInvocArgs):
+    def resolve(cls, args: CommandInvocArgs):
 
         def command_class( command ):
             return cls.commands()[command]

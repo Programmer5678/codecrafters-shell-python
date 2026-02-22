@@ -215,14 +215,14 @@ class CommandInvoc(ABC):
     
 
     @classmethod
-    def resolve_subclass(cls, args: CommandInvocArgs ):
+    def resolve(cls, args: CommandInvocArgs ):
 
         from app.command_invoc.subtypes.buitlin.builtin import BuiltinCommandInvoc
         from app.command_invoc.subtypes.exec import ExecCommandInvoc
         from app.command_invoc.subtypes.notfound import NotFoundCommandInvoc
 
         if BuiltinCommandInvoc.is_builtin( args.spec.command() ):
-            return BuiltinCommandInvoc.resolve_subclass( args )
+            return BuiltinCommandInvoc.resolve( args )
 
         elif find_in_path( args.spec.command() ) :
             return ExecCommandInvoc( args )

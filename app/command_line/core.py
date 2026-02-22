@@ -36,7 +36,7 @@ class Line:
 
 
             def create_invoc(raw_invoc, in_pipe, last_invoc, shell_context, redirect_to):
-                return CommandInvoc.resolve_subclass(
+                return CommandInvoc.resolve(
                                             CommandInvocArgs(
                                                 CommandInvocSpec( raw_invoc ),
                                                 LinePosition( in_pipe, last_invoc ),
