@@ -1,4 +1,2 @@
-5
-0
-end
-endd
+ls: unrecognized option '--abc'
+Try 'ls --help' for more information.

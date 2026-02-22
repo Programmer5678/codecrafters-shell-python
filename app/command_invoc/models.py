@@ -42,6 +42,7 @@ class CommandInvocSpec:
             redirect_stdout = None
             redirect_stderr = None
             append_stdout = False
+            append_stderr = False
             
             index = 0
             while index < len( tokens ):
@@ -65,11 +66,22 @@ class CommandInvocSpec:
                     next_token = tokens[index + 1]
                     redirect_stdout = next_token
                     skip_redirect_iter()
+                    
+                def stderr_redirect_action():
+                    
+                    nonlocal redirect_stderr
+                    nonlocal tokens
+                    nonlocal index
+                    
+                    next_token = tokens[index + 1]
+                    redirect_stderr = next_token
+                    skip_redirect_iter()
                 
                 def is_stderr_redirect(c):
                     return c == "2>"
                 
-                
+                def is_stderr_append(c):
+                    return c == "2>>"
                 
                 if is_stdout_redirect(cur):
                     stdout_redirect_action()
@@ -80,10 +92,11 @@ class CommandInvocSpec:
                     
                                         
                 elif is_stderr_redirect(cur):
-                    next_token = tokens[index + 1]
-                    redirect_stderr = next_token
+                    stderr_redirect_action()
                     
-                    skip_redirect_iter()
+                elif is_stderr_append(cur):
+                    stderr_redirect_action()
+                    append_stderr = True
                     
                 else:
                     main.append( cur )
@@ -94,14 +107,14 @@ class CommandInvocSpec:
                         
                     advance_loop()
                                     
-            return main, redirect_stdout, redirect_stderr, append_stdout
+            return main, redirect_stdout, redirect_stderr, append_stdout, append_stderr
             
         self.raw = raw
         self._tokens = tokenize(self.raw)
-        self._main_part , self._redirect_stdout, self._redirect_stderr, self._append_stdout = partition_redirects(self._tokens) 
+        self._main_part , self._redirect_stdout, self._redirect_stderr, self._append_stdout, self._append_stderr = partition_redirects(self._tokens) 
         
-        # if self._append_stdout:
-        #     print("APPEND ", self._append_stdout)
+        # if self._append_stderr:
+        #     print("APPEND ", self._append_stderr)
 
             
 
@@ -125,6 +138,8 @@ class CommandInvocSpec:
     def append_stdout(self):
         return self._append_stdout
 
+    def append_stderr(self):
+        return self._append_stderr
 
        
     
