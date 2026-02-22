@@ -121,6 +121,9 @@ class CommandInvocSpec:
     
     def redirect_stderr(self):
         return self._redirect_stderr
+    
+    def append_stdout(self):
+        return self._append_stdout
 
 
        
@@ -298,13 +301,15 @@ class CommandInvoc(ABC):
         return self.in_pipe() or self._new_proc_in_standalone()
     
     def _file_descriptors(self):
-        if self._spec.redirect_stdout():
+        
+        if self.spec().redirect_stdout():
             next_in_fd = None
-            out_fd = os.open(self._spec.redirect_stdout(), os.O_RDWR | os.O_CREAT)
             
-            # out_fd = os.open(self._spec.redirect_stdout(), os.O_RDWR | os.O_CREAT | os.O_APPEND )
+            if self.spec().append_stdout():
+                out_fd = os.open(self._spec.redirect_stdout(), os.O_RDWR | os.O_CREAT | os.O_APPEND  )
             
-            
+            else:     
+                out_fd = os.open(self._spec.redirect_stdout(), os.O_RDWR | os.O_CREAT )       
 
         elif not self.last_invoc(): #not last invocation -  we need a pipe
             next_in_fd, out_fd = os.pipe()
