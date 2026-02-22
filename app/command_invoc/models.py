@@ -92,7 +92,6 @@ class CommandInvocArgs:
     spec : CommandInvocSpec
     position : Any
     shell_context: Any
-    redirect_to: str
 
 
 
@@ -123,7 +122,6 @@ class CommandInvoc(ABC):
         self.position = args.position
         
         self._shell_context = copy.deepcopy(args.shell_context)
-        self._redirect_to = args.redirect_to
 
     def spec(self):
         return self._spec
