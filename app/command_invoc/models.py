@@ -3,6 +3,7 @@ from dataclasses import dataclass
 import itertools
 import os
 from typing import Any
+from app.command_invoc.open_files import open_append, open_write
 from app.command_invoc.tokenize import tokenize
 from app.search_files import find_in_path
 import copy
@@ -272,9 +273,9 @@ class CommandInvoc(ABC):
             
             def new_fd(file, to_app):
                 if to_app:
-                    return os.open(file, os.O_WRONLY | os.O_CREAT | os.O_APPEND )
+                    return open_append(file)
                 else:
-                    return os.open(file, os.O_WRONLY | os.O_CREAT  )
+                    return open_write(file)
             
             def cur_stderr():
                 return os.dup(STDERR)
@@ -312,23 +313,22 @@ class CommandInvoc(ABC):
                 yield
     
     
-    
-    
-    
-    
     def _in_new_proc(self):
         return self.in_pipe() or self._new_proc_in_standalone()
     
     def _file_descriptors(self):
         
-        if self.spec().redirect_stdout():
+        out_file = self.spec().redirect_stdout()
+        to_append = self.spec().append_stdout()
+        
+        if out_file:
             next_in_fd = None
             
-            if self.spec().append_stdout():
-                out_fd = os.open(self._spec.redirect_stdout(), os.O_RDWR | os.O_CREAT | os.O_APPEND  )
+            if to_append:
+                out_fd = open_append( out_file )
             
             else:     
-                out_fd = os.open(self._spec.redirect_stdout(), os.O_RDWR | os.O_CREAT )       
+                out_fd = open_write( out_file )       
 
         elif not self.last_invoc(): #not last invocation -  we need a pipe
             next_in_fd, out_fd = os.pipe()
