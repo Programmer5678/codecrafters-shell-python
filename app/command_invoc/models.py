@@ -1,5 +1,6 @@
 from contextlib import contextmanager
 from dataclasses import dataclass
+from enum import Enum
 import itertools
 import os
 from typing import Any
@@ -31,24 +32,21 @@ class PipelineResult:
 
 
 
+class RedirectMode(Enum):
+    WRITE = "w"
+    APPEND = "a"
 
 class RedirectTarget:
     
-    def __init__(self, to_redirect : bool, to_append : bool, file : str):
-        self._to_redirect = to_redirect
-        self._to_append = to_append
-        self._file = file
-        
+    def __init__(self, file : str, mode : RedirectMode):
+        self.file = file
+        self.mode = mode
         
     def old_form(self):
-        if self._to_redirect:
-            return self._file
-        
-        else:
-            return None
+        return self.file
         
     def to_append(self):
-        return self._to_append
+        return self.mode == RedirectMode.APPEND
             
         
 
@@ -128,7 +126,7 @@ class CommandInvocSpec:
                         
                     advance_loop()
                     
-            rt = RedirectTarget( True if redirect_stdout else False , append_stdout, redirect_stdout)
+            rt = RedirectTarget( redirect_stdout , RedirectMode.APPEND if append_stdout else RedirectMode.WRITE )
                                     
             return main, rt.old_form(), rt.to_append(), redirect_stderr, append_stderr
             
