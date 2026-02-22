@@ -266,12 +266,15 @@ class CommandInvoc(ABC):
     def _error_fd_setup(self):
         
         @contextmanager
-        def redirect_stderr_fd(err_file):
+        def redirect_stderr_fd(err_file, to_append):
             
             STDERR = 2
             
-            def new_fd(file):
-                return os.open(file, os.O_WRONLY | os.O_CREAT )
+            def new_fd(file, to_app):
+                if to_app:
+                    return os.open(file, os.O_WRONLY | os.O_CREAT | os.O_APPEND )
+                else:
+                    return os.open(file, os.O_WRONLY | os.O_CREAT  )
             
             def cur_stderr():
                 return os.dup(STDERR)
@@ -287,7 +290,7 @@ class CommandInvoc(ABC):
                 os.close(save_stderr)
                 
             try:
-                error_fd = new_fd(err_file)
+                error_fd = new_fd(err_file, to_append)
                 save_stderr = cur_stderr()
                 send_err_to_fd(error_fd)
                 
@@ -300,11 +303,12 @@ class CommandInvoc(ABC):
                 
             
         err_file = self.spec().redirect_stderr()
+        to_append = self.spec().append_stderr()
         if not err_file: 
             yield
         
         else:
-            with redirect_stderr_fd( err_file ) :
+            with redirect_stderr_fd( err_file, to_append ) :
                 yield
     
     
