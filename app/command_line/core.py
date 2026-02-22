@@ -6,21 +6,23 @@ class Line:
     def __init__(self, raw):
         self.raw = raw
 
-    def split_redirect(self):
+
+    def split_on_redirect(self):
+        
         def split_on(st, split_a, split_b):
             st_first_split = st.split(split_a)
             resplit_start = st_first_split[0].split(split_b)
             return resplit_start + st_first_split[1:]
 
 
-        return split_on(self.raw, "1>", ">")
+        return [self.raw] # split_on(self.raw, "1>", ">")
 
     def invocs_part(self):
-        return self.split_redirect()[0]
+        return self.split_on_redirect()[0]
 
     def redirect_part(self):
 
-        split_red = self.split_redirect()
+        split_red = self.split_on_redirect()
 
         if len(split_red) == 2:
             return split_red[1].strip()

@@ -41,15 +41,40 @@ class CommandInvocSpec:
 
     def command(self):
         
-        all_tokens =  tokenize( self.raw   ) 
+        all_tokens =  self.kamikaze()
         
         return all_tokens[0]
 
     def args(self):
         
-        all_tokens =  tokenize( self.raw   ) 
+        all_tokens =  self.kamikaze()
         
         return all_tokens[1:]
+    
+    def redirect_stdout(self):
+        for index, t in enumerate( tokenize(self.raw) ):
+            if t == "1>" or t == ">":
+                return tokenize(self.raw)[index+1] 
+            
+        return None
+            
+    def kamikaze(self):
+        
+        result = []
+        
+        index = 0
+        while index < len( tokenize(self.raw) ):
+            cur = tokenize(self.raw)[index]
+            if cur == "1>" or cur == ">":
+                index += 2
+                
+            else:
+                result.append( cur )
+                index += 1
+                                
+        return result
+
+
        
     
 
@@ -173,9 +198,9 @@ class CommandInvoc(ABC):
         return self.in_pipe() or self._new_proc_in_standalone()
     
     def _file_descriptors(self):
-        if self._redirect_to:
+        if self._spec.redirect_stdout():
             next_in_fd = None
-            out_fd = os.open(self._redirect_to, os.O_RDWR | os.O_CREAT)
+            out_fd = os.open(self._spec.redirect_stdout(), os.O_RDWR | os.O_CREAT)
 
         elif not self.last_invoc():
             next_in_fd, out_fd = os.pipe()
