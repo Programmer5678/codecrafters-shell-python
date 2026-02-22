@@ -39,7 +39,7 @@ class Line:
                 return CommandInvoc.resolve_subclass(
                                             CommandInvocArgs(
                                                 CommandInvocSpec( raw_invoc ),
-                                                LinePosition( last_invoc, in_pipe ),
+                                                LinePosition( in_pipe, last_invoc ),
                                                 shell_context,
                                                 redirect_to
                                             )
@@ -48,6 +48,7 @@ class Line:
             in_pipe = len( raw_invocs) > 1
             last_invoc = (index == len( raw_invocs ) - 1)
             redirect_to = self.redirect_part() if last_invoc else None # If not last invoc, we dont redirect the stdout anywhere
+            
             result.append(create_invoc(raw_invoc, in_pipe, last_invoc, shell_context, redirect_to))
 
         return result

@@ -7,7 +7,12 @@ def err_not_found(command):
 class NotFoundCommandInvoc (CommandInvoc):
     
     def _run_in_child(self, in_fd, out_fd):
-        raise Exception("Method rejected. Refactor!")
+        err_not_found(
+            self.spec().command()
+        )
+        
+        yield PipelineResult.no_pipeline()
+        
     
     def _new_proc_in_standalone(self):
         raise Exception("Method rejected. Refactor!")

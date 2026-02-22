@@ -65,7 +65,7 @@ class CommandInvocSpec:
 @dataclass
 class CommandInvocArgs:
     spec : CommandInvocSpec
-    position : LinePosition
+    position : Any
     shell_context: Any
     redirect_to: str
 
@@ -77,9 +77,11 @@ STDOUT = 1
 
 class LinePosition:
     
-    def __init__ (self, last_invoc, in_pipe):
-        self._last_invoc = last_invoc
+    def __init__ (self, in_pipe, last_invoc):
+        
+        self._last_invoc =  last_invoc
         self._in_pipe = in_pipe
+        
         
     def in_pipe(self):
         return self._in_pipe
@@ -119,23 +121,30 @@ class CommandInvoc(ABC):
         next_in_fd = None
         wait_func = lambda : None
         
+        
+        
+        
+        if self._redirect_to:
+            next_in_fd = None
+            out_fd = os.open(self._redirect_to, os.O_RDWR | os.O_CREAT)
+
+        elif not self.last_invoc():
+            next_in_fd, out_fd = os.pipe()
+            
+        else:
+            next_in_fd = None
+            out_fd = STDOUT
+
+
+            
+            
+            
+            
         if self.in_pipe() or self._new_proc_in_standalone() :
             
             """Set up the pipe, spawn child, and return a PipelineResult."""
             
-            out_fd = STDOUT
-            
-            if not self.last_invoc():
-                p = os.pipe()
-                out_fd = p[1]
-                next_in_fd = p[0]
-            
-            if self._redirect_to:
-                out_fd = os.open(self._redirect_to, os.O_RDWR | os.O_CREAT)
-            
-            #File descriptors certain here !
-            
-            
+
             child_pid = os.fork()
             if child_pid == 0:
                 
@@ -147,15 +156,6 @@ class CommandInvoc(ABC):
             wait_func = lambda: os.waitpid(child_pid, 0)
                         
         else:
-        
-
-            out_fd = STDOUT
-            if self._redirect_to:
-                out_fd = os.open(self._redirect_to, os.O_RDWR | os.O_CREAT)
-                        
-            #File descriptors certain here !
-            
-            
                         
             stdout = os.dup(STDOUT)
             os.dup2(out_fd, STDOUT)
