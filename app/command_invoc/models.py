@@ -227,21 +227,52 @@ class CommandInvoc(ABC):
     @contextmanager         
     def _error_fd_setup(self):
         
-        if not self.spec().redirect_stderr(): 
-            yield
-        
-        else:
-        
-            try:
-                f = os.open(self.spec().redirect_stderr() , os.O_WRONLY | os.O_CREAT )
+        @contextmanager
+        def redirect_stderr_fd(err_file):
+            
+            STDERR = 2
+            
+            def new_fd(file):
+                return os.open(file, os.O_WRONLY | os.O_CREAT )
+            
+            def cur_stderr():
+                return os.dup(STDERR)
                 
-                save_stderr = os.dup(2)
-                os.dup2( f , 2 )
+            def send_err_to_fd(fd):
+                os.dup2( fd , STDERR )
+                
+            def reset_err_to_stderr(save_stderr):
+                os.dup2( save_stderr, STDERR) 
+                
+            def close_fds(error_fd, save_stderr):
+                os.close(error_fd)
+                os.close(save_stderr)
+                
+            try:
+                error_fd = new_fd(err_file)
+                save_stderr = cur_stderr()
+                send_err_to_fd(error_fd)
                 
                 yield
                 
             finally:
-                os.dup2( save_stderr, 2)        
+                reset_err_to_stderr(save_stderr)
+                close_fds(error_fd, save_stderr)
+                
+                
+            
+        err_file = self.spec().redirect_stderr()
+        if not err_file: 
+            yield
+        
+        else:
+            with redirect_stderr_fd( err_file ) :
+                yield
+    
+    
+    
+    
+    
     
     def _in_new_proc(self):
         return self.in_pipe() or self._new_proc_in_standalone()
@@ -251,10 +282,10 @@ class CommandInvoc(ABC):
             next_in_fd = None
             out_fd = os.open(self._spec.redirect_stdout(), os.O_RDWR | os.O_CREAT)
 
-        elif not self.last_invoc():
+        elif not self.last_invoc(): #not last invocation -  we need a pipe
             next_in_fd, out_fd = os.pipe()
             
-        else:
+        else: # default values - no next input, output to stdout
             next_in_fd = None
             out_fd = STDOUT
             
