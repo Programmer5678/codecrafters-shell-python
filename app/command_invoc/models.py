@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 from dataclasses import dataclass
 import itertools
 import os
@@ -196,20 +197,9 @@ class CommandInvoc(ABC):
     
     def _run_in_child(self, in_fd, out_fd):
         
-        if self.spec().redirect_stderr():
-            
-            f = os.open(self.spec().redirect_stderr() , os.O_WRONLY | os.O_CREAT )
-            
-            save_stderr = os.dup(2)
-            os.dup2( f , 2 )
-        
-        with self.child_fd_setup(in_fd, out_fd):
-            self.run_core()
-           
-        if self.spec().redirect_stderr(): 
-            os.dup2( save_stderr, 2)
-                
-                
+        with self._error_fd_setup():
+            with self.child_fd_setup(in_fd, out_fd):
+                self.run_core()                
             
     def _run_in_parent(self, in_fd, out_fd):
         
@@ -222,26 +212,36 @@ class CommandInvoc(ABC):
         def reset_output_to_stdout(save_stdout):
             os.dup2(save_stdout, STDOUT)
         
+        with self._error_fd_setup():
         
+            try:
+                save_stdout = cur_stdout() 
+                set_output_to_fd(out_fd) 
+                
+                self.run_core()
+            
+            finally:   
+                reset_output_to_stdout(save_stdout)
+                    
+                
+    @contextmanager         
+    def _error_fd_setup(self):
         
-        if self.spec().redirect_stderr():
-            
-            f = os.open(self.spec().redirect_stderr() , os.O_WRONLY | os.O_CREAT )
-            
-            save_stderr = os.dup(2)
-            os.dup2( f , 2 )
+        if not self.spec().redirect_stderr(): 
+            yield
         
-        try:
-            save_stdout = cur_stdout() 
-            set_output_to_fd(out_fd) 
-            
-            self.run_core()
-           
-        finally:   
-            reset_output_to_stdout(save_stdout)
-            
-            if self.spec().redirect_stderr(): 
-                os.dup2( save_stderr, 2)
+        else:
+        
+            try:
+                f = os.open(self.spec().redirect_stderr() , os.O_WRONLY | os.O_CREAT )
+                
+                save_stderr = os.dup(2)
+                os.dup2( f , 2 )
+                
+                yield
+                
+            finally:
+                os.dup2( save_stderr, 2)        
     
     def _in_new_proc(self):
         return self.in_pipe() or self._new_proc_in_standalone()
