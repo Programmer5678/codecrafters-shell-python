@@ -34,45 +34,42 @@ class PipelineResult:
 class CommandInvocSpec:
 
     def __init__( self, raw ):
+        
+        def partition_redirects(tokens):
+            
+            main = []
+            redirect_stdout = None
+            
+            index = 0
+            while index < len( tokens ):
+                cur = tokens[index]
+                if cur == "1>" or cur == ">":
+                    redirect_stdout = tokens[index + 1]
+                    index += 2
+                    
+                else:
+                    main.append( cur )
+                    index += 1
+                                    
+            return main, redirect_stdout
+            
         self.raw = raw
+        self._tokens = tokenize(self.raw)
+        self._main_part , self._redirect_stdout = partition_redirects(self._tokens) 
 
     def __repr__(self):
         return self.raw
 
     def command(self):
         
-        all_tokens =  self.kamikaze()
-        
-        return all_tokens[0]
+        return self._main_part[0]
 
     def args(self):
-        
-        all_tokens =  self.kamikaze()
-        
-        return all_tokens[1:]
+                
+        return self._main_part[1:]
     
     def redirect_stdout(self):
-        for index, t in enumerate( tokenize(self.raw) ):
-            if t == "1>" or t == ">":
-                return tokenize(self.raw)[index+1] 
-            
-        return None
-            
-    def kamikaze(self):
-        
-        result = []
-        
-        index = 0
-        while index < len( tokenize(self.raw) ):
-            cur = tokenize(self.raw)[index]
-            if cur == "1>" or cur == ">":
-                index += 2
-                
-            else:
-                result.append( cur )
-                index += 1
-                                
-        return result
+        return self._redirect_stdout
 
 
        
