@@ -39,6 +39,7 @@ class CommandInvocSpec:
             
             main = []
             redirect_stdout = None
+            redirect_stderr = None
             
             index = 0
             while index < len( tokens ):
@@ -47,13 +48,22 @@ class CommandInvocSpec:
                 def is_stdout_redirect(c):
                     return c == "1>" or c == ">"
                 
+                def is_stderr_redirect(c):
+                    return c == "2>"
+                
+                def skip_redirect_loop():
+                    nonlocal index
+                    index += 2
+                
                 if is_stdout_redirect(cur):
                     next_token = tokens[index + 1]
                     redirect_stdout = next_token
                     
-                    def skip_redirect_loop():
-                        nonlocal index
-                        index += 2
+                    skip_redirect_loop()
+                    
+                elif is_stderr_redirect(cur):
+                    next_token = tokens[index + 1]
+                    redirect_stderr = next_token
                     
                     skip_redirect_loop()
                     
@@ -66,11 +76,13 @@ class CommandInvocSpec:
                         
                     advance_loop()
                                     
-            return main, redirect_stdout
+            return main, redirect_stdout, redirect_stderr
             
         self.raw = raw
         self._tokens = tokenize(self.raw)
-        self._main_part , self._redirect_stdout = partition_redirects(self._tokens) 
+        self._main_part , self._redirect_stdout, self._redirect_stderr = partition_redirects(self._tokens) 
+
+            
 
     def __repr__(self):
         return self.raw
@@ -85,6 +97,9 @@ class CommandInvocSpec:
     
     def redirect_stdout(self):
         return self._redirect_stdout
+    
+    def redirect_stderr(self):
+        return self._redirect_stderr
 
 
        
@@ -130,7 +145,6 @@ class CommandInvoc(ABC):
 
     def __init__( self, args: CommandInvocArgs):
         self._spec = args.spec
-        
         self.position = args.position
         
         self._shell_context = copy.deepcopy(args.shell_context)
@@ -154,7 +168,7 @@ class CommandInvoc(ABC):
     def run(self, in_fd):
         
         next_in_fd , out_fd = self._file_descriptors()
-        
+            
             
         if self._in_new_proc(): 
             
@@ -181,8 +195,21 @@ class CommandInvoc(ABC):
         return PipelineResult(next_in_fd, wait_child_close)
     
     def _run_in_child(self, in_fd, out_fd):
+        
+        if self.spec().redirect_stderr():
+            
+            f = os.open(self.spec().redirect_stderr() , os.O_WRONLY | os.O_CREAT )
+            
+            save_stderr = os.dup(2)
+            os.dup2( f , 2 )
+        
         with self.child_fd_setup(in_fd, out_fd):
             self.run_core()
+           
+        if self.spec().redirect_stderr(): 
+            os.dup2( save_stderr, 2)
+                
+                
             
     def _run_in_parent(self, in_fd, out_fd):
         
@@ -195,6 +222,15 @@ class CommandInvoc(ABC):
         def reset_output_to_stdout(save_stdout):
             os.dup2(save_stdout, STDOUT)
         
+        
+        
+        if self.spec().redirect_stderr():
+            
+            f = os.open(self.spec().redirect_stderr() , os.O_WRONLY | os.O_CREAT )
+            
+            save_stderr = os.dup(2)
+            os.dup2( f , 2 )
+        
         try:
             save_stdout = cur_stdout() 
             set_output_to_fd(out_fd) 
@@ -203,6 +239,9 @@ class CommandInvoc(ABC):
            
         finally:   
             reset_output_to_stdout(save_stdout)
+            
+            if self.spec().redirect_stderr(): 
+                os.dup2( save_stderr, 2)
     
     def _in_new_proc(self):
         return self.in_pipe() or self._new_proc_in_standalone()
