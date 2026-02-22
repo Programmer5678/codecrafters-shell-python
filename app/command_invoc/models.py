@@ -118,12 +118,61 @@ class CommandInvoc(ABC):
 
     def run(self, in_fd):
         
-        next_in_fd = None
-        wait_func = lambda : None
+        next_in_fd , out_fd = self._file_descriptors()
         
+            
+        if self._in_new_proc(): #If need 
+            
+            """Set up the pipe, spawn child, and return a PipelineResult."""
+            
+            child_pid = os.fork()
+            in_child_proc = (child_pid == 0)
+            if in_child_proc: # if child
+                #Run in child
+                self._run_in_child(in_fd, out_fd)
+                
+            else:
+            
+                self._parent_close_fds(out_fd, in_fd)
+                wait_child_close = lambda: os.waitpid(child_pid, 0) # Wait func - wait for child to close
+                        
+        else:
+                        
+            self._run_in_parent(in_fd, out_fd)
+            
+            nothing_func = lambda : None
+            wait_child_close = nothing_func
+
+        return PipelineResult(next_in_fd, wait_child_close)
+    
+    def _run_in_child(self, in_fd, out_fd):
+        with self.child_fd_setup(in_fd, out_fd):
+            self.run_core()
+            
+    def _run_in_parent(self, in_fd, out_fd):
         
+        def cur_stdout():
+            return os.dup(STDOUT)
         
+        def set_output_to_fd(out_fd):
+            os.dup2(out_fd, STDOUT)
         
+        def reset_output_to_stdout(save_stdout):
+            os.dup2(save_stdout, STDOUT)
+        
+        try:
+            save_stdout = cur_stdout() 
+            set_output_to_fd(out_fd) 
+            
+            self.run_core()
+           
+        finally:   
+            reset_output_to_stdout(save_stdout)
+    
+    def _in_new_proc(self):
+        return self.in_pipe() or self._new_proc_in_standalone()
+    
+    def _file_descriptors(self):
         if self._redirect_to:
             next_in_fd = None
             out_fd = os.open(self._redirect_to, os.O_RDWR | os.O_CREAT)
@@ -134,41 +183,8 @@ class CommandInvoc(ABC):
         else:
             next_in_fd = None
             out_fd = STDOUT
-
-
             
-            
-            
-            
-        if self.in_pipe() or self._new_proc_in_standalone() :
-            
-            """Set up the pipe, spawn child, and return a PipelineResult."""
-            
-
-            child_pid = os.fork()
-            if child_pid == 0:
-                
-                with self.child_fd_setup(in_fd, out_fd):
-                    self.run_core()
-            
-            self._parent_close_fds(out_fd, in_fd)
-            
-            wait_func = lambda: os.waitpid(child_pid, 0)
-                        
-        else:
-                        
-            stdout = os.dup(STDOUT)
-            os.dup2(out_fd, STDOUT)
-            
-            self.run_core()
-            
-            os.dup2(stdout, STDOUT)
-
-        return PipelineResult(next_in_fd, wait_func)
-    
-    
-        
-    
+        return next_in_fd, out_fd
     
     
     
