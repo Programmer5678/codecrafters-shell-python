@@ -41,13 +41,7 @@ class RedirectTarget:
     def __init__(self, file : str, mode : RedirectMode):
         self.file = file
         self.mode = mode
-        
-    def old_form(self):
-        return self.file
-        
-    def to_append(self):
-        return self.mode == RedirectMode.APPEND
-            
+
         
 
 
@@ -126,18 +120,13 @@ class CommandInvocSpec:
                         
                     advance_loop()
                     
-            rt = RedirectTarget( redirect_stdout , RedirectMode.APPEND if append_stdout else RedirectMode.WRITE )
-                                    
-            return main, rt.old_form(), rt.to_append(), redirect_stderr, append_stderr
+            rt_stdout = RedirectTarget( redirect_stdout , RedirectMode.APPEND if append_stdout else RedirectMode.WRITE )
+            return main, rt_stdout, redirect_stderr, append_stderr
             
         self.raw = raw
         self._tokens = tokenize(self.raw)
-        self._main_part , self._redirect_stdout, self._append_stdout, self._redirect_stderr, self._append_stderr = partition_redirects(self._tokens) 
-        
-        # if self._append_stderr:
-        #     print("APPEND ", self._append_stderr)
-
-            
+        self._main_part , self._rt_stdout, self._redirect_stderr, self._append_stderr = partition_redirects(self._tokens) 
+                    
 
     def __repr__(self):
         return self.raw
@@ -151,13 +140,13 @@ class CommandInvocSpec:
         return self._main_part[1:]
     
     def redirect_stdout(self):
-        return self._redirect_stdout
+        return self._rt_stdout.file
     
     def redirect_stderr(self):
         return self._redirect_stderr
     
     def append_stdout(self):
-        return self._append_stdout
+        return self._rt_stdout.mode == RedirectMode.APPEND
 
     def append_stderr(self):
         return self._append_stderr
