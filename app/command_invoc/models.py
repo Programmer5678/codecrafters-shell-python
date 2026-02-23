@@ -120,13 +120,14 @@ class CommandInvocSpec:
                         
                     advance_loop()
                     
-            rt_stdout = RedirectTarget( redirect_stdout , RedirectMode.APPEND if append_stdout else RedirectMode.WRITE )
-            rt_stderr = RedirectTarget( redirect_stderr , RedirectMode.APPEND if append_stderr else RedirectMode.WRITE )
+            rt_stdout = RedirectTarget( redirect_stdout , RedirectMode.APPEND if append_stdout else RedirectMode.WRITE ) if redirect_stdout else None
+            rt_stderr = RedirectTarget( redirect_stderr , RedirectMode.APPEND if append_stderr else RedirectMode.WRITE ) if redirect_stderr else None
+            
             return main, rt_stdout, rt_stderr
             
         self.raw = raw
         self._tokens = tokenize(self.raw)
-        self._main_part , self._rt_stdout, self.rt_stderr = partition_redirects(self._tokens) 
+        self._main_part , self.rt_stdout, self.rt_stderr = partition_redirects(self._tokens) 
                     
 
     def __repr__(self):
@@ -141,18 +142,18 @@ class CommandInvocSpec:
         return self._main_part[1:]
     
     def redirect_stdout(self):
-        return self._rt_stdout.file
+        return self.rt_stdout.file
     
     def redirect_stderr(self):
         return self.rt_stderr.file
     
     def append_stdout(self):
-        return self._rt_stdout.mode == RedirectMode.APPEND
+        return self.rt_stdout.mode == RedirectMode.APPEND
 
     def append_stderr(self):
         return self.rt_stderr.mode == RedirectMode.APPEND
 
-       
+
     
 
 
@@ -277,7 +278,7 @@ class CommandInvoc(ABC):
     def _error_fd_setup(self):
         
         @contextmanager
-        def redirect_stderr_fd(err_file, to_append):
+        def redirect_stderr_to_fd(err_file, to_append):
             
             STDERR = 2
             
@@ -313,13 +314,16 @@ class CommandInvoc(ABC):
                 
                 
             
-        err_file = self.spec().redirect_stderr()
-        to_append = self.spec().append_stderr()
-        if not err_file: 
+        
+        if not self.spec().rt_stderr: 
             yield
         
         else:
-            with redirect_stderr_fd( err_file, to_append ) :
+            
+            err_file = self.spec().redirect_stderr()
+            to_append = self.spec().append_stderr()
+            
+            with redirect_stderr_to_fd( err_file, to_append ) :
                 yield
     
     
@@ -328,10 +332,11 @@ class CommandInvoc(ABC):
     
     def _file_descriptors(self):
         
-        out_file = self.spec().redirect_stdout()
-        to_append = self.spec().append_stdout()
-        
-        if out_file:
+        if self.spec().rt_stdout:
+            
+            out_file = self.spec().redirect_stdout()
+            to_append = self.spec().append_stdout()
+            
             next_in_fd = None
             
             if to_append:
