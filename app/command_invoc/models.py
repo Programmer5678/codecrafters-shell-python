@@ -52,8 +52,7 @@ class CommandInvocSpec:
         def partition_redirects(tokens):
             
             main = []
-            redirect_stdout = None
-            append_stdout = False
+
             
             rt_stdout = None
             
@@ -99,13 +98,11 @@ class CommandInvocSpec:
                     return c == "2>>"
                 
                 if is_stdout_redirect(cur):
-                    redirect_stdout = stdout_redirect_action()
+                    rt_stdout = RedirectTarget( stdout_redirect_action() , RedirectMode.WRITE)
                     
                 elif is_stdout_append(cur):
-                    redirect_stdout = stdout_redirect_action()
-                    append_stdout = True
-                    
-                                        
+                    rt_stdout = RedirectTarget( stdout_redirect_action() , RedirectMode.APPEND)
+             
                 elif is_stderr_redirect(cur):
                     redirect_stderr = stderr_redirect_action()
                     
@@ -122,7 +119,6 @@ class CommandInvocSpec:
                         
                     advance_loop()
                     
-            rt_stdout = RedirectTarget( redirect_stdout , RedirectMode.APPEND if append_stdout else RedirectMode.WRITE ) if redirect_stdout else None
             rt_stderr = RedirectTarget( redirect_stderr , RedirectMode.APPEND if append_stderr else RedirectMode.WRITE ) if redirect_stderr else None
             
             return main, rt_stdout, rt_stderr
