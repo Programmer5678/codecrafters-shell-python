@@ -199,6 +199,7 @@ class CommandInvoc(ABC):
     def run(self, in_fd):
         
         next_in_fd , out_fd = self._file_descriptors()
+        err_fd = self._error_fd()
             
             
         if self._in_new_proc(): 
@@ -209,7 +210,7 @@ class CommandInvoc(ABC):
             in_child_proc = (child_pid == 0)
             if in_child_proc: # if child
                 #Run in child
-                self._run_in_child(in_fd, out_fd)
+                self._run_in_child(in_fd, out_fd, err_fd)
                 
             else:
             
@@ -218,20 +219,20 @@ class CommandInvoc(ABC):
                         
         else:
                         
-            self._run_in_parent(in_fd, out_fd)
+            self._run_in_parent(in_fd, out_fd, err_fd)
             
             nothing_func = lambda : None
             wait_child_close = nothing_func
 
         return PipelineResult(next_in_fd, wait_child_close)
     
-    def _run_in_child(self, in_fd, out_fd):
+    def _run_in_child(self, in_fd, out_fd, err_fd):
         
-        with self._error_fd_setup():
+        with self._error_fd_setup(err_fd):
             with self.child_fd_setup(in_fd, out_fd):
                 self.run_core()                
             
-    def _run_in_parent(self, in_fd, out_fd):
+    def _run_in_parent(self, in_fd, out_fd, err_fd):
         
         def cur_stdout():
             return os.dup(STDOUT)
@@ -242,7 +243,7 @@ class CommandInvoc(ABC):
         def reset_output_to_stdout(save_stdout):
             os.dup2(save_stdout, STDOUT)
         
-        with self._error_fd_setup():
+        with self._error_fd_setup(err_fd):
         
             try:
                 save_stdout = cur_stdout() 
@@ -272,7 +273,7 @@ class CommandInvoc(ABC):
             return STDERR
         
     @contextmanager         
-    def _error_fd_setup2(self, fd):
+    def _error_fd_setup(self, fd):
         
         STDERR = 2
         
@@ -304,13 +305,7 @@ class CommandInvoc(ABC):
                 reset_err_to_stderr(save_stderr)
                 close_fds(fd, save_stderr)
              
-                
-    @contextmanager         
-    def _error_fd_setup(self):
-        
-        fd = self._error_fd()
-        with self._error_fd_setup2(fd):
-            yield
+            
     
     
     def _in_new_proc(self):
