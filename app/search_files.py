@@ -35,6 +35,15 @@ def all_files(dir_paths):
     return result
 
 
+def all_execs(dir_paths):
+    return [ f.file() for f in all_files(dir_paths) if os.access(f.full_path(), os.X_OK) ]
+
+def all_execs_in_path():
+    path_dirs = os.environ.get("PATH", "").split(":")
+    return all_execs(path_dirs)
+
+
+
 def find_exec(dir_paths, looking_for):
     """Find an executable File with the given name in the directories."""
     for f in all_files(dir_paths):
