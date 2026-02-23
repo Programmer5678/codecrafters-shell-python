@@ -54,6 +54,9 @@ class CommandInvocSpec:
             main = []
             redirect_stdout = None
             append_stdout = False
+            
+            rt_stdout = None
+            
             redirect_stderr = None
             append_stderr = False
             
@@ -72,23 +75,22 @@ class CommandInvocSpec:
                     return c == "1>>" or c == ">>"
                 
                 def stdout_redirect_action():
-                    nonlocal redirect_stdout
+                    
                     nonlocal tokens
                     nonlocal index
                     
                     next_token = tokens[index + 1]
-                    redirect_stdout = next_token
                     skip_redirect_iter()
+                    return next_token
                     
                 def stderr_redirect_action():
                     
-                    nonlocal redirect_stderr
                     nonlocal tokens
                     nonlocal index
                     
                     next_token = tokens[index + 1]
-                    redirect_stderr = next_token
                     skip_redirect_iter()
+                    return next_token
                 
                 def is_stderr_redirect(c):
                     return c == "2>"
@@ -97,18 +99,18 @@ class CommandInvocSpec:
                     return c == "2>>"
                 
                 if is_stdout_redirect(cur):
-                    stdout_redirect_action()
+                    redirect_stdout = stdout_redirect_action()
                     
                 elif is_stdout_append(cur):
-                    stdout_redirect_action()
+                    redirect_stdout = stdout_redirect_action()
                     append_stdout = True
                     
                                         
                 elif is_stderr_redirect(cur):
-                    stderr_redirect_action()
+                    redirect_stderr = stderr_redirect_action()
                     
                 elif is_stderr_append(cur):
-                    stderr_redirect_action()
+                    redirect_stderr = stderr_redirect_action()
                     append_stderr = True
                     
                 else:
