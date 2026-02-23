@@ -15,7 +15,7 @@ def completer(text: str, state: int) -> str:
     if not_first_match():
         return None
     
-    matching_commands = [ com for com in BuiltinCommandInvoc.commands().keys() if com.startswith(text) ]  
+    matching_commands = [ com + " " for com in BuiltinCommandInvoc.commands().keys() if com.startswith(text) ]  
 
     if multiple_matches_exist():
         return None
