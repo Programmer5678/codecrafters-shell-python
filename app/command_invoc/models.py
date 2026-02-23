@@ -53,11 +53,8 @@ class CommandInvocSpec:
             
             main = []
 
-            
             rt_stdout = None
-            
-            redirect_stderr = None
-            append_stderr = False
+            rt_stderr = None
             
             index = 0
             while index < len( tokens ):
@@ -104,11 +101,10 @@ class CommandInvocSpec:
                     rt_stdout = RedirectTarget( stdout_redirect_action() , RedirectMode.APPEND)
              
                 elif is_stderr_redirect(cur):
-                    redirect_stderr = stderr_redirect_action()
+                    rt_stderr = RedirectTarget( stderr_redirect_action() , RedirectMode.WRITE)
                     
                 elif is_stderr_append(cur):
-                    redirect_stderr = stderr_redirect_action()
-                    append_stderr = True
+                    rt_stderr = RedirectTarget( stderr_redirect_action() , RedirectMode.APPEND)
                     
                 else:
                     main.append( cur )
@@ -118,9 +114,7 @@ class CommandInvocSpec:
                         index += 1
                         
                     advance_loop()
-                    
-            rt_stderr = RedirectTarget( redirect_stderr , RedirectMode.APPEND if append_stderr else RedirectMode.WRITE ) if redirect_stderr else None
-            
+                                
             return main, rt_stdout, rt_stderr
             
         self.raw = raw
