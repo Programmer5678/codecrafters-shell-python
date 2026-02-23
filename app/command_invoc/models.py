@@ -253,56 +253,64 @@ class CommandInvoc(ABC):
             finally:   
                 reset_output_to_stdout(save_stdout)
                     
-                
-    @contextmanager         
-    def _error_fd_setup(self):
+       
+    def _error_fd(self):
         
-        @contextmanager
-        def redirect_stderr_to_fd(target):
+        STDERR = 2
+    
+        if self.spec().rt_stderr:
             
+            mode = self.spec().rt_stderr.mode
+            file = self.spec().rt_stderr.file
+
+            if mode == RedirectMode.APPEND:
+                return open_append(file)
+            elif mode == RedirectMode.WRITE:
+                return open_write(file)
             
-            STDERR = 2
+        else:
+            return STDERR
+        
+    @contextmanager         
+    def _error_fd_setup2(self, fd):
+        
+        STDERR = 2
+        
+        def cur_stderr():
+            return os.dup(STDERR)
             
-            def new_fd(file, modee):
-                if modee == RedirectMode.APPEND:
-                    return open_append(file)
-                elif modee == RedirectMode.WRITE:
-                    return open_write(file)
+        def send_err_to_fd(fd):
+            os.dup2( fd , STDERR )
             
-            def cur_stderr():
-                return os.dup(STDERR)
+        def reset_err_to_stderr(save_stderr):
+            os.dup2( save_stderr, STDERR) 
+            
+        def close_fds(error_fd, save_stderr):
+            os.close(error_fd)
+            os.close(save_stderr)
                 
-            def send_err_to_fd(fd):
-                os.dup2( fd , STDERR )
-                
-            def reset_err_to_stderr(save_stderr):
-                os.dup2( save_stderr, STDERR) 
-                
-            def close_fds(error_fd, save_stderr):
-                os.close(error_fd)
-                os.close(save_stderr)
-                
+        if fd == STDERR:
+            yield
+            
+        else:
+        
             try:
-                error_fd = new_fd(target.file, target.mode)
                 save_stderr = cur_stderr()
-                send_err_to_fd(error_fd)
+                send_err_to_fd(fd)
                 
                 yield
                 
             finally:
                 reset_err_to_stderr(save_stderr)
-                close_fds(error_fd, save_stderr)
+                close_fds(fd, save_stderr)
+             
                 
-                
-            
+    @contextmanager         
+    def _error_fd_setup(self):
         
-        if not self.spec().rt_stderr: 
+        fd = self._error_fd()
+        with self._error_fd_setup2(fd):
             yield
-        
-        else:
-            
-            with redirect_stderr_to_fd( self.spec().rt_stderr ) :
-                yield
     
     
     def _in_new_proc(self):
