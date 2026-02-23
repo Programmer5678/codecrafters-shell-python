@@ -266,7 +266,8 @@ class CommandInvoc(ABC):
     def _error_fd_setup(self):
         
         @contextmanager
-        def redirect_stderr_to_fd(err_file, mode):
+        def redirect_stderr_to_fd(target):
+            
             
             STDERR = 2
             
@@ -290,7 +291,7 @@ class CommandInvoc(ABC):
                 os.close(save_stderr)
                 
             try:
-                error_fd = new_fd(err_file, mode)
+                error_fd = new_fd(target.file, target.mode)
                 save_stderr = cur_stderr()
                 send_err_to_fd(error_fd)
                 
@@ -308,10 +309,7 @@ class CommandInvoc(ABC):
         
         else:
             
-            err_file = self.spec().rt_stderr.file
-            mode = self.spec().rt_stderr.mode
-            
-            with redirect_stderr_to_fd( err_file, mode ) :
+            with redirect_stderr_to_fd( self.spec().rt_stderr ) :
                 yield
     
     
