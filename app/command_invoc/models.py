@@ -141,12 +141,6 @@ class CommandInvocSpec:
                 
         return self._main_part[1:]
     
-    def append_stdout(self):
-        return self.rt_stdout.mode == RedirectMode.APPEND
-
-    def append_stderr(self):
-        return self.rt_stderr.mode == RedirectMode.APPEND
-
 
     
 
@@ -272,14 +266,14 @@ class CommandInvoc(ABC):
     def _error_fd_setup(self):
         
         @contextmanager
-        def redirect_stderr_to_fd(err_file, to_append):
+        def redirect_stderr_to_fd(err_file, mode):
             
             STDERR = 2
             
-            def new_fd(file, to_app):
-                if to_app:
+            def new_fd(file, modee):
+                if modee == RedirectMode.APPEND:
                     return open_append(file)
-                else:
+                elif modee == RedirectMode.WRITE:
                     return open_write(file)
             
             def cur_stderr():
@@ -296,7 +290,7 @@ class CommandInvoc(ABC):
                 os.close(save_stderr)
                 
             try:
-                error_fd = new_fd(err_file, to_append)
+                error_fd = new_fd(err_file, mode)
                 save_stderr = cur_stderr()
                 send_err_to_fd(error_fd)
                 
@@ -315,9 +309,9 @@ class CommandInvoc(ABC):
         else:
             
             err_file = self.spec().rt_stderr.file
-            to_append = self.spec().append_stderr()
+            mode = self.spec().rt_stderr.mode
             
-            with redirect_stderr_to_fd( err_file, to_append ) :
+            with redirect_stderr_to_fd( err_file, mode ) :
                 yield
     
     
@@ -329,14 +323,14 @@ class CommandInvoc(ABC):
         if self.spec().rt_stdout:
             
             out_file = self.spec().rt_stdout.file
-            to_append = self.spec().append_stdout()
+            mode = self.spec().rt_stdout.mode
             
             next_in_fd = None
             
-            if to_append:
+            if mode == RedirectMode.APPEND:
                 out_fd = open_append( out_file )
             
-            else:     
+            elif mode == RedirectMode.WRITE:     
                 out_fd = open_write( out_file )       
 
         elif not self.last_invoc(): #not last invocation -  we need a pipe
