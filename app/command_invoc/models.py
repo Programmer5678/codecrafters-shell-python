@@ -70,7 +70,7 @@ class CommandInvocSpec:
                 def is_stdout_append(c):
                     return c == "1>>" or c == ">>"
                 
-                def stdout_redirect_action():
+                def out_file():
                     
                     nonlocal tokens
                     nonlocal index
@@ -79,7 +79,7 @@ class CommandInvocSpec:
                     skip_redirect_iter()
                     return next_token
                     
-                def stderr_redirect_action():
+                def err_file():
                     
                     nonlocal tokens
                     nonlocal index
@@ -95,16 +95,16 @@ class CommandInvocSpec:
                     return c == "2>>"
                 
                 if is_stdout_redirect(cur):
-                    rt_stdout = RedirectTarget( stdout_redirect_action() , RedirectMode.WRITE)
+                    rt_stdout = RedirectTarget( out_file() , RedirectMode.WRITE)
                     
                 elif is_stdout_append(cur):
-                    rt_stdout = RedirectTarget( stdout_redirect_action() , RedirectMode.APPEND)
+                    rt_stdout = RedirectTarget( out_file() , RedirectMode.APPEND)
              
                 elif is_stderr_redirect(cur):
-                    rt_stderr = RedirectTarget( stderr_redirect_action() , RedirectMode.WRITE)
+                    rt_stderr = RedirectTarget( err_file() , RedirectMode.WRITE)
                     
                 elif is_stderr_append(cur):
-                    rt_stderr = RedirectTarget( stderr_redirect_action() , RedirectMode.APPEND)
+                    rt_stderr = RedirectTarget( err_file() , RedirectMode.APPEND)
                     
                 else:
                     main.append( cur )
