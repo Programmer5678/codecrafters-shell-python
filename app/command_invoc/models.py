@@ -141,12 +141,6 @@ class CommandInvocSpec:
                 
         return self._main_part[1:]
     
-    def redirect_stdout(self):
-        return self.rt_stdout.file
-    
-    def redirect_stderr(self):
-        return self.rt_stderr.file
-    
     def append_stdout(self):
         return self.rt_stdout.mode == RedirectMode.APPEND
 
@@ -320,7 +314,7 @@ class CommandInvoc(ABC):
         
         else:
             
-            err_file = self.spec().redirect_stderr()
+            err_file = self.spec().rt_stderr.file
             to_append = self.spec().append_stderr()
             
             with redirect_stderr_to_fd( err_file, to_append ) :
@@ -334,7 +328,7 @@ class CommandInvoc(ABC):
         
         if self.spec().rt_stdout:
             
-            out_file = self.spec().redirect_stdout()
+            out_file = self.spec().rt_stdout.file
             to_append = self.spec().append_stdout()
             
             next_in_fd = None
