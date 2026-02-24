@@ -5,6 +5,8 @@ from multiprocessing import Process
 import os
 import sys
 
+from app.shell import add_history
+
 class HistoryCommand(BuiltinCommandInvoc):
 
     expected_command = "history"
@@ -49,15 +51,12 @@ class HistoryCommand(BuiltinCommandInvoc):
             else:
             
                 read_res =  self.spec().args()[1]
-                
-                import readline
-                
+                                
                 with open(read_res, "r") as f:
                     lines = [ l.strip() for l in f.readlines()]
                     for line in lines:
                         if line:
-                            self.shell_context().add_line_history( line  )    
-                            readline.add_history( line )
+                            add_history( self.shell_context(), line  )    
         
         else:
             err_too_many_args() 

@@ -19,7 +19,7 @@ from app.command_invoc.subtypes.buitlin.subtypes.pwd import PwdCommand
 from app.command_invoc.subtypes.buitlin.subtypes.type import TypeCommand
 
 from app.command_line import input_lines
-from app.shell import setup_interactive_shell, ShellContext
+from app.shell import add_history, setup_interactive_shell, ShellContext
 from app.search_files import all_execs_in_path
 
 
@@ -70,8 +70,7 @@ def main():
     
     for line in input_lines():
                 
-        shell_context.add_line_history( line.raw )
-        readline.add_history( line.raw )
+        add_history(shell_context, line.raw)
                 
         state = CommandInvocIter()                            
         for command_invoc in line.invocs(shell_context):
