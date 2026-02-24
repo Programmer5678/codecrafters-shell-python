@@ -1,3 +1,5 @@
+from contextlib import contextmanager
+
 from app.command_invoc.models import CommandInvoc, CommandInvocArgs, PipelineResult
 import os
 from abc import abstractmethod
@@ -20,6 +22,7 @@ class BuiltinCommandInvoc(CommandInvoc):
     def _new_proc_in_standalone(self):
         return False
 
+    @contextmanager
     def child_fd_setup(self, in_fd, out_fd):
         """run the child logic, exiting immediately."""
 

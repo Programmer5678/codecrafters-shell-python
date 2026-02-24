@@ -348,8 +348,9 @@ class CommandInvoc(ABC):
         pass
         """The core of the run, without all the process and pipe management"""
     
-    abstractmethod
-    def child_fd_setup(self):
+    @abstractmethod
+    @contextmanager
+    def child_fd_setup(self, in_fd, out_fd):
         pass
     
     

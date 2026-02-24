@@ -13,6 +13,8 @@ class NotFoundCommandInvoc (CommandInvoc):
         
         yield PipelineResult.no_pipeline()
         
+    def child_fd_setup(self, in_fd, out_fd):
+        raise Exception("Method rejected. Refactor!")
     
     def _new_proc_in_standalone(self):
         raise Exception("Method rejected. Refactor!")
