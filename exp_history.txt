@@ -1,0 +1,6 @@
+git commit -m "fix bug"
+python3 script.py
+clear
+cd ..
+nano notes.txt
+sododewk233204383423@@#*$*#(@)$f d| fdkdsfk jwjsj2232092jdmd de

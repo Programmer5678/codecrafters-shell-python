@@ -65,6 +65,7 @@ class CommandInvocIter:
         self.next_stdin = STDIN
         self.proc_waiter = ProcWaiter()
         self.end_cwd = None
+        self.end_history = None
         
         
     def next_state(self, command_invoc):
@@ -77,6 +78,7 @@ class CommandInvocIter:
             
         if command_invoc.last_invoc():
             result.end_cwd = command_invoc.shell_context().cwd() 
+            result.end_history = command_invoc.shell_context().history() 
             
         return result
             
@@ -94,7 +96,7 @@ def main():
     
     for line in input_lines():
                 
-        shell_context.add_line_history(line.raw )
+        shell_context.add_line_history( line.raw )
         readline.add_history( line.raw )
                 
         state = CommandInvocIter()                            
@@ -103,7 +105,10 @@ def main():
                             
         state.proc_waiter.wait_for_all()
         if state.end_cwd:
-            shell_context.setcwd( state.end_cwd )                             
+            shell_context.setcwd( state.end_cwd )    
+        if state.end_history:
+            shell_context._history   = state.end_history
+                                   
             
                 
 if __name__ == "__main__":

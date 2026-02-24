@@ -1,3 +1,4 @@
+
 from app.command_invoc.subtypes.buitlin.builtin import BuiltinCommandInvoc
 
 from multiprocessing import Process
@@ -9,6 +10,27 @@ class HistoryCommand(BuiltinCommandInvoc):
     expected_command = "history"
 
     def run_core(self):
+
+
+        if len(self.spec().args()) == 2:
+            read_flag = self.spec().args()[0]
+            read_res =  self.spec().args()[1]
+            
+            import readline
+            
+            with open(read_res, "r") as f:
+                lines = [ l.strip() for l in f.readlines()]
+                for line in lines:
+                    if line:
+                        self.shell_context().add_line_history( line  )    
+                        readline.add_history( line ) 
+                    
+            return 
+        
+        
+        
+        
+        
 
         def history_line(line_num, line_content):
             return f"\t{line_num+1} {line_content}"
@@ -41,3 +63,10 @@ class HistoryCommand(BuiltinCommandInvoc):
 
         else:
             print_last_n_lines( history_lines, num_lines_arg() )
+        
+        
+        
+                   
+        
+        
+                
