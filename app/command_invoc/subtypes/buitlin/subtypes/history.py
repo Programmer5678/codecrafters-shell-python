@@ -9,33 +9,12 @@ class HistoryCommand(BuiltinCommandInvoc):
 
     expected_command = "history"
 
-    def run_core(self):
-
-
-        if len(self.spec().args()) == 2:
-            read_flag = self.spec().args()[0]
-            read_res =  self.spec().args()[1]
-            
-            import readline
-            
-            with open(read_res, "r") as f:
-                lines = [ l.strip() for l in f.readlines()]
-                for line in lines:
-                    if line:
-                        self.shell_context().add_line_history( line  )    
-                        readline.add_history( line ) 
-                    
-            return 
-        
-        
-        
-        
-        
+    def run_core(self):        
 
         def history_line(line_num, line_content):
             return f"\t{line_num+1} {line_content}"
 
-        def print_all_lines(history_lines, out):
+        def print_all_lines(history_lines):
             os.write( 1,  ("\n".join( history_lines ) + "\n").encode()  )
 
         def print_last_n_lines(history_lines, nl):
@@ -56,13 +35,33 @@ class HistoryCommand(BuiltinCommandInvoc):
         history_lines = [ history_line(line_num, line) for line_num, line in enumerate( self.shell_context().history() ) ]
 
         if no_num_lines_arg():
-            print_all_lines(history_lines, 1)
+            print_all_lines(history_lines)
 
-        elif too_many_args():
-            err_too_many_args()
-
-        else:
+        elif len( self.spec().args() ) == 1:
             print_last_n_lines( history_lines, num_lines_arg() )
+
+        elif len( self.spec().args() ) == 2:
+            
+            read_flag = self.spec().args()[0]
+            if read_flag != "-r":
+                print("history: invalid arg " + read_flag, file=sys.stderr)
+                
+            else:
+            
+                read_res =  self.spec().args()[1]
+                
+                import readline
+                
+                with open(read_res, "r") as f:
+                    lines = [ l.strip() for l in f.readlines()]
+                    for line in lines:
+                        if line:
+                            self.shell_context().add_line_history( line  )    
+                            readline.add_history( line )
+        
+        else:
+            err_too_many_args() 
+            
         
         
         

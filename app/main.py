@@ -85,11 +85,6 @@ class CommandInvocIter:
             
 def main():
     
-    # print(
-    #      [ com + " " for com in list(BuiltinCommandInvoc.commands().keys()) + all_execs_in_path() if com.startswith("ech") ]
-    # )
-    
-    # return
     
     setup_interactive_shell()
     shell_context = ShellContext( os.getcwd() )
