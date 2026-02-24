@@ -24,3 +24,5 @@ def setup_interactive_shell():
     readline.parse_and_bind("tab: complete")
     readline.set_completer(completer)
     readline.set_auto_history(False)
+    
+    

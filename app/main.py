@@ -19,29 +19,8 @@ from app.command_invoc.subtypes.buitlin.subtypes.pwd import PwdCommand
 from app.command_invoc.subtypes.buitlin.subtypes.type import TypeCommand
 
 from app.command_line import input_lines
-from app.interactive_shell import setup_interactive_shell
+from app.shell import setup_interactive_shell, ShellContext
 from app.search_files import all_execs_in_path
-
-
-class ShellContext:
-    
-    def __init__(self, cwd):
-        self._cwd = cwd
-        self._history = []
-        
-    def cwd(self):
-        return self._cwd
-    
-    def history(self):
-        return self._history
-    
-    def setcwd(self, cwd):
-        self._cwd = cwd
-
-    def add_line_history(self, line):
-        self._history.append(line)
-
-
 
 
 class ProcWaiter:
