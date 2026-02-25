@@ -44,3 +44,5 @@ class CdCommand(BuiltinCommandInvoc):
 
         else:
             err_no_such_file_dir()
+            
+        return self.shell_context()

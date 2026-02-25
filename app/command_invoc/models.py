@@ -179,6 +179,7 @@ class CommandInvoc(ABC):
         self.position = args.position
         
         self._shell_context = copy.deepcopy(args.shell_context)
+        self.future_shell_context = None
 
     def spec(self):
         return self._spec
@@ -210,7 +211,7 @@ class CommandInvoc(ABC):
             in_child_proc = (child_pid == 0)
             if in_child_proc: # if child
                 #Run in child
-                self._run_in_child(in_fd, out_fd, err_fd)
+                self._run_in_child(in_fd, out_fd, err_fd) # This runs on copy!!! SMELLY id prefer a seperate runner anyways
                 
             else:
             
@@ -249,7 +250,7 @@ class CommandInvoc(ABC):
                 save_stdout = cur_stdout() 
                 set_output_to_fd(out_fd) 
                 
-                self.run_core()
+                self.future_shell_context = self.run_core()
             
             finally:   
                 reset_output_to_stdout(save_stdout)

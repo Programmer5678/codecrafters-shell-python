@@ -61,6 +61,10 @@ class HistoryCommand(BuiltinCommandInvoc):
         else:
             err_too_many_args() 
             
+            
+        
+        return self.shell_context()
+            
         
         
         
