@@ -6,7 +6,7 @@ import subprocess
 import sys
 from typing import List
 
-from app.command_invoc.models import PipelineResult
+from app.command_invoc.models import InvocOutcome
 from app.command_invoc.subtypes.buitlin.builtin import BuiltinCommandInvoc
 from app.command_invoc.subtypes.exec import ExecCommandInvoc
 from app.command_invoc.subtypes.notfound import NotFoundCommandInvoc
@@ -45,16 +45,14 @@ class CommandInvocIter:
         self.proc_waiter = ProcWaiter()
         self.future_shell_context = None
         
-        
-        
     def next_state(self, command_invoc):
         
         result = copy.deepcopy(self)
         
-        pipeline_res = command_invoc.run(result.next_stdin)
-        result.next_stdin = pipeline_res.next_stdin()
-        result.proc_waiter.add_waiter(  pipeline_res.wait_child_end() ) 
-        result.future_shell_context = command_invoc.future_shell_context
+        invoc_outcome = command_invoc.run(result.next_stdin)
+        result.next_stdin = invoc_outcome.next_stdin()
+        result.proc_waiter.add_waiter(  invoc_outcome.wait_child_end() ) 
+        result.future_shell_context = invoc_outcome.future_shell_context()
             
         return result
             

@@ -1,6 +1,6 @@
 from contextlib import contextmanager
 
-from app.command_invoc.models import CommandInvoc, PipelineResult
+from app.command_invoc.models import CommandInvoc
 import sys
 import os
 

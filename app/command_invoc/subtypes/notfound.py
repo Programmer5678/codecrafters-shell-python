@@ -1,5 +1,5 @@
 import sys
-from app.command_invoc.models import CommandInvoc, PipelineResult
+from app.command_invoc.models import CommandInvoc, InvocOutcome
 
 def err_not_found(command):
     print(f"{command}: command not found", file=sys.stderr) 
@@ -11,7 +11,7 @@ class NotFoundCommandInvoc (CommandInvoc):
             self.spec().command()
         )
         
-        yield PipelineResult.no_pipeline()
+        yield InvocOutcome.no_pipeline()
         
     def child_fd_setup(self, in_fd, out_fd):
         raise Exception("Method rejected. Refactor!")
@@ -27,6 +27,6 @@ class NotFoundCommandInvoc (CommandInvoc):
             self.spec().command()
         )
         
-        return PipelineResult.no_pipeline()
+        return InvocOutcome.no_pipeline()
         
          

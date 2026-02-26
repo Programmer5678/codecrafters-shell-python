@@ -1,6 +1,6 @@
 from contextlib import contextmanager
 
-from app.command_invoc.models import CommandInvoc, CommandInvocArgs, PipelineResult
+from app.command_invoc.models import CommandInvoc, CommandInvocArgs, InvocOutcome
 import os
 from abc import abstractmethod
 

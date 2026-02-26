@@ -12,21 +12,25 @@ from abc import ABC, abstractmethod
 
 
 
-class PipelineResult:
+class InvocOutcome:
 
-    def __init__(self, next_stdin, child_wait):
+    def __init__(self, next_stdin, child_wait, future_shell_context):
         self._next_stdin = next_stdin
         self._child_wait = child_wait
+        self._future_shell_context = future_shell_context
         
     @classmethod
     def no_pipeline(cls):
-        return cls(None, lambda : None) 
+        return cls(None, lambda : None, None) 
         
     def next_stdin(self):
         return self._next_stdin
     
     def wait_child_end(self):
         return self._child_wait
+    
+    def future_shell_context(self):
+        return self._future_shell_context
 
 
 
@@ -201,17 +205,17 @@ class CommandInvoc(ABC):
         
         next_in_fd , out_fd = self._file_descriptors()
         err_fd = self._error_fd()
-            
+        future_shell_context = None
             
         if self._in_new_proc(): 
             
-            """Set up the pipe, spawn child, and return a PipelineResult."""
+            """Set up the pipe, spawn child, and return a InvocOutcome."""
             
             child_pid = os.fork()
             in_child_proc = (child_pid == 0)
             if in_child_proc: # if child
                 #Run in child
-                self._run_in_child(in_fd, out_fd, err_fd) # This runs on copy!!! SMELLY id prefer a seperate runner anyways
+                self._run_in_child(in_fd, out_fd, err_fd) 
                 
             else:
             
@@ -220,12 +224,11 @@ class CommandInvoc(ABC):
                         
         else:
                         
-            self._run_in_parent(in_fd, out_fd, err_fd)
-            
+            future_shell_context = self._run_in_parent(in_fd, out_fd, err_fd).future_shell_context()
             nothing_func = lambda : None
             wait_child_close = nothing_func
 
-        return PipelineResult(next_in_fd, wait_child_close)
+        return InvocOutcome(next_in_fd, wait_child_close, future_shell_context)
     
     def _run_in_child(self, in_fd, out_fd, err_fd):
         
@@ -253,7 +256,7 @@ class CommandInvoc(ABC):
                 
                 runner = self.run_core()
                 runner.start()
-                self.future_shell_context = runner.future_shell_context()
+                return runner
                 
             
             finally:   
