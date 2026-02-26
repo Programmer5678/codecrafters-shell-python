@@ -3,10 +3,13 @@ from app.command_invoc.subtypes.buitlin.builtin import BuiltinCommandInvoc
 from multiprocessing import Process
 import os
 
-class PwdCommand(BuiltinCommandInvoc):
+def runny(spec, shell_context):
+    os.write(1, (shell_context.cwd() + "\n").encode())
+    return shell_context
 
-    expected_command="pwd"
+
+class PwdCommand(BuiltinCommandInvoc):
+    expected_command = "pwd"
 
     def run_core(self):
-        os.write( 1, (self.shell_context().cwd()+"\n").encode() )
-        
+        return runny(self.spec(), self.shell_context())

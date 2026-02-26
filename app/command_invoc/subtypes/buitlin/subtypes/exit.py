@@ -1,10 +1,13 @@
 from app.command_invoc.subtypes.buitlin.builtin import BuiltinCommandInvoc
 import os
 
-class ExitCommand(BuiltinCommandInvoc):
 
+def runny(spec, shell_context):
+    os._exit(0)
+
+
+class ExitCommand(BuiltinCommandInvoc):
     expected_command = "exit"
-        
+
     def run_core(self):
-        os._exit(0)
-        
+        return runny(self.spec(), self.shell_context())

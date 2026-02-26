@@ -5,30 +5,33 @@ from multiprocessing import Process
 import os
 
 
-class TypeCommand(BuiltinCommandInvoc):
+def runny(spec, shell_context):
 
-    expected_command="type"
+    def _print_shell_builtin(com):
+        os.write(1, (com + " is a shell builtin\n").encode())
 
-    def run_core(self ):
+    def _print_exec(com, executable):
+        os.write(1, (com + " is " + executable.full_path() + "\n").encode())
 
-        def _print_shell_builtin(com):
-            os.write( 1, (com + " is a shell builtin"+ "\n").encode() )
+    def _err_not_found(com):
+        os.write(1, (com + ": not found\n").encode())
 
-        def _print_exec(com, executable):
-            os.write( 1, (com + " is " + executable.full_path() + "\n").encode() )
-
-        def _err_not_found(com):
-            os.write( 1,  (com + ": not found" + "\n").encode() )
-
-        # ---- main loop ----
-        for arg in self.spec().args():
-            if BuiltinCommandInvoc.is_builtin(arg):
-                _print_shell_builtin(arg)
+    for arg in spec.args():
+        if BuiltinCommandInvoc.is_builtin(arg):
+            _print_shell_builtin(arg)
+        else:
+            executable = find_in_path(arg)
+            if executable:
+                _print_exec(arg, executable)
             else:
-                executable = find_in_path(arg)
-                if executable:
-                    _print_exec(arg, executable)
-                else:
-                    _err_not_found(arg)
-                    
-    
+                _err_not_found(arg)
+
+    return shell_context
+
+
+class TypeCommand(BuiltinCommandInvoc):
+    expected_command = "type"
+
+    def run_core(self):
+        return runny(self.spec(), self.shell_context())
+
