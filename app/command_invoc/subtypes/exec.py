@@ -8,6 +8,12 @@ import os
 STDIN = 0
 STDOUT = 1 
 
+def runny(spec, shell_context):  
+    return os.execvp(
+            spec.command(),
+            [spec.command(), *spec.args()]
+        )
+
 class ExecCommandInvoc(CommandInvoc):
 
 
@@ -34,11 +40,7 @@ class ExecCommandInvoc(CommandInvoc):
 
         
     def run_core(self):
-        # Replace child process with the target command
-        os.execvp(
-            self.spec().command(),
-            [self.spec().command(), *self.spec().args()]
-        )
+        return runny( self.spec(), self.shell_context() )
         
 
         
