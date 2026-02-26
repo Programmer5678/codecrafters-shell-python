@@ -1,3 +1,4 @@
+from app.command_invoc.models import FutureShellContext
 from app.command_invoc.subtypes.buitlin.builtin import BuiltinCommandInvoc
 import os
 import sys
@@ -42,7 +43,7 @@ def runny(spec, shell_context ):
     else:
         err_no_such_file_dir()
         
-    return shell_context 
+    return FutureShellContext.new( shell_context )
 
 
 class Runner:

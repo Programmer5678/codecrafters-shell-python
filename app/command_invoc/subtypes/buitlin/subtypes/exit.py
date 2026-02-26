@@ -4,6 +4,7 @@ import os
 
 def runny(spec, shell_context):
     os._exit(0)
+    # return FutureShellContext.keep_previous()
 
 class Runner:
     

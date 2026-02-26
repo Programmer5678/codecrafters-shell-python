@@ -9,11 +9,11 @@ STDIN = 0
 STDOUT = 1 
 
 def runny(spec, shell_context):  
-    return os.execvp(
+    os.execvp(
             spec.command(),
             [spec.command(), *spec.args()]
         )
-
+    
 class Runner:
     
     def __init__(self, spec, shell_context):

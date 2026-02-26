@@ -12,6 +12,30 @@ from abc import ABC, abstractmethod
 
 
 
+
+class FutureShellContext:
+
+    def __init__(self, value, keep=False):
+        self._value = value
+        self._keep = keep
+
+    @classmethod
+    def keep_previous(cls):
+        return cls(None, keep=True)
+
+    @classmethod
+    def new(cls, value):
+        return cls(value, keep=False)
+
+    def should_keep_previous(self):
+        return self._keep
+
+    def value(self):
+        return self._value
+
+    
+        
+
 class InvocOutcome:
 
     def __init__(self, next_stdin, child_wait, future_shell_context):
@@ -21,7 +45,7 @@ class InvocOutcome:
         
     @classmethod
     def no_pipeline(cls):
-        return cls(None, lambda : None, None) 
+        return cls(None, lambda : None, FutureShellContext.keep_previous() ) 
         
     def next_stdin(self):
         return self._next_stdin
@@ -161,6 +185,8 @@ STDIN = 0
 STDOUT = 1
 
 
+
+
 class LinePosition:
     
     def __init__ (self, in_pipe, last_invoc):
@@ -205,9 +231,9 @@ class CommandInvoc(ABC):
         
         next_in_fd , out_fd = self._file_descriptors()
         err_fd = self._error_fd()
-        future_shell_context = None
+        future_shell_context = FutureShellContext.keep_previous()
             
-        if self._in_new_proc(): 
+        if self._should_spawn_process(): 
             
             """Set up the pipe, spawn child, and return a InvocOutcome."""
             
@@ -316,7 +342,7 @@ class CommandInvoc(ABC):
             
     
     
-    def _in_new_proc(self):
+    def _should_spawn_process(self):
         return self.in_pipe() or self._new_proc_in_standalone()
     
     def _file_descriptors(self):

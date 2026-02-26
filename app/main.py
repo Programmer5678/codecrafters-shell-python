@@ -34,7 +34,8 @@ class ProcWaiter:
         
         for waiter in self._waiter_funcs:
             waiter()
-            
+     
+                 
      
 class CommandInvocIter:
     
@@ -74,9 +75,9 @@ def main():
         state.proc_waiter.wait_for_all()
                     
         
-        if state.future_shell_context:
-            shell_context.setcwd( state.future_shell_context.cwd() )
-            shell_context._history =  state.future_shell_context._history
+        if not state.future_shell_context.should_keep_previous():
+            shell_context.setcwd( state.future_shell_context.value().cwd() )
+            shell_context._history =  state.future_shell_context.value()._history
 
             
                                    

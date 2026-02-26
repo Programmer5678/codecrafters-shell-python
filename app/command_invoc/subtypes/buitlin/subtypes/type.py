@@ -1,3 +1,4 @@
+from app.command_invoc.models import FutureShellContext
 from app.command_invoc.subtypes.buitlin.builtin import BuiltinCommandInvoc
 from app.search_files import find_in_path
 
@@ -26,7 +27,7 @@ def runny(spec, shell_context):
             else:
                 _err_not_found(arg)
 
-    return shell_context
+    return FutureShellContext.keep_previous()
 
 
 class Runner:

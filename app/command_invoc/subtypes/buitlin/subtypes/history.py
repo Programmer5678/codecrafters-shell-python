@@ -1,4 +1,5 @@
 
+from app.command_invoc.models import FutureShellContext
 from app.command_invoc.subtypes.buitlin.builtin import BuiltinCommandInvoc
 
 from multiprocessing import Process
@@ -60,7 +61,7 @@ def runny(spec, shell_context):
         
         
     
-    return shell_context
+    return FutureShellContext.new(shell_context)
     
     
 class Runner:
