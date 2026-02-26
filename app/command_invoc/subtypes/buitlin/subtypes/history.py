@@ -61,15 +61,29 @@ def runny(spec, shell_context):
         
     
     return shell_context
+    
+    
+class Runner:
+    
+    def __init__(self, spec, shell_context):
+        self._spec = spec
+        self._shell_context = shell_context
+        self._future_shell_context = None
         
+    def start(self):
+        self._future_shell_context = runny(self._spec, self._shell_context)
+        
+    def future_shell_context(self):
+        return self._future_shell_context    
 
 class HistoryCommand(BuiltinCommandInvoc):
 
     expected_command = "history"
 
     def run_core(self):
-        return runny( self.spec(), self.shell_context() )
-        
+        runner = Runner(self.spec(), self.shell_context())
+        runner.start()
+        return runner.future_shell_context()
         
                    
         
