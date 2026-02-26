@@ -231,7 +231,8 @@ class CommandInvoc(ABC):
         
         with self._error_fd_setup(err_fd):
             with self.child_fd_setup(in_fd, out_fd):
-                self.run_core()                
+                runner = self.run_core()  
+                runner.start()              
             
     def _run_in_parent(self, in_fd, out_fd, err_fd):
         
@@ -250,7 +251,10 @@ class CommandInvoc(ABC):
                 save_stdout = cur_stdout() 
                 set_output_to_fd(out_fd) 
                 
-                self.future_shell_context = self.run_core()
+                runner = self.run_core()
+                runner.start()
+                self.future_shell_context = runner.future_shell_context()
+                
             
             finally:   
                 reset_output_to_stdout(save_stdout)

@@ -23,5 +23,4 @@ class ExitCommand(BuiltinCommandInvoc):
 
     def run_core(self):
         runner = Runner(self.spec(), self.shell_context())
-        runner.start()
-        return runner.future_shell_context()
+        return runner

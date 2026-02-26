@@ -14,14 +14,25 @@ def runny(spec, shell_context):
             [spec.command(), *spec.args()]
         )
 
+class Runner:
+    
+    def __init__(self, spec, shell_context):
+        self._spec = spec
+        self._shell_context = shell_context
+        self._future_shell_context = None
+        
+    def start(self):
+        self._future_shell_context = runny(self._spec, self._shell_context)
+        
+    def future_shell_context(self):
+        return self._future_shell_context
+
 class ExecCommandInvoc(CommandInvoc):
 
 
     def _new_proc_in_standalone(self):
         return True
 
-
-    
 
     @contextmanager
     def child_fd_setup(self, in_fd, out_fd):
@@ -37,10 +48,9 @@ class ExecCommandInvoc(CommandInvoc):
             
         yield
 
-
-        
     def run_core(self):
-        return runny( self.spec(), self.shell_context() )
-        
+            runner = Runner(self.spec(), self.shell_context())
+            return runner
 
+        
         
