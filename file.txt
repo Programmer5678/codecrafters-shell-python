@@ -1,1 +1,1 @@
-blueberry
+history -w file.txt

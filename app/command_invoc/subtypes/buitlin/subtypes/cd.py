@@ -12,7 +12,7 @@ import sys
     
 class CdRunner(InvocRunner):
     
-    def run(self ):
+    def run(self):
 
         def err_no_such_file_dir():
             print(f"cd: {target_path}: No such file or directory", file=sys.stderr)
