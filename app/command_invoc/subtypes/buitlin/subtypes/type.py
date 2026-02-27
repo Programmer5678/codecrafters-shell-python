@@ -27,21 +27,42 @@ def runny(spec, shell_context):
             else:
                 _err_not_found(arg)
 
-    return FutureShellContext.keep_previous()
 
 
+class ShellContextUpdate:
+    def __init__(self, value, is_update):
+        self._value = value
+        self._is_update = is_update
+
+    @classmethod
+    def no_update(cls):
+        return cls(None, False)
+
+    @classmethod
+    def new(cls, value):
+        return cls(value, True)
+
+    def is_update(self):
+        return self._is_update
+
+    def value(self):
+        return self._value
+
+        
 class Runner:
     
     def __init__(self, spec, shell_context):
         self._spec = spec
         self._shell_context = shell_context
-        self._future_shell_context = None
+        self._updated_end_shell_context = ShellContextUpdate.no_update()
         
     def start(self):
-        self._future_shell_context = runny(self._spec, self._shell_context)
+        res = runny(self._spec, self._shell_context)
+        if res != None:
+            self._updated_end_shell_context = ShellContextUpdate.new( res )        
         
-    def future_shell_context(self):
-        return self._future_shell_context
+    def updated_end_shell_context(self):
+        return self._updated_end_shell_context
 
 
 class TypeCommand(BuiltinCommandInvoc):

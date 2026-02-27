@@ -249,8 +249,12 @@ class CommandInvoc(ABC):
                 wait_child_close = lambda: os.waitpid(child_pid, 0) # Wait func - wait for child to close
                         
         else:
-                        
-            future_shell_context = self._run_in_parent(in_fd, out_fd, err_fd).future_shell_context()
+                       
+            updated_ctx = self._run_in_parent(in_fd, out_fd, err_fd).updated_end_shell_context()
+            
+            if updated_ctx.is_update():
+                future_shell_context = FutureShellContext.new( updated_ctx.value() )
+                
             nothing_func = lambda : None
             wait_child_close = nothing_func
 
