@@ -44,7 +44,7 @@ class CommandInvocIter:
         
         self.next_stdin = STDIN
         self.proc_waiter = ProcWaiter()
-        self.future_shell_context = None
+        self.next_line_shell_context = None
         
     def next_state(self, command_invoc):
         
@@ -53,7 +53,7 @@ class CommandInvocIter:
         invoc_outcome = command_invoc.run(result.next_stdin)
         result.next_stdin = invoc_outcome.next_stdin()
         result.proc_waiter.add_waiter(  invoc_outcome.wait_child_end() ) 
-        result.future_shell_context = invoc_outcome.future_shell_context()
+        result.next_line_shell_context = invoc_outcome.next_line_shell_context()
             
         return result
             
@@ -75,9 +75,9 @@ def main():
         state.proc_waiter.wait_for_all()
                     
         
-        if not state.future_shell_context.should_keep_previous():
-            shell_context.setcwd( state.future_shell_context.value().cwd() )
-            shell_context._history =  state.future_shell_context.value()._history
+        if not state.next_line_shell_context.should_keep_previous():
+            shell_context.setcwd( state.next_line_shell_context.value().cwd() )
+            shell_context._history =  state.next_line_shell_context.value()._history
 
             
                                    

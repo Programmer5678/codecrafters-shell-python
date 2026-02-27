@@ -1,4 +1,4 @@
-from app.command_invoc.models import FutureShellContext
+from app.command_invoc.models import NextLineShellContext
 from app.command_invoc.subtypes.buitlin.builtin import BuiltinCommandInvoc
 from multiprocessing import Process
 import os

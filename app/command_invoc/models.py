@@ -13,7 +13,7 @@ from abc import ABC, abstractmethod
 
 
 
-class FutureShellContext:
+class NextLineShellContext:
 
     def __init__(self, value, keep=False):
         self._value = value
@@ -38,14 +38,14 @@ class FutureShellContext:
 
 class InvocOutcome:
 
-    def __init__(self, next_stdin, child_wait, future_shell_context):
+    def __init__(self, next_stdin, child_wait, next_line_shell_context):
         self._next_stdin = next_stdin
         self._child_wait = child_wait
-        self._future_shell_context = future_shell_context
+        self._next_line_shell_context = next_line_shell_context
         
     @classmethod
     def no_pipeline(cls):
-        return cls(None, lambda : None, FutureShellContext.keep_previous() ) 
+        return cls(None, lambda : None, NextLineShellContext.keep_previous() ) 
         
     def next_stdin(self):
         return self._next_stdin
@@ -53,8 +53,8 @@ class InvocOutcome:
     def wait_child_end(self):
         return self._child_wait
     
-    def future_shell_context(self):
-        return self._future_shell_context
+    def next_line_shell_context(self):
+        return self._next_line_shell_context
 
 
 
@@ -209,7 +209,7 @@ class CommandInvoc(ABC):
         self.position = args.position
         
         self._shell_context = copy.deepcopy(args.shell_context)
-        self.future_shell_context = None
+        self.next_line_shell_context = None
 
     def spec(self):
         return self._spec
@@ -231,7 +231,7 @@ class CommandInvoc(ABC):
         
         next_in_fd , out_fd = self._file_descriptors()
         err_fd = self._error_fd()
-        future_shell_context = FutureShellContext.keep_previous()
+        next_line_shell_context = NextLineShellContext.keep_previous()
             
         if self._should_spawn_process(): 
             
@@ -253,12 +253,12 @@ class CommandInvoc(ABC):
             updated_ctx = self._run_in_parent(in_fd, out_fd, err_fd).updated_end_shell_context()
             
             if updated_ctx.is_update():
-                future_shell_context = FutureShellContext.new( updated_ctx.value() )
+                next_line_shell_context = NextLineShellContext.new( updated_ctx.value() )
                 
             nothing_func = lambda : None
             wait_child_close = nothing_func
 
-        return InvocOutcome(next_in_fd, wait_child_close, future_shell_context)
+        return InvocOutcome(next_in_fd, wait_child_close, next_line_shell_context)
     
     def _run_in_child(self, in_fd, out_fd, err_fd):
         

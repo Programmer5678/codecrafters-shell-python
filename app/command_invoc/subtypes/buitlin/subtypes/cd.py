@@ -1,4 +1,4 @@
-from app.command_invoc.models import FutureShellContext
+from app.command_invoc.models import NextLineShellContext
 from app.command_invoc.subtypes.buitlin.builtin import BuiltinCommandInvoc
 import os
 import sys
@@ -81,6 +81,8 @@ class Runner:
         
     def updated_end_shell_context(self):
         return self._updated_end_shell_context
+    
+# class Runner
 
 class CdCommand(BuiltinCommandInvoc):
 
