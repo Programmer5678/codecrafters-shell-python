@@ -6,26 +6,7 @@ from multiprocessing import Process
 import os
 
 
-def runny(spec, shell_context):
 
-    def _print_shell_builtin(com):
-        os.write(1, (com + " is a shell builtin\n").encode())
-
-    def _print_exec(com, executable):
-        os.write(1, (com + " is " + executable.full_path() + "\n").encode())
-
-    def _err_not_found(com):
-        os.write(1, (com + ": not found\n").encode())
-
-    for arg in spec.args():
-        if BuiltinCommandInvoc.is_builtin(arg):
-            _print_shell_builtin(arg)
-        else:
-            executable = find_in_path(arg)
-            if executable:
-                _print_exec(arg, executable)
-            else:
-                _err_not_found(arg)
 
 
 
@@ -49,15 +30,21 @@ class ShellContextUpdate:
         return self._value
 
         
-class Runner:
+from abc import ABC, abstractmethod       
+class InvocRunner(ABC):
     
     def __init__(self, spec, shell_context):
         self._spec = spec
         self._shell_context = shell_context
         self._updated_end_shell_context = ShellContextUpdate.no_update()
         
+    @abstractmethod 
+    def runny(self):
+        pass
+        
+    
     def start(self):
-        res = runny(self._spec, self._shell_context)
+        res = self.runny()
         if res != None:
             self._updated_end_shell_context = ShellContextUpdate.new( res )        
         
@@ -65,11 +52,33 @@ class Runner:
         return self._updated_end_shell_context
 
 
+class TypeRunner(InvocRunner):
+    def runny(self):
+
+        def _print_shell_builtin(com):
+            os.write(1, (com + " is a shell builtin\n").encode())
+
+        def _print_exec(com, executable):
+            os.write(1, (com + " is " + executable.full_path() + "\n").encode())
+
+        def _err_not_found(com):
+            os.write(1, (com + ": not found\n").encode())
+
+        for arg in self._spec.args():
+            if BuiltinCommandInvoc.is_builtin(arg):
+                _print_shell_builtin(arg)
+            else:
+                executable = find_in_path(arg)
+                if executable:
+                    _print_exec(arg, executable)
+                else:
+                    _err_not_found(arg)
+
 class TypeCommand(BuiltinCommandInvoc):
     expected_command = "type"
 
     def run_core(self):
-        runner = Runner(self.spec(), self.shell_context())
+        runner = TypeRunner(self.spec(), self.shell_context())
         return runner
 
 

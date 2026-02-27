@@ -4,8 +4,7 @@ from multiprocessing import Process
 import os
 
 
-def runny(spec, shell_context):
-    os.write(1, (" ".join(spec.args()) + "\n").encode())
+    
 
 class ShellContextUpdate:
     def __init__(self, value, is_update):
@@ -26,26 +25,36 @@ class ShellContextUpdate:
     def value(self):
         return self._value
 
-        
-class Runner:
+from abc import ABC, abstractmethod       
+class InvocRunner(ABC):
     
     def __init__(self, spec, shell_context):
         self._spec = spec
         self._shell_context = shell_context
         self._updated_end_shell_context = ShellContextUpdate.no_update()
         
+    @abstractmethod 
+    def runny(self):
+        pass
+        
+    
     def start(self):
-        res = runny(self._spec, self._shell_context)
+        res = self.runny()
         if res != None:
-            self._updated_end_shell_context = ShellContextUpdate( res )        
+            self._updated_end_shell_context = ShellContextUpdate.new( res )        
         
     def updated_end_shell_context(self):
         return self._updated_end_shell_context
+        
+class EchoRunner(InvocRunner):
+    
+    def runny(self):
+        os.write(1, (" ".join(self._spec.args()) + "\n").encode())
 
 
 class EchoCommand(BuiltinCommandInvoc):
     expected_command = "echo"
 
     def run_core(self):
-        runner = Runner(self.spec(), self.shell_context())
+        runner = EchoRunner(self.spec(), self.shell_context())
         return runner

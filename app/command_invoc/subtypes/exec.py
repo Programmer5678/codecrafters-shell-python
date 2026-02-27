@@ -8,12 +8,7 @@ import os
 STDIN = 0
 STDOUT = 1 
 
-def runny(spec, shell_context):  
-    os.execvp(
-            spec.command(),
-            [spec.command(), *spec.args()]
-        )
-    
+
 class ShellContextUpdate:
     def __init__(self, value, is_update):
         self._value = value
@@ -34,21 +29,33 @@ class ShellContextUpdate:
         return self._value
 
         
-class Runner:
+from abc import ABC, abstractmethod       
+class InvocRunner(ABC):
     
     def __init__(self, spec, shell_context):
         self._spec = spec
         self._shell_context = shell_context
         self._updated_end_shell_context = ShellContextUpdate.no_update()
         
+    @abstractmethod 
+    def runny(self):
+        pass
+        
+    
     def start(self):
-        res = runny(self._spec, self._shell_context)
+        res = self.runny()
         if res != None:
             self._updated_end_shell_context = ShellContextUpdate.new( res )        
         
     def updated_end_shell_context(self):
         return self._updated_end_shell_context
     
+class ExecRunner(InvocRunner):
+    def runny(self):
+        os.execvp(
+            self._spec.command(),
+            [self._spec.command(), *self._spec.args()]
+        )
     
 class ExecCommandInvoc(CommandInvoc):
 
@@ -72,7 +79,7 @@ class ExecCommandInvoc(CommandInvoc):
         yield
 
     def run_core(self):
-            runner = Runner(self.spec(), self.shell_context())
+            runner = ExecRunner(self.spec(), self.shell_context())
             return runner
 
         
