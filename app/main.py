@@ -76,13 +76,8 @@ def main():
                     
         
         if not state.next_line_shell_context.should_keep_previous():
-            shell_context.setcwd( state.next_line_shell_context.value().cwd() )
-            shell_context._history =  state.next_line_shell_context.value()._history
-            shell_context.last_append_history = state.next_line_shell_context.value().last_append_history
-
-            
-                                   
-            
+            shell_context = copy.deepcopy(state.next_line_shell_context.value())
+  
                 
 if __name__ == "__main__":
     main()
