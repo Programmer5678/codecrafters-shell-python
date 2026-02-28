@@ -6,71 +6,81 @@ import sys
 from app.shell import add_history
 from app.command_invoc.invoc_runner import InvocRunner
 
-    
+
 class HistoryRunner(InvocRunner):
-    
-    def run(self):        
 
-        def history_line(line_num, line_content):
-            return f"\t{line_num+1} {line_content}"
+    def run(self):
+        num_args = len(self._spec.args())
 
-        def print_all_lines(history_lines):
-            print ( "\n".join( history_lines ) + "\n" , end="")
+        if num_args == 0:
+            self._run_no_args()
 
-        def print_last_n_lines(history_lines, nl):
-            os.write( 1,  ("\n".join( history_lines[-nl:] ) + "\n").encode()   )
+        elif num_args == 1:
+            self._run_one_arg()
 
-        def no_num_lines_arg():
-            return len( self._spec.args() ) == 0
+        elif num_args == 2:
+            self._run_two_args()
 
-        def num_lines_arg():
-            return int( self._spec.args()[0])
-
-        def too_many_args():
-            return len( self._spec.args() ) > 1
-
-        def err_too_many_args():
-            print("history: too many arguments", file=sys.stderr)
-            
-        def lines_to_file(file):
-            lines = self._shell_context.history()
-            print( "\n".join( lines ), file=file )
-
-        history_lines = [ history_line(line_num, line) for line_num, line in enumerate( self._shell_context.history() ) ]
-        
-        if no_num_lines_arg():
-            print_all_lines(history_lines)
-
-        elif len( self._spec.args() ) == 1:
-            print_last_n_lines( history_lines, num_lines_arg() )
-
-        elif len( self._spec.args() ) == 2:
-            
-            flag = self._spec.args()[0]
-            if flag == "-r":
-                read_res =  self._spec.args()[1]
-                                
-                with open(read_res, "r") as f:
-                    lines = [ l.strip() for l in f.readlines()]
-                    for line in lines:
-                        if line:
-                            add_history( self._shell_context, line  )
-                            
-            elif flag == "-w":
-                
-                write_to = absolute( self._spec.args()[1], self._shell_context.cwd()  )
-                with open(write_to, "w") as f:
-                    lines_to_file( f )
-
-            else:
-                print("history: invalid arg " + flag, file=sys.stderr)
-                
-        
         else:
-            err_too_many_args() 
-        
+            self._err_too_many_args()
+
         return self._shell_context
-        
+
+
+    # ---------- case: no args ----------
+    def _run_no_args(self):
+        history_lines = [
+            f"\t{i+1} {line}"
+            for i, line in enumerate(self._shell_context.history())
+        ]
+
+        print("\n".join(history_lines) + "\n", end="")
+
+
+    # ---------- case: one arg ----------
+    def _run_one_arg(self):
+        try:
+            nl = int(self._spec.args()[0])
+        except ValueError:
+            return
+
+        history_lines = [
+            f"\t{i+1} {line}"
+            for i, line in enumerate(self._shell_context.history())
+        ]
+
+        os.write(1, ("\n".join(history_lines[-nl:]) + "\n").encode())
+
+
+    # ---------- case: two args ----------
+    def _run_two_args(self):
+        flag, value = self._spec.args()
+
+        def read_history(path):
+            with open(path, "r") as f:
+                lines = [l.strip() for l in f.readlines()]
+                for line in lines:
+                    if line:
+                        add_history(self._shell_context, line)
+
+        def write_history(path):
+            write_to = absolute(path, self._shell_context.cwd())
+            with open(write_to, "w") as f:
+                print("\n".join(self._shell_context.history()), file=f)
+
+        if flag == "-r":
+            read_history(value)
+
+        elif flag == "-w":
+            write_history(value)
+
+        else:
+            print("history: invalid arg " + flag, file=sys.stderr)
+
+
+    # ---------- helpers ----------
+    def _err_too_many_args(self):
+        print("history: too many arguments", file=sys.stderr)
         
 
 class HistoryCommand(BuiltinCommandInvoc):
