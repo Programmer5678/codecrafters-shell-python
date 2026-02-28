@@ -54,14 +54,17 @@ class CommandInvocIter:
             
         return result
       
-      
+    
+def hist_filee():
+    return absolute( os.environ.get("HISTFILE", "~/.bash_history"), os.getcwd() )
+  
 def setup_history():
     
     def get_lines(file):
         with open(file, "r") as f:
             return [ line_full.strip() for line_full in f.readlines() ] 
        
-    hist_file = absolute( os.environ.get("HISTFILE", "~/.bash_history"), os.getcwd() )
+    hist_file = hist_filee()
         
         
     if not os.path.exists(hist_file):
@@ -73,7 +76,7 @@ def save_history(shell_context):
     history_lines = shell_context.session_history()
     history_content = "\n".join( history_lines ) + "\n"
     
-    hist_file = absolute( os.environ.get("HISTFILE", "~/.bash_history"), os.getcwd() )
+    hist_file = hist_filee()
     with open(hist_file, "a+") as f:
         f.write(history_content)
             

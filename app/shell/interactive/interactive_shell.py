@@ -8,10 +8,17 @@ def completer(text: str, state: int) -> str:
      
     def not_first_match():
         return state > 0
+    
+    def not_invoc_start():
+        last_invoc = readline.get_line_buffer().split("|")[-1].strip()
+        return not last_invoc.startswith(text)
 
-    if not_first_match():
-        return None
-     
+    def empty():
+        return text == ""
+
+    if empty() or not_first_match() or not_invoc_start():
+        return None 
+    
     all_commands = list(BuiltinCommandInvoc.commands().keys()) + [ f.file() for f in all_execs_in_path() ]
     matching_commands = [ com + " " for com in all_commands if com.startswith(text) ]  
 
