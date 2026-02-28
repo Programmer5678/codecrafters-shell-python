@@ -54,23 +54,23 @@ class HistoryRunner(InvocRunner):
 
     # ---------- case: two args ----------
     def _run_two_args(self):
-        flag, value = self._spec.args()
+        flag, file = self._spec.args()
+        full_path = absolute( file, self._shell_context.cwd() )
 
-        def read_history(path):
-            with open(path, "r") as f:
+        def read_history(read_from):
+            # print(os.getcwd())
+            with open(read_from, "r") as f:
                 lines = [l.strip() for l in f.readlines()]
                 for line in lines:
                     if line:
                         add_history(self._shell_context, line)
 
-        def write_history(path):
-            write_to = absolute(path, self._shell_context.cwd())
+        def write_history(write_to):
             with open(write_to, "w") as f:
                 print("\n".join(self._shell_context.history()), file=f)
                 
                 
-        def append_history(path):
-            append_to = absolute(path, self._shell_context.cwd())
+        def append_history(append_to):
             with open(append_to, "a") as f:
                 since_last_append = self._shell_context.history()[self._shell_context.last_append_history:]
                 print("\n".join( since_last_append ), file=f)
@@ -79,13 +79,13 @@ class HistoryRunner(InvocRunner):
                 
 
         if flag == "-r":
-            read_history(value)
+            read_history(full_path)
 
         elif flag == "-w":
-            write_history(value)
+            write_history(full_path)
             
         elif flag == "-a":
-            append_history(value)
+            append_history(full_path)
 
         else:
             print("history: invalid arg " + flag, file=sys.stderr)
