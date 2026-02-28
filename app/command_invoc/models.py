@@ -4,7 +4,7 @@ from enum import Enum
 import itertools
 import os
 from typing import Any
-from app.command_invoc.open_files import open_append, open_write
+from app.command_invoc.files.open_files import open_append, open_write
 from app.command_invoc.tokenize import tokenize
 from app.search_files import find_in_path
 import copy

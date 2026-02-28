@@ -1,4 +1,5 @@
 
+from app.command_invoc.files.absolute_path import absolute
 from app.command_invoc.subtypes.buitlin.builtin import BuiltinCommandInvoc
 import os
 import sys
@@ -57,27 +58,7 @@ class HistoryRunner(InvocRunner):
                             
             elif flag == "-w":
                 
-                def absolute(target_path):
-
-                    def is_absolute(path):
-                        return path[0] == '/'
-
-                    def is_home_dir(path):
-                        return path == "~"
-
-                    def home_dir():
-                        return os.path.expanduser("~")
-
-                    if is_absolute(target_path):
-                        return os.path.abspath(target_path)
-
-                    elif is_home_dir(target_path):
-                        return home_dir()
-
-                    else:
-                        return os.path.abspath(os.path.join(self._shell_context.cwd() , target_path))
-
-                write_to = absolute( self._spec.args()[1]  )
+                write_to = absolute( self._spec.args()[1], self._shell_context.cwd()  )
                 with open(write_to, "w") as f:
                     lines_to_file( f )
 
