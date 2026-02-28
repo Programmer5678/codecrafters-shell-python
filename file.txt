@@ -1,1 +1,1000 @@
+ls
+git checkout 986dcf6
+ls
+clear
+git checkout head
+git checkout main
+git log  --name-only  | grep original_send_messages_request.json
+cd ..
+cp -r whatsapp-automation whatsapp-automation-backup
+cd wh*ion
+git filter-repo --path whatsapp_bot_backend/original_send_messages_request.json --invert-paths --force
+source venv/bin/activate
+ls
+source whatsapp_bot_backend/venv/bin/activate
+pip install git-filter-repo
+apt install git-filter-repo
+sudo apt install git-filter-repo
+git filter-repo --path whatsapp_bot_backend/original_send_messages_request.json --invert-paths --force
+ls
+ls whatsapp_bot_backend
+git filter-repo --path whatsapp_bot/original_send_messages_request.json --invert-paths --force
+git log --name-only original_send_messages_request.json 
+git log --name-only | grep original_send_messages_request.json 
+clear
+git log --oneline
+git push origin main
+git push
+git remote add origin https://github.com/Programmer5678/whatsapp-automation.git
+git push -u origin main
+history | grep git remtoe add
+history | grep Programmer5678
+source /home/ruz/backend-stuff/codecrafters-shell-python/.venv/bin/activate
+~/Downloads/wbit*
+~/Downloads/qbit*
+ps -f --forest
+watch -n 0.2 "ps -o pid,ppid,cmd"
+read -t 10
+ls
+tail -f myserver.py | read -t 5
+sleep 5
+sleep 5 | sleep 4
+sleep 5 | sleep 1000
+sleep 1000 | sleep 1
+type sleep
+type read
+read -t 3 | read -t 100
+echo $$
+echo $$ | echo $$
+echo $$ | echo $$ | echo $$
+read -t 100
+sleep 100
+sleep 100 | sleep 100
+read -t 100
+sleep 100
+read -t 100
+read -t 100 | read -t 100
+ps
+ps -f
+top
+clear
+pstree -p
+clear
+echo $$
+pstree -p | grep 85540
+pstree -p | grep -B 10 -A 10 85540
+pstree -p | grep -B 1 -A 7 85540
+pstree -p | grep -B 10 -A 7 85540
+kill 86750
+cd backen*
+mkdir file_fun
+cd file_fun
+touch main.py
+clear
+ls
+python main.py
+clear
+python main.py
+clear
+python main.py
+tail -f file.txt
+ls 
+mv main.py tail.py
+nano pipe.py
+touch pipe.py
+python pipe.py
+type tail
+tail -f file.txt | cat g
+cd ..
+ls
+cd codecrafters-shell-python
+clear
+exit
+pstree
+pstree | grep sleep
+pstree | grep sleep -B 20 -A 20
+pstree | grep -gnome-terminal -B 5 -A 10
+pstree | grep "gnome-terminal" -B 5 -A 10
+cd ba*ff
+cd *qr
+ls -t | head -1
+ls -t | grep ".py"
+python decode.py
+source venv/bin/activate
+python decode.py
+python decode.py -i qr_eliko.jpg -o eliko.csv.zip --base45
+unzip eliko.csv.zip
+exit | echo
+cd .. | pwd
+echo 2 | cd .. 
+cd ..
+cd codecrafters-shell-python
+codecrafters submit
+python app/main.py
+codecrafters submit
+git add .
+git commit --allow-empty -m "Changed to use command_invoc.spec() rather than directly the command_invoc_spec"
+codecrafters submit
+clear
+codecrafters submit
+git commit --allow-empty -m "used command_invoc.end_pipe() rather than calculating last_command inside loop. this is a preliminary step the polymorphism addition of ExecCommandInvoc"
+clear
+sleep 100 | sleep 1
+tode shenaflta khazak
+sleep 9
+sleep 9000
+echo "f
+-92"
+echo f
+echo "f
+-92"
+echo "hello''bi"
+echo 'hello""bi'
+echo 'hello'4
+echo 4'hello'
+echo eric'hello'
+echo eric'hello  world'
+source /home/ruz/backend-stuff/codecrafters-shell-python/.venv/bin/activate
+Downloads/qbit*
+ls
+cd ba*ff
+ls
+clear
+cd cod*
+clear
+python -m app.main
+codecrafters submit
+git log --oneline
+git diff ef422fc
+git diff e992e33
+git diff 6a7c9ef
+git revert e992e33
+git revert e992e33..HEAD
+git revert --abort
+git revert e992e33..HEAD
+clear
+codecrafters submit
+clear
+git commit --allow-empty "Works"
+git commit --allow-empty -m "Works"
+codecrafters submit
+git log --oneline
+git diff 68dee3b
+qq
+clear
+codecrafters submit
+git commit --allow-empty -m "Backslash outside quotes works"
+codecrafters submit
+git commit --allow-empty -m "Backslash within single quotes work - only start escape sequence if outside quotes"
+codecrafters submit
+git commit --allow-empty -m "is_start_escape_seq now considers next char and wether we are on double quotes. is_closing_double_quotes now considered wether we are in escape seq" 
+codecrafters submit
+ls
+cd bac*ff
+ls
+cd whatsapp-automation
+ls
+cd ..
+cd code*
+ls
+python app.main
+python -m app.main
+codecrafters submit
+git commit --allow-empty -m "inside_*_quotes rather than outside_*_quotes"
+codecrafters submit
+git commit --allow-empty -m "is_start_escape_seq order of if changed"
+'type' type
+codecrafters submit
+git commit --allow-empty -m "Moved to tokenize to .command() func"
+codecrafters submit
+git log --oneline
+git revert 6fc5dea
+git log --oneline
+git revert 6fc5dea..HEAD
+codecrafters submit
+clear
+python -m app.main
+codecrafters --help
+codecrafters test --previous
+git add .
+git commit --allow-empty -m "moved run to Tokenizer"
+codecrafters test --previous
+git commit --allow-empty -m "moved inside_single_quotes to state"
+codecrafters test --previous
+git add .
+git commit --allow-empty -m "moved vars inside state"
+codecrafters test --previous
+git log --oneline
+clear
+codecrafters test --previous
+python -m app.main
+codecrafters test --previous
+python -m app.main
+clear
+codecrafters test --previous
+python -m app.main
+codecrafters test --previous
+git add .
+git commit --allow-empty -m "Moved result back to stateless as recursive call causes problems otherwise"
+codecrafters test --previous
+git add .
+git commit --allow-empty -m "Moved funcs outside run"
+codecrafters test --previous
+git commit --allow-empty -m "Prep to avoid recursive call"
+codecrafters test --previous
+python -m app.main
+clear
+codecrafters test --previous
+git add .
+git commit -m "no recursion required"
+codecrafters test --previous
+git add .
+git commit -m "Implemented TokenizerIter object"
+codecrafters test --previous
+git add .
+git commit --allow-empty -m "Refactored - removed useless 
+continue'"
+clear
+git log --oneline
+git diff 8d3d1f3
+git revert 8d3d1f3..HEAD
+git diff HEAD
+git checkout master --force
+git revert 8d3d1f3..HEAD
+git revert --abort
+git revert 8d3d1f3..HEAD
+git add .
+codecrafters submit
+codecrafters test --previous
+git add .
+git commit --allow-empty -m "w.i.p move result to its own object ( not primitive )"
+codecrafters test --previous
+python -m app.main
+clear
+python -m app.main
+codecrafters test --previous
+python -m app.main
+codecrafters test --previous
+git add .
+git commit --allow-empty -m "Add __iter__ func so class can be easily converted to list, internal refactoring to make the list always represent the current tokens state"
+codecrafters test --previous
+git add .
+git commit --allow-empty -m "Rename"
+codecrafters test --previous
+git add .
+git commit --allow-empty -m "tokens is now a state variable"
+codecrafters test --previous
+git add . 
+git commit --allow-empty -m "W.I.P seperate transform and run"
+codecrafters test --previous
+git add . 
+git commit --allow-empty -m "Moved run outside Tokenizer"
+codecrafters test --previous
+git add . 
+git commit --allow-empty -m "Refactor tokenize"
+codecrafters test --previous
+git add . 
+git commit --allow-empty -m "Refactor. Move tokenize to seperate file"
+codecrafters test --previous
+git add .
+git commit --allow-empty -m "Refactor. Move tokenize to itsown dir"
+codecrafters test --previous
+git add .
+git commit --allow-empty -m "Moved tokenize to submodule to make it clear that tokenize is the only func we need"
+codecrafters test --previous
+git commit --allow-empty -m "Refactor main.py - moved setup of interactive shell to seperate file"
+codecrafters test --previous
+git commit --allow-empty -m "Modularized setup_interactive_shell"
+codecrafters test --previous
+git add .
+git commit -m "resolve renamed to resolve_subclass"
+codecrafters test --previous
+clear
+git log --oneline | head
+git diff 0a06433
+codecrafters test --previous
+diff master
+git diff master
+git checkout master --force
+clear
+codecrafters test --previous
+git add .
+git commit -m "Inline part of input_next_line"
+codecrafters test --previous
+git add .
+git commit -m "Refactored the shell_context = line to only use the original input line rather than fuck around with invocs"
+codecrafters test --previous
+git add .
+git commit -m "Inlined further"
+git add .
+git commit -m "Inlined further"
+git commit --ammend "Refactored the list comprehension to loop"
+git commit --ammend -m "Refactored the list compreqhension to loop"
+git commit --amend -m "Refactored the list compreqhension to loop"
+clear
+codecrafters test --previous
+git add .
+git commit -m "Refactored for clarity"
+codecrafters test --previous
+git add .
+git commit -m "invocs in seperate function"
+codecrafters test --previous
+git add .
+git commit -m "Use generator instead of while true loop"
+codecrafters test --previous
+git add .
+git commit -m "Removed useless arg of ShellContext constructor"
+codecrafters test --previous
+git add .
+git commit -m "Removed useless check from NotFound"
+codecrafters test --previous
+git add .
+git commit -m "Made command_invoc.run() uniform in both cases in if else"
+echdssdds | echo 5
+echdssdds | sleep 1
+echdssdds | sleep 1 | echo 5
+git add .
+git commit -m ".no_pipeline() instead of PipelineResult(None...)"
+codecrafters test --previous
+git add .
+git commit -m "+ Bug fix"
+git log --oneline | head -3
+git rebase -i HEAD-2
+git rebase -i 4fee081
+codecrafters test --previous
+python -m app.main
+codecrafters test --previous
+git add .
+git commit -m "Removed the if else inside main! If-else to polymorphism complete! "
+codecrafters test --previous
+git add .
+git commit -m "var name changed"
+codecrafters test --previous
+git add .
+git commit -m "Minor refactor"
+git add .
+git commit -m "Another Minor refactor"
+codecrafters test --previous
+git add .
+git commit -m "Trying to refactor loop to make state clearer"
+codecrafters test --previous
+git diff
+git add .
+git commit -m "Use state of last command invoc to set outer state as well"
+codecrafters test --previous
+python -m app.main
+echo 5 | echo 5 > 2
+echo 5 | echo 5 > out.txt
+cat out.txt
+echo 9 | echo 5 > out.txt
+cat out.txt
+rm out.txt
+python -m app.main
+clear
+python -m app.main
+echo "" > file.txt
+python -m app.main
+cat file.txt
+python -m app.main
+cat file.txt
+git add .
+git commit -m "Make all redirects go to file output.txt"
+echo 5 > file.txt | echo 9 > file.txt
+echo 50 > file.txt | echo 9 
+cat file.txt
+clear
+python -m app.main
+clear
+python -m app.main
+codecrafters submit
+git log --oneline | head
+codecrafters submit
+clear
+codecrafters test
+git log --oneline
+git diff c16f593
+git add .
+git commit -m "redirect_to now calculated from line read"
+codecrafters test
+codecrafters test --previous
+git add .
+git commit -m "Now split on 1> as well as >. Tests work"
+clear
+git log --oneline
+git checkout 2ac9dc0
+git checkout master
+git diff 2ac9dc0
+clear
+codecrafters test
+git add .
+git commit -m "Moved to sep func"
+codecrafters test
+git add .
+git commit -m "W.I.P moving to Line class"
+git add .
+codecrafters test
+git commit -m "Moved to line class"
+codecrafters test
+git add .
+git commit -m "Moved line to seperate module"
+codecrafters test
+git diff
+codecrafters test
+codecrafters test --previous
+git add .
+codecrafters test --previous
+git add .
+git commit -m "run now implemented in parent class, based on result of new_proc_in_standalone() in child"
+codecrafters test --previous
+git add .
+git commit -m "Moved fork outside run_in_child - moved to parent class"
+clear
+codecrafters test --previous
+git diff
+clear
+codecrafters test --previous
+python -m app.main
+echo "" > /tmp/pig/dog.md
+python -m app.main
+echo "" > /tmp/pig/dog.md
+mkdir /tmp/pig
+echo "" > /tmp/pig/dog.md
+python -m app.main
+cat /tmp/pig/dog.md
+clear
+python -m app.main
+clear
+codecrafters test --previous
+git add .
+git commit -m "Use dup2 , create run_core method in exec command invoc as well"
+codecrafters test --previous
+git add .
+codecrafters test --previous
+git diff
+clear
+codecrafters test --previous
+git add .
+git commit -m "Minor refactor"
+codecrafters test --previous
+git checkout master
+git diff
+codecrafters test --previous
+git add .
+git commit -m "Inline methods so i can more easily make the final refactor"
+codecrafters test --previous
+git add .
+git commit -m "W.I.P minjor successful refactor"
+codecrafters test --previous
+git add .
+git commit -m "Moving to LinePosition class"
+codecrafters test --previous
+codecrafters test 
+git diff 
+clear
+python -m app.main
+clear
+git diff
+git diff | grep print -B 5 -A 5
+clear
+python -m app.main
+codecrafters test 
+codecrafters test --previous
+git add .
+git commit -m "Seperated calculating file descriptors from run"
+codecrafters test --previous
+git add .
+git commit -m "refactored run func"
+git add .
+git commit -m "Name change"
+codecrafters submit
+python -m app.main
+echo 5 > "my file.txt"
+cat "my file.txt"
+python -m app.main
+clear
+python -m app.main
+clear
+python -m app.main
+echo hi 2>file.txt bi
+echo hi 2>file.txt bi ju
+echo hi 2 > file.txt bi ju
+echo hi 2> file.txt bi ju
+python -m app.main
+codecrafters test --previous
+git add .
+codecrafters test --previous
+git add .
+git commit -m "Removed old redirect in pipe logic"
+codecrafters test --previous
+git add .
+git commit -m "Refactor CommandInvocSpec"
+codecrafters test --previous
+git add . 
+git commit -m "Refactor partition_redirects(tokens)"
+clear
+python -m app.main
+clear
+python -m app.main
+clear
+codecrafters test
+git add . 
+git commit -m "stderr implemented"
+codecrafters test
+codecrafters test --previous
+git add .
+git commit -m "Refactor - created _error_fd_setup context manager"
+clear
+codecrafters test --previous
+git diff
+clear
+codecrafters test --previous
+git add .
+git commit -m "Added fd closes for stderr"
+codecrafters submit
+clear
+ls
+echo "file.txt start" > file.txt
+python -m app.main
+git log --oneline
+git checkout master --force
+git diff
+clear
+python -m app.main
+clear
+git diff
+python -m app.main
+git diff
+python -m app.main
+git add .
+git commit -m "Add append_stdout option to partition_redirects() func"
+clear
+python -m app.main
+clear
+codecrafters test
+clear --previous
+codecrafters test --previous
+codecrafters submit
+git commit --allow-empty -m "opening file in append mode if append_stdout()"
+clear
+python -m app.test
+python -m app.main
+git add .
+git commit -m "CommandInvocSpec now returns append_stderr"
+codecrafters test --previous
+git add .
+git commit -m "Now append stderr successfuly"
+git add .
+codecrafters test --previous
+git commit -m "os.write, os.write append now in seperate file"
+codecrafters test --previous
+git add .
+git commit -m "Created RedirectTarget class"
+codecrafters test --previous
+clear
+codecrafters test --previous
+git add .
+git commit -m "Inlined old_form and to_append funcs from RedirectTarget"
+codecrafters test --previous
+git add .
+git commit -m "Inlined old_form and to_append funcs from RedirectTarget"
+codecrafters test --previous
+git add .
+git commit -m "CommandInvocSpec now holding only rt_stdout / rt_stderr"
+git diff
+codecrafters test --previous
+git add ,
+git add .
+git commit -m "Now check if rt_ is null rather than if file exists"
+clear
+codecrafters test --previous
+git add .
+git commit -m "Inlined redirect functions(middle men) from CommandInvocSpec" 
+codecrafters test --previous
+git add .
+git commit -m "Inlined append_ funcs from CommandInvocSpec(middlemen)"
+codecrafters test --previous
+git add .
+git commit -m "Minor refactor"
+codecrafters test --previous
+git add .
+git commit -m "Minor refactor"
+codecrafters test --previous
+git add .
+git commit -m "Refactor partition_redirects, use rt_stdout directly"
+codecrafters test --previous
+git add .
+git commit -m "Refactor use rt_stderr"
+codecrafters test --previous
+git add .
+git commit -m "Refactor partition_redirects names"
+git add .
+codecrafters test --previous
+git add .
+git commit -m "Refactored _error_fd_setup into 2 funcs"
+codecrafters test --previous
+git add .
+git commit -m "Seperated fd logic from the error setup"
+codecrafters test --previous
+git add . 
+git commit -m "Now closes err fd in parent as well as child"
+codecrafters submit
+codecrafters test --previous
+codecrafters submit
+codecrafters test --previous
+python -m app.main
+git diff
+clear
+python -m app.main
+clear
+python -m app.main
+clear
+python -m app.main
+clear
+codecrafters test --previous
+python -m app.main
+clear
+python -m app.main
+type echo
+python -m app.main
+git diff
+clear
+python -m app.main
+clear
+python -m app.main
+clear
+codecrafters test --previous
+git add .
+git commit -m "Complete to execs as well"
+codecrafters test --previous
+codecrafters submit
+ls
+codecrafters test --previous
+python -m app.main
+clear
+python -m app.main
+clear
+python -m app.main
+clear
+python -m app.main
+clear
+python -m app.main
+clear
+python -m app.main
+clear
+python -m app.main
+clear
+python -m app.main
+clear
+python -m app.main
+clear
+python -m app.main
+clear
+python -m app.main
+clear
+python -m app.main
+clear
+ec
+clear
+python -m app.main
+clear
+python -m app.main
+clear
+python -m app.main
+clear
+python -m app.main
+clear
+python -m app.main
+clear
+python -m app.main
+clear
+python -m app.main
+clear
+python -m app.main
+clear
+python -m app.main
+clear
+python -m app.main
+clear
+python -m app.main
+clear
+python -m app.main
+clear
+python -m app.main
+clear
+python -m app.main
+clear
+python -m app.main
+clear
+python -m app.main
+clear
+python -m app.main
+clear
+python -m app.main
+clea
+clear
+python -m app.main
+clear
+python -m app.main
+clear
+python -m app.main
+clear
+python -m app.main
+clear
+codecrafters test
+clear
+codecrafters test
+clear
+codecrafters test
+python -m app.main
+clear
+python -m app.main
+clear
+python -m app.main
+clear
+python -m app.main
+clear
+python -m app.main
+clear
+python -m app.main
+clear
+python -m app.main
+clear
+python -m app.main
+clear
+python -m app.main
+echo j | wc
+echo j| wc
+clear
+python -m app.main
+clear
+python -m app.main
+clear
+python -m app.main
+python -m app.main
+clear
+python -m app.main
+clear
+python -m app.main
+clear
+python -m app.main
+codecrafters test
+python -m app.main
+git add .
+git commit -m "Techancically works but not using readline properly"
+clear
+python -m app.main
+clear
+python -m app.main
+clear
+python -m app.main
+clear
+python -m app.main
+clear
+python -m app.main
+clea
+clear
+python -m app.main
+clear
+python -m app.main
+clear
+git diff eba6082
+git branch multi_comm_att
+git log --oneline
+git restore --hard eba6082
+git reset --hard eba6082
+clear
+git log --oneline
+git log --oneline --all
+clear
+codecrafters test
+python -m app.main
+clear
+git log --oneline
+git checkout 8112269
+python -m app.main
+git chekcout main
+clear
+python -m app.main
+clear
+python -m app.main
+codecrafters test
+git add .
+git commit -m "Bug refactor"
+codecrafters submit
+git log --oneline
+git checkout master
+git checkout b31434b
+git rebase master
+git log --oneline
+git reset --hard 0aaf725
+codecrafters test
+codeccrafters submit
+codecrafters submit
+git checkout master
+git reset --hard 0aaf725
+git log --oneline
+codecrafters submit
+clear
+nano file.txt
+history -r file.txt
+Shite\nBite
+f
+history -r file.txt
+Shite\nBite
+f
+history 5
+nano file.txt
+history -r file.txt
+Shite\nBite
+		
+f
+history 5
+clear
+codecrafters test
+codecrafters test --previous
+git add .
+git commit -m "Added history -r command"
+echo "blueberry" > file.txt
+echo 5 | history -r file.txt
+history 3
+history -r file.txt | echo 5
+history 3
+python -m app.main
+echo $PATH
+nano /home/ruz/.local/bin/bubu.txt
+history -r bubu.txt
+histort 5
+history 5
+history -r dsfljdsdf
+history 5
+cat /home/ruz/.local/bin
+history -r bubu.txt
+history 5
+cd /home/ruz/.local/bin
+history -r bubu.txt
+bubulim
+history 5
+cd ~/backend-stuff/codecrafters-shell-python
+clear
+python -m app.main
+codecrafters test
+s
+history --asdhdasas s
+echo -l s
+type -l s
+clear
+python -m app.main
+git add .
+git commit -m "added support for history invalid arg in case it isnt -r"
+clear
+codecrafters test
+codecrafters test --previous
+git add .
+git commit -m "Moved ShellContext together with interactive_shell in same module. prep for func that involves both."
+codecrafters test --previous
+python -m app.main
+git add .
+git commit -m "Moved add_history to shell - no need to dig into ShellContext and readline each time"
+clear
+echo hi | cd /
+python -m app.main
+git diff
+git log --oneline
+git restore --hard 55f3a32
+git reset --hard 55f3a32
+clear
+codecrafters test
+clear
+codecrafters test
+git diff
+codecrafters test
+clear
+codecrafters test
+python -m app.main
+clear
+python -m app.main
+clear
+python -m app.main
+clear
+python -m app.main
+git add .
+git commit -m "Tried the IPC with pipe and res_shell_context. But what for? i only care about result shell_context from parent anyways. Overcomplex program and for what?"
+git branch ipc_shell_context
+git log --oneline
+git reset --hard 55f3a32
+clear
+codecrafters test
+cat /tmp/fox/file-41 | head -n 3 | wc
+cat file.txt | head -n 3 | wc
+python -m app.main
+clear
+python -m app.main
+codecrafters test
+git add .
+git commit -m "Moving to future_shell_context rather than setting based on invoc.shell_context. this isnt set properly in child( child uses copy of invoc thus copy of invoc.shell_context ). This works because we dont want to change shell context if it changes only in child proc anyways but is smelly code "
+git commit -amend -m "Moving to future_shell_context rather than setting based on invoc.shell_context. Added assertions to make sure matches old. this isnt set properly in child( child uses copy of invoc thus copy of invoc.shell_context ). This works because we dont want to change shell context if it changes only in child proc anyways but is smelly code "
+git commit --amend -m "Moving to future_shell_context rather than setting based on invoc.shell_context. Added assertions to make sure matches old. this isnt set properly in child( child uses copy of invoc thus copy of invoc.shell_context ). This works because we dont want to change shell context if it changes only in child proc anyways but is smelly code "
+clear
+codecrafters test
+codecrafters test --previous
+python -m app.main
+codecrafters test
+codecrafters test --previous
+git add 
+git add .
+git commit -m "migrated to future_shell_context fully"
+git squash
+git log --oneline
+git rebase 55f3a32
+git rebase -i 55f3a32
+clear
+ls
+clear
+python -m app.main
+codecrafters test
+git add .
+git commit -m "Moving run logic outside of CommandInvoc.run_core "
+clear
+codecrafters test
+git add .
+git commit -m "Moved exec run_core as well"
+codecrafters test
+git add .
+git commit -m "Moved to runner class"
+clear
+codecrafters test
+git add .
+git commit -m "run_core returns Runner object"
+git add .
+codecrafters test
+git add .
+git commit -m "future_shell_context now returned as part of result"
+clear
+codecrafters test
+git add .
+clear
+git diff
+git test
+codecrafters test
+clear
+codecrafters test
+git add .
+git commit -m "Implemented seperate class to diffrentiate between setting shell cotnext update inside invoc to wether update extends to future lines(FutureShellContext)"
+git add 
+git add .
+git commit -m "FutureShellContext--> NextLineShellContext"
+clea
+clear
+git add .
+codecrafters test
+git add .
+git commit -m "Moved runny as inherited method of Runner"
+codecrafters test
+git add .
+codecrafters test --previous
+git add .
+git commit -m "Moved InvocRunner to be shared class"
+codecrafters submit
+history -w /
+ls /
+ls -lt / | head -3
+ls
+rm *file*.txt 
+rm 2
+clear
+ls
+rm *file*txt
+ls
+rm 'file.txt | echo 6'
+rm hi.txt
+rm '"my file.txt"'
+clear
+history -w 
+ls
+history -a file.txt
+cat file.txt
+history
+clear
+history -a file.txt
+cat file.txt
 history -w file.txt
