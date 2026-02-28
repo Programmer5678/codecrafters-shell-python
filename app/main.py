@@ -2,6 +2,7 @@ import copy
 import os 
 from typing import List
 
+from app.command_invoc.files.absolute_path import absolute
 from app.command_invoc.models import InvocOutcome
 from app.command_invoc.subtypes.buitlin.builtin import BuiltinCommandInvoc
 from app.command_invoc.subtypes.exec import ExecCommandInvoc
@@ -55,13 +56,25 @@ class CommandInvocIter:
       
       
 def setup_history():
-    return       
+    
+    def get_lines(file):
+        with open(file, "r") as f:
+            return [ line_full.strip() for line_full in f.readlines() ] 
+       
+    hist_file = absolute( os.environ.get("HISTFILE", "~/.bash_history"), os.getcwd() )
+        
+        
+    if not os.path.exists(hist_file):
+        return []
+    else:
+        return get_lines(hist_file)
+        
             
 def main():
     
-    setup_history()
+    start_history = setup_history()
     setup_interactive_shell()
-    shell_context = ShellContext( os.getcwd() )
+    shell_context = ShellContext( os.getcwd(), start_history )
     
     for line in input_lines():
                 

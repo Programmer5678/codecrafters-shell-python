@@ -1,8 +1,8 @@
 class ShellContext:
 
-    def __init__(self, cwd):
+    def __init__(self, cwd, start_history):
         self._cwd = cwd
-        self._history = []
+        self._history = start_history
         self._new_history_start = 0
 
     def cwd(self):
