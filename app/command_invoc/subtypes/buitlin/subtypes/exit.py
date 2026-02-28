@@ -1,12 +1,12 @@
 from app.command_invoc.subtypes.buitlin.builtin import BuiltinCommandInvoc
-import os
+import sys
 from app.command_invoc.invoc_runner import InvocRunner
 
 
 
 class ExitRunner(InvocRunner):
     def run(self):
-        os._exit(0)
+        sys.exit()
         
 
 class ExitCommand(BuiltinCommandInvoc):

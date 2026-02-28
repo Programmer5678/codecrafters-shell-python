@@ -68,7 +68,14 @@ def setup_history():
         return []
     else:
         return get_lines(hist_file)
-        
+    
+def save_history(shell_context):
+    history_lines = shell_context.history()
+    history_content = "\n".join( history_lines ) + "\n"
+    
+    hist_file = absolute( os.environ.get("HISTFILE", "~/.bash_history"), os.getcwd() )
+    with open(hist_file, "a+") as f:
+        f.write(history_content)
             
 def main():
     
@@ -76,19 +83,24 @@ def main():
     setup_interactive_shell()
     shell_context = ShellContext( os.getcwd(), start_history )
     
-    for line in input_lines():
-                
-        add_history(shell_context, line.raw)
-                
-        state = CommandInvocIter()                            
-        for command_invoc in line.invocs(shell_context):
-            state = state.next_state(command_invoc)
-                            
-        state.proc_waiter.wait_for_all()
+    try:
+    
+        for line in input_lines():
                     
-        
-        if not state.next_line_shell_context.should_keep_previous():
-            shell_context = copy.deepcopy(state.next_line_shell_context.value())
+            add_history(shell_context, line.raw)
+                    
+            state = CommandInvocIter()                            
+            for command_invoc in line.invocs(shell_context):
+                state = state.next_state(command_invoc)
+                                
+            state.proc_waiter.wait_for_all()
+                        
+            
+            if not state.next_line_shell_context.should_keep_previous():
+                shell_context = copy.deepcopy(state.next_line_shell_context.value())
+                
+    finally:
+        save_history(shell_context)
   
                 
 if __name__ == "__main__":
