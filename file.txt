@@ -1,4 +1,7 @@
-echo "55" > 55.txt
-history -a file.txt
-cat file.txt
-history -a file.txt
+1
+2
+3
+4
+5
+echo siuu
+exit

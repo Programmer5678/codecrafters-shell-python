@@ -3,7 +3,8 @@ class ShellContext:
     def __init__(self, cwd, start_history):
         self._cwd = cwd
         self._history = start_history
-        self._new_history_start = 0
+        self._new_history_start = len(start_history)
+        self._history_session_start = len(start_history)
 
     def cwd(self):
         return self._cwd
@@ -22,4 +23,7 @@ class ShellContext:
         self._new_history_start = len(self._history)
         return result
     
+    def session_history(self):
+        return self._history[self._history_session_start : ]
+        
         

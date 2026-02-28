@@ -70,7 +70,7 @@ def setup_history():
         return get_lines(hist_file)
     
 def save_history(shell_context):
-    history_lines = shell_context.history()
+    history_lines = shell_context.session_history()
     history_content = "\n".join( history_lines ) + "\n"
     
     hist_file = absolute( os.environ.get("HISTFILE", "~/.bash_history"), os.getcwd() )
