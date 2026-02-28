@@ -9,6 +9,7 @@ STDOUT = 1
     
 class ExecRunner(InvocRunner):
     def run(self):
+        os.chdir( self._shell_context.cwd() )
         os.execvp(
             self._spec.command(),
             [self._spec.command(), *self._spec.args()]
