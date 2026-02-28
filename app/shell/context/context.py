@@ -3,6 +3,7 @@ class ShellContext:
     def __init__(self, cwd):
         self._cwd = cwd
         self._history = []
+        self.last_append_history = 0
 
     def cwd(self):
         return self._cwd

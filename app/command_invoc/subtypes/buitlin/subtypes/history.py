@@ -67,12 +67,25 @@ class HistoryRunner(InvocRunner):
             write_to = absolute(path, self._shell_context.cwd())
             with open(write_to, "w") as f:
                 print("\n".join(self._shell_context.history()), file=f)
+                
+                
+        def append_history(path):
+            append_to = absolute(path, self._shell_context.cwd())
+            with open(append_to, "a") as f:
+                since_last_append = self._shell_context.history()[self._shell_context.last_append_history:]
+                print("\n".join( since_last_append ), file=f)
+                
+            self._shell_context.last_append_history = len(self._shell_context.history())
+                
 
         if flag == "-r":
             read_history(value)
 
         elif flag == "-w":
             write_history(value)
+            
+        elif flag == "-a":
+            append_history(value)
 
         else:
             print("history: invalid arg " + flag, file=sys.stderr)
