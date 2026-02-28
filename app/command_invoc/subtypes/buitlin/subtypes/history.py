@@ -72,11 +72,8 @@ class HistoryRunner(InvocRunner):
                 
         def append_history(append_to):
             with open(append_to, "a") as f:
-                since_last_append = self._shell_context.history()[self._shell_context.last_append_history:]
+                since_last_append = self._shell_context.consume_new_history()
                 print("\n".join( since_last_append ), file=f)
-                
-            self._shell_context.last_append_history = len(self._shell_context.history())
-                
 
         if flag == "-r":
             read_history(full_path)

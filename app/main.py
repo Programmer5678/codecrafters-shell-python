@@ -1,9 +1,5 @@
 import copy
 import os 
-import readline
-import subprocess
-
-import sys
 from typing import List
 
 from app.command_invoc.models import InvocOutcome
