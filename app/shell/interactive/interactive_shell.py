@@ -12,8 +12,8 @@ def completer(text: str, state: int) -> str:
     if not_first_match():
         return None
      
-    l = list(BuiltinCommandInvoc.commands().keys()) + list( all_execs_in_path() )
-    matching_commands = [ com + " " for com in l if com.startswith(text) ]  
+    all_commands = list(BuiltinCommandInvoc.commands().keys()) + [ f.file() for f in all_execs_in_path() ]
+    matching_commands = [ com + " " for com in all_commands if com.startswith(text) ]  
 
     matching_com = matching_commands[0]
     return matching_com

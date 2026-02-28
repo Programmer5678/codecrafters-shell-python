@@ -52,11 +52,14 @@ class CommandInvocIter:
         result.next_line_shell_context = invoc_outcome.next_line_shell_context()
             
         return result
-            
+      
+      
+def setup_history():
+    return       
             
 def main():
     
-    
+    setup_history()
     setup_interactive_shell()
     shell_context = ShellContext( os.getcwd() )
     

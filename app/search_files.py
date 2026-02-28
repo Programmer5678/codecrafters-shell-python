@@ -36,7 +36,7 @@ def all_files(dir_paths):
 
 
 def all_execs(dir_paths):
-    return [ f.file() for f in all_files(dir_paths) if os.access(f.full_path(), os.X_OK) ]
+    return [ f for f in all_files(dir_paths) if os.access(f.full_path(), os.X_OK) ]
 
 def all_execs_in_path():
     path_dirs = os.environ.get("PATH", "").split(":")
@@ -44,15 +44,10 @@ def all_execs_in_path():
 
 
 
-def find_exec(dir_paths, looking_for):
-    """Find an executable File with the given name in the directories."""
-    for f in all_files(dir_paths):
-        if f.file() == looking_for and os.access(f.full_path(), os.X_OK):
-            return f
-    return None
-
-
 def find_in_path(looking_for):
     """Find an executable in the system PATH."""
-    path_dirs = os.environ.get("PATH", "").split(":")
-    return find_exec(path_dirs, looking_for)
+    for f in all_execs_in_path():
+        if f.file() == looking_for:
+            return f
+        
+    return None
