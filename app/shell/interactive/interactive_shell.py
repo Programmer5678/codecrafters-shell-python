@@ -29,7 +29,12 @@ def gen_completer(cwd):
                 return None
             
         def complete_file_action():
-            dir = os.listdir(cwd)
+                        
+            last_word = readline.get_line_buffer().split()[-1]
+            p = last_word[ :-len(text) ]
+            dir_to_look = os.path.join( cwd, p )
+                        
+            dir = os.listdir(dir_to_look)
             dir.sort()
             for file in dir:
                 if file.startswith(text):
