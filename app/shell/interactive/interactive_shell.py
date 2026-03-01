@@ -29,18 +29,23 @@ def gen_completer(cwd):
                 return None
             
         def complete_file_action():
-                        
-            last_word = readline.get_line_buffer().split()[-1]
-            p = last_word[ :-len(text) ]
-            dir_to_look = os.path.join( cwd, p )
-                        
-            dir = os.listdir(dir_to_look)
-            dir.sort()
-            for file in dir:
-                if file.startswith(text):
-                    return file + " "
             
-            return None
+            def preceeding_path():
+                last_word = readline.get_line_buffer().split()[-1]
+                return last_word[ :-len(text) ]
+            
+            def search_completion_in_dir(dir):
+                files_in_dir = os.listdir(dir)
+                files_in_dir.sort()
+                for file in files_in_dir:
+                    if file.startswith(text):
+                        return file + " "
+                
+                return None
+                        
+            dir_to_search = os.path.join( cwd, preceeding_path() )
+            return search_completion_in_dir(dir_to_search)
+            
 
         if empty() or not_first_match():
             return None 
