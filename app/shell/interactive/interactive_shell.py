@@ -53,13 +53,55 @@ def gen_completer(cwd):
                         return " "
                     elif is_dir():
                         return "/"
+                    
+                def least_common_prefix(l):
+                    
+                    def _least_common_prefix(s1, s2):
+                        
+                        result = ""
+                        for c1, c2 in zip(s1,s2): #Loop through strings
+                            
+                            if c1 == c2:  #this c also belongs in prefix
+                                result+=c1 # append c to prefix
+                            else:
+                                break 
+                            
+                        return result
+                            
+                    
+                    if len(l) == 1:
+                        return l[0]
+                    
+                    else: 
+                        return least_common_prefix( l[:-2] + [ _least_common_prefix( l[-2], l[-1] ) ] )
+                    
+                def full_completion(match):
+                    return match + suffix(match)
+                
+                def complete_to_common_prefix(matches):
+                    
+                    def prefix_already_maximal(lcp):
+                        return lcp == text
+                    
+                    lcp = least_common_prefix(matches)
+                    
+                    if prefix_already_maximal(lcp):
+                        return None
+                    else:
+                        return lcp 
                 
                 files_in_dir = os.listdir(dir)
                 files_in_dir.sort()
-                for file in files_in_dir:
-                    if is_match(file):    
-                        return file + suffix(file)
                 
+                matches = [ file for file in files_in_dir if is_match(file) ]
+                if len(matches) == 1:
+                    match = matches[0]
+                    return full_completion(match)
+                
+                elif len(matches) > 1:
+                    return complete_to_common_prefix(matches)
+                
+                #No matches :(
                 return None
                         
             dir_to_search = os.path.join( cwd, preceeding_path() )
