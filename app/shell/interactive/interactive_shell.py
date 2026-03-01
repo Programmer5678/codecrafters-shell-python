@@ -14,17 +14,19 @@ def gen_completer(cwd):
         def invoc_start():
             last_invoc = readline.get_line_buffer().split("|")[-1].strip()
             return last_invoc.startswith(text)
-
-        def empty():
-            return text == ""
         
         def complete_command_action():
-            all_commands = list(BuiltinCommandInvoc.commands().keys()) + [ f.file() for f in all_execs_in_path() ]
-            matching_commands = [ com + " " for com in all_commands if com.startswith(text) ]  
-
-            if matching_commands:
+            
+            def remove_dups( l ):
+                return list( dict.fromkeys(l) )
+            
+            all_commands_with_dups = list(BuiltinCommandInvoc.commands().keys()) + [ f.file() for f in all_execs_in_path() ]
+            all_commands = remove_dups(all_commands_with_dups)
+            matching_commands = [ com for com in all_commands if com.startswith(text) ]  
+        
+            if len(matching_commands) == 1:
                 matching_com = matching_commands[0]
-                return matching_com
+                return matching_com + " "
             else:
                 return None
             
@@ -35,11 +37,28 @@ def gen_completer(cwd):
                 return last_word[ :-len(text) ]
             
             def search_completion_in_dir(dir):
+                                
+                def is_match(file):
+                    return file.startswith(text)
+                
+                def suffix(file):
+                    
+                    def is_file():
+                        return os.path.isfile( os.path.join(dir, file) )
+                    
+                    def is_dir():
+                        return os.path.isdir( os.path.join(dir, file) )
+                    
+                    if is_file():
+                        return " "
+                    elif is_dir():
+                        return "/"
+                
                 files_in_dir = os.listdir(dir)
                 files_in_dir.sort()
                 for file in files_in_dir:
-                    if file.startswith(text):
-                        return file + " "
+                    if is_match(file):    
+                        return file + suffix(file)
                 
                 return None
                         
@@ -47,9 +66,9 @@ def gen_completer(cwd):
             return search_completion_in_dir(dir_to_search)
             
 
-        if empty() or not_first_match():
+        if not_first_match():
             return None 
-        
+                
         if invoc_start():
             return complete_command_action()
             
