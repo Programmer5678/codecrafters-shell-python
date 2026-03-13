@@ -1,0 +1,12 @@
+[core]
+	repositoryformatversion = 0
+	filemode = true
+	bare = false
+	logallrefupdates = true
+[branch "main"]
+	vscode-merge-base = origin/master
+	remote = origin
+	merge = refs/heads/main
+[remote "origin"]
+	url = https://github.com/Programmer5678/codecrafters-shell-python.git
+	fetch = +refs/heads/*:refs/remotes/origin/*
